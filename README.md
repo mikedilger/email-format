@@ -11,6 +11,12 @@ Features include (many of these are still TBD):
 * Minimal copying of data
 * Implements `email` crate's `SendableEmail`, and so it works with the `lettre` crate.
 
+## Limitations
+
+The parser is not sufficient for parsing incoming emails.  RFC 5322 specifically requires
+such parsers to recognize obsolete syntax.  For generation of emails, obsolete syntax is
+not necessary, and usage of such is obsoleted by the RFC.
+
 ## History
 
 This project was inspired by the earlier [email](https://github.com/niax/rust-email) crate,

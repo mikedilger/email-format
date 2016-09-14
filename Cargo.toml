@@ -4,3 +4,5 @@ version = "0.1.0-unstable"
 authors = ["Mike Dilger <mike@optcomp.nz>"]
 
 [dependencies]
+uuid = { version = "0.3", features = [ "v4" ] }
+chrono = "0.2"

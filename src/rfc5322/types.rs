@@ -608,3 +608,11 @@ impl Streamable for LocalPart {
         }
     }
 }
+
+// 3.4.1
+// dtext           =   %d33-90 /          ; Printable US-ASCII
+//                     %d94-126 /         ;  characters not including
+//                     obs-dtext          ;  "[", "]", or "\"
+#[inline]
+pub fn is_dtext(c: u8) -> bool { (c>=33 && c<=90) || (c>=94 && c<=126) }
+def_cclass!(DText, is_dtext);

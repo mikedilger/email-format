@@ -28,3 +28,20 @@ fn test_alpha() {
     assert_eq!(alpha.stream(&mut output).unwrap(), 8);
     assert_eq!(output, b"abcdEFZz".to_vec());
 }
+
+#[test]
+fn test_parse_quoted_pair() {
+    use rfc5322::types::QuotedPair;
+
+    let err = QuotedPair::parse(b"not").err().unwrap();
+    assert_match!(err, ParseError::NotFound);
+    let err = QuotedPair::parse(b"\\").err().unwrap();
+    assert_match!(err, ParseError::NotFound);
+    let (token, rem) = QuotedPair::parse(b"\\n").unwrap();
+    assert_eq!(token, QuotedPair(b'n'));
+    assert_eq!(rem, b"");
+    let qp = QuotedPair(b'n');
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(qp.stream(&mut output).unwrap(), 2);
+    assert_eq!(output, b"\\n");
+}

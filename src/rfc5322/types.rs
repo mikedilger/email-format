@@ -361,3 +361,22 @@ impl Streamable for DotAtom {
         Ok(count)
     }
 }
+
+// 3.2.3 (we don't need to parse this one, it is not used.  could be used as a tokenization
+//        point in lexical analysis)
+// specials            = "(" / ")" /        ; Special characters that do
+//                       "<" / ">" /        ;  not appear in atext
+//                       "[" / "]" /
+//                       ":" / ";" /
+//                       "@" / "\" /
+//                       "," / "." /
+//                       DQUOTE
+
+// 3.2.4
+// qtext           =   %d33 /             ; Printable US-ASCII
+//                     %d35-91 /          ;  characters not including
+//                     %d93-126 /         ;  "\" or the quote character
+//                     obs-qtext
+#[inline]
+pub fn is_qtext(c: u8) -> bool { c==33 || (c>=35 && c<=91) || (c>=93 && c<=126) }
+def_cclass!(QText, is_qtext);

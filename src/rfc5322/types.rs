@@ -964,3 +964,33 @@ impl Streamable for Group {
         Ok(count)
     }
 }
+
+// 3.4
+// address         =   mailbox / group
+#[derive(Debug, Clone, PartialEq)]
+pub enum Address {
+    Mailbox(Mailbox),
+    Group(Group),
+}
+impl Parsable for Address {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = Mailbox::parse(input) {
+            Ok((Address::Mailbox(x), rem))
+        }
+        else if let Ok((x, rem)) = Group::parse(input) {
+            Ok((Address::Group(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for Address {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            Address::Mailbox(ref x) => x.stream(w),
+            Address::Group(ref x) => x.stream(w),
+        }
+    }
+}

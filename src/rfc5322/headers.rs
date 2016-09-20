@@ -8,3 +8,12 @@ macro_rules! req_name {
         $rem = &$rem[len..];
     };
 }
+
+macro_rules! req_crlf {
+    ($rem:ident, $input:ident) => {
+        if &$rem[..2] != b"\r\n" {
+            return Err(ParseError::NotFound);
+        }
+        $rem = &$rem[2..];
+    }
+}

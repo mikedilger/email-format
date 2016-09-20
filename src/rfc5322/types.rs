@@ -671,3 +671,33 @@ impl Streamable for DomainLiteral {
         Ok(count)
     }
 }
+
+// 3.4.1
+// domain          =   dot-atom / domain-literal / obs-domain
+#[derive(Debug, Clone, PartialEq)]
+pub enum Domain {
+    DotAtom(DotAtom),
+    DomainLiteral(DomainLiteral),
+}
+impl Parsable for Domain {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = DotAtom::parse(input) {
+            Ok((Domain::DotAtom(x), rem))
+        }
+        else if let Ok((x, rem)) = DomainLiteral::parse(input) {
+            Ok((Domain::DomainLiteral(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for Domain {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            Domain::DotAtom(ref x) => x.stream(w),
+            Domain::DomainLiteral(ref x) => x.stream(w),
+        }
+    }
+}

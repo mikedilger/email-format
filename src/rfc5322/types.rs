@@ -471,3 +471,33 @@ impl Streamable for QuotedString {
         Ok(count)
     }
 }
+
+// 3.2.5
+// word            =   atom / quoted-string
+#[derive(Debug, Clone, PartialEq)]
+pub enum Word {
+    Atom(Atom),
+    QuotedString(QuotedString),
+}
+impl Parsable for Word {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = Atom::parse(input) {
+            Ok((Word::Atom(x), rem))
+        }
+        else if let Ok((x, rem)) = QuotedString::parse(input) {
+            Ok((Word::QuotedString(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for Word {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            Word::Atom(ref x) => x.stream(w),
+            Word::QuotedString(ref x) => x.stream(w),
+        }
+    }
+}

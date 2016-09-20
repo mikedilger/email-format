@@ -57,6 +57,7 @@ macro_rules! req {
 
 pub mod error;
 pub use self::error::ParseError;
+pub mod types;
 
 use std::io::Write;
 use std::io::Error as IoError;

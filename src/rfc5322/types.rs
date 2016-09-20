@@ -732,3 +732,45 @@ impl Streamable for AddrSpec {
            + try!(self.domain.stream(w)))
     }
 }
+// 3.4
+// angle-addr      =   [CFWS] "<" addr-spec ">" [CFWS] /
+//                     obs-angle-addr
+#[derive(Debug, Clone, PartialEq)]
+pub struct AngleAddr{
+    pub pre_cfws: Option<CFWS>,
+    pub addr_spec: AddrSpec,
+    pub post_cfws: Option<CFWS>,
+}
+impl Parsable for AngleAddr {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let pre_cfws = parse!(CFWS, rem);
+        req!(rem, b"<", input);
+        if let Ok(aspec) = parse!(AddrSpec, rem) {
+            req!(rem, b">", input);
+            let post_cfws = parse!(CFWS, rem);
+            return Ok((AngleAddr {
+                pre_cfws: pre_cfws.ok(),
+                addr_spec: aspec,
+                post_cfws: post_cfws.ok(),
+            }, rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for AngleAddr {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref cfws) = self.pre_cfws {
+            count += try!(cfws.stream(w))
+        }
+        count += try!(w.write(b"<"));
+        count += try!(self.addr_spec.stream(w));
+        count += try!(w.write(b">"));
+        if let Some(ref cfws) = self.post_cfws {
+            count += try!(cfws.stream(w))
+        }
+        Ok(count)
+    }
+}

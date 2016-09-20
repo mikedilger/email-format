@@ -338,3 +338,16 @@ fn test_addr_spec() {
     }));
     assert_eq!(rem, b"");
 }
+
+#[test]
+fn test_angle_addr() {
+    use rfc5322::types::AngleAddr;
+
+    let input = b"< admin@example.com >".to_vec();
+    let (token, rem) = AngleAddr::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(token.stream(&mut output).unwrap(), 21);
+    assert_eq!(output, input);
+}

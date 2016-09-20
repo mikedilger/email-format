@@ -892,3 +892,33 @@ impl Streamable for MailboxList {
         Ok(count)
     }
 }
+
+// 3.4
+// group-list      =   mailbox-list / CFWS / obs-group-list
+#[derive(Debug, Clone, PartialEq)]
+pub enum GroupList {
+    MailboxList(MailboxList),
+    CFWS(CFWS),
+}
+impl Parsable for GroupList {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = MailboxList::parse(input) {
+            Ok((GroupList::MailboxList(x), rem))
+        }
+        else if let Ok((x, rem)) = CFWS::parse(input) {
+            Ok((GroupList::CFWS(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for GroupList {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            GroupList::MailboxList(ref na) => na.stream(w),
+            GroupList::CFWS(ref asp) => asp.stream(w),
+        }
+    }
+}

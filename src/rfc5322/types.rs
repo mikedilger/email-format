@@ -616,3 +616,58 @@ impl Streamable for LocalPart {
 #[inline]
 pub fn is_dtext(c: u8) -> bool { (c>=33 && c<=90) || (c>=94 && c<=126) }
 def_cclass!(DText, is_dtext);
+
+// 3.4.1
+// domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
+#[derive(Debug, Clone, PartialEq)]
+pub struct DomainLiteral {
+    pub pre_cfws: Option<CFWS>,
+    pub dtext: Vec<(bool, DText)>, // bool representing if whitespace preceeds it
+    pub trailing_ws: bool,
+    pub post_cfws: Option<CFWS>,
+}
+impl Parsable for DomainLiteral {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut dtext: Vec<(bool, DText)> = Vec::new();
+        let pre_cfws = parse!(CFWS, rem);
+        req!(rem, b"[", input);
+        let mut ws: bool = false;
+        while rem.len() > 0 {
+            let t = parse!(FWS, rem);
+            ws = t.is_ok();
+            if let Ok(d) = parse!(DText, rem) {
+                dtext.push((ws,d));
+                continue;
+            }
+            break;
+        }
+        req!(rem, b"]", input);
+        let post_cfws = parse!(CFWS, rem);
+        Ok((DomainLiteral {
+            pre_cfws: pre_cfws.ok(),
+            dtext: dtext,
+            trailing_ws: ws,
+            post_cfws: post_cfws.ok(),
+        }, rem))
+    }
+}
+impl Streamable for DomainLiteral {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref cfws) = self.pre_cfws {
+            count += try!(cfws.stream(w));
+        }
+        count += try!(w.write(b"["));
+        for &(ws, ref dt) in &self.dtext {
+            if ws {  count += try!(w.write(b" ")); }
+            count += try!(dt.stream(w));
+        }
+        count += try!(w.write(b"]"));
+        if let Some(ref cfws) = self.post_cfws {
+            count += try!(cfws.stream(w));
+        }
+        Ok(count)
+    }
+}

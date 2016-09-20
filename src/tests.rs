@@ -281,3 +281,17 @@ fn test_unstructured() {
     });
     assert_eq!(remainder, b"\r\n "); // because trailing ws is only WSP not FWS
 }
+
+#[test]
+fn test_domain_literal() {
+    use rfc5322::types::{DomainLiteral, DText};
+
+    let input = b"\r\n \t[ 2001:db8:85a3:8d3:1319:8a2e:370:7348]".to_vec();
+    let (token, _) = DomainLiteral::parse(input.as_slice()).unwrap();
+    assert!(token.pre_cfws.is_some());
+    assert_eq!(token.dtext, vec![
+        (true, DText(b"2001:db8:85a3:8d3:1319:8a2e:370:7348".to_vec()))
+        ]);
+    assert_eq!(token.trailing_ws, false);
+    assert!(token.post_cfws.is_none());
+}

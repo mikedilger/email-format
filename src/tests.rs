@@ -121,3 +121,52 @@ fn test_comment() {
     assert_eq!(token.stream(&mut output).unwrap(), 27);
     assert_eq!(output, b"( a,b,c \\nYes (and so on) )");
 }
+
+#[test]
+fn test_cfws() {
+    use rfc5322::types::{CFWS, Comment, CContent, CText, QuotedPair};
+
+    let input = b"  \t( a,b,c\t \\nYes (and so on) \r\n ) \r\n ".to_vec();
+    let (token, rem) = CFWS::parse(input.as_slice()).unwrap();
+    assert_eq!(token, CFWS {
+        comments: vec![
+            (true, Comment {
+                ccontent: vec![
+                    (true, CContent::CText( CText(b"a,b,c".to_vec()) )),
+                    (true, CContent::QuotedPair( QuotedPair(b'n') )),
+                    (false, CContent::CText( CText(b"Yes".to_vec()) )),
+                    (true, CContent::Comment(Comment {
+                        ccontent: vec![
+                            (false, CContent::CText( CText(b"and".to_vec()) )),
+                            (true, CContent::CText( CText(b"so".to_vec()) )),
+                            (true, CContent::CText( CText(b"on".to_vec()) )) ],
+                        trailing_ws: false
+                    }))],
+                trailing_ws: true,
+            })],
+        trailing_ws: true,
+    });
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(token.stream(&mut output).unwrap(), 29);
+    assert_eq!(output, b" ( a,b,c \\nYes (and so on) ) ");
+
+    let input = b"(abc)(def\r\n )".to_vec();
+    let (token, _) = CFWS::parse(input.as_slice()).unwrap();
+    assert_eq!(token, CFWS {
+        comments: vec![
+            (false, Comment {
+                ccontent: vec![
+                    (false, CContent::CText( CText(b"abc".to_vec()) )) ],
+                trailing_ws: false,
+            }),
+            (false, Comment {
+                ccontent: vec![
+                    (false, CContent::CText( CText(b"def".to_vec()) )) ],
+                trailing_ws: true,
+            }),
+            ],
+        trailing_ws: false,
+    });
+}

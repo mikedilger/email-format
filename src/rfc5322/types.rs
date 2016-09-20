@@ -178,3 +178,47 @@ impl Streamable for Comment {
         Ok(count)
     }
 }
+
+// 3.2.2
+// CFWS            =   (1*([FWS] comment) [FWS]) / FWS
+#[derive(Debug, Clone, PartialEq)]
+pub struct CFWS {
+    pub comments: Vec<(bool, Comment)>, // bool representing if whitespace preceeds it
+    pub trailing_ws: bool,
+}
+impl Parsable for CFWS {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut comments: Vec<(bool, Comment)> = Vec::new();
+        let mut rem = input;
+        let mut ws: bool = false;
+        while rem.len() > 0 {
+            let w = parse!(FWS, rem);
+            ws = w.is_ok();
+            if let Ok(comment) = parse!(Comment, rem) {
+                comments.push((ws, comment));
+                continue;
+            }
+            break;
+        }
+        if comments.len() > 0 || ws {
+            Ok((CFWS {
+                comments: comments,
+                trailing_ws: ws,
+            }, rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for CFWS {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        for &(ws, ref comment) in &self.comments {
+            if ws { count += try!(w.write(b" ")) }
+            count += try!(comment.stream(w));
+        }
+        if self.trailing_ws { count += try!(w.write(b" ")) }
+        Ok(count)
+    }
+}

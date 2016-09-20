@@ -410,3 +410,64 @@ impl Streamable for QContent {
         }
     }
 }
+
+// 3.2.4
+// quoted-string   =   [CFWS]
+//                     DQUOTE *([FWS] qcontent) [FWS] DQUOTE
+//                     [CFWS]
+#[derive(Debug, Clone, PartialEq)]
+pub struct QuotedString {
+    pub pre_cfws: Option<CFWS>,
+    pub qcontent: Vec<(bool, QContent)>, // bool representing if whitespace preceeds it
+    pub trailing_ws: bool,
+    pub post_cfws: Option<CFWS>,
+}
+impl Parsable for QuotedString {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let pre_cfws = parse!(CFWS, rem);
+        req!(rem, b"\"", input);
+        let mut qcontent: Vec<(bool, QContent)> = Vec::new();
+        let mut ws: bool = false;
+        while rem.len() > 0 {
+            let t = parse!(FWS, rem);
+            ws = t.is_ok();
+            if let Ok(qc) = parse!(QContent, rem) {
+                qcontent.push((ws, qc));
+                continue;
+            }
+            break;
+        }
+        req!(rem, b"\"", input);
+        let post_cfws = parse!(CFWS, rem);
+        Ok((QuotedString {
+            pre_cfws: pre_cfws.ok(),
+            qcontent: qcontent,
+            trailing_ws: ws,
+            post_cfws: post_cfws.ok() }, rem))
+    }
+}
+impl Streamable for QuotedString {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref cfws) = self.pre_cfws {
+            count += try!(cfws.stream(w));
+        }
+        count += try!(w.write(b"\""));
+        for &(ws, ref qc) in &self.qcontent {
+            if ws {
+                count += try!(w.write(b" "));
+            }
+            count += try!(qc.stream(w));
+        }
+        if self.trailing_ws {
+            count += try!(w.write(b" "));
+        }
+        count += try!(w.write(b"\""));
+        if let Some(ref cfws) = self.post_cfws {
+            count += try!(cfws.stream(w));
+        }
+        Ok(count)
+    }
+}

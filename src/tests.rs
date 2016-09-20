@@ -230,3 +230,22 @@ fn test_qcontent() {
     assert_eq!(token.stream(&mut output).unwrap(), 2);
     assert_eq!(output, b"\\n");
 }
+
+#[test]
+fn test_quoted_string() {
+    use rfc5322::types::{QuotedString, QContent, QText};
+
+    let input = b" \t (a comment) \" \r\n bob joe\" (fred) ".to_vec();
+    let (token, remainder) = QuotedString::parse(input.as_slice()).unwrap();
+    assert_eq!(remainder, b"");
+    assert!(token.pre_cfws.is_some());
+    assert_eq!(token.qcontent, vec![
+        (true, QContent::QText( QText(b"bob".to_vec()) )),
+        (true, QContent::QText( QText(b"joe".to_vec()) )),
+        ]);
+    assert_eq!(token.trailing_ws, false);
+    assert!(token.post_cfws.is_some());
+
+    let unterminated = b" \t (a comment) \" \r\n bob joe (fred) ".to_vec();
+    assert!(QuotedString::parse(unterminated.as_slice()).is_err());
+}

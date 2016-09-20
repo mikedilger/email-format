@@ -578,3 +578,33 @@ impl Streamable for Unstructured {
         Ok(count)
     }
 }
+
+// 3.4.1
+// local-part      =   dot-atom / quoted-string / obs-local-part
+#[derive(Debug, Clone, PartialEq)]
+pub enum LocalPart {
+    DotAtom(DotAtom),
+    QuotedString(QuotedString),
+}
+impl Parsable for LocalPart {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = DotAtom::parse(input) {
+            Ok((LocalPart::DotAtom(x), rem))
+        }
+        else if let Ok((x, rem)) = QuotedString::parse(input) {
+            Ok((LocalPart::QuotedString(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for LocalPart {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            LocalPart::DotAtom(ref x) => x.stream(w),
+            LocalPart::QuotedString(ref x) => x.stream(w),
+        }
+    }
+}

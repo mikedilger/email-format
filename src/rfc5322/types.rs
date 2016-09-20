@@ -821,3 +821,33 @@ impl Streamable for NameAddr {
         Ok(count)
     }
 }
+
+// 3.4
+// mailbox         =   name-addr / addr-spec
+#[derive(Debug, Clone, PartialEq)]
+pub enum Mailbox {
+    NameAddr(NameAddr),
+    AddrSpec(AddrSpec),
+}
+impl Parsable for Mailbox {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = NameAddr::parse(input) {
+            Ok((Mailbox::NameAddr(x), rem))
+        }
+        else if let Ok((x, rem)) = AddrSpec::parse(input) {
+            Ok((Mailbox::AddrSpec(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for Mailbox {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            Mailbox::NameAddr(ref na) => na.stream(w),
+            Mailbox::AddrSpec(ref asp) => asp.stream(w),
+        }
+    }
+}

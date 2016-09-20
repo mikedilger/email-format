@@ -61,3 +61,33 @@ impl Streamable for QuotedPair {
            + try!(w.write(&[self.0])))
     }
 }
+
+// 3.2.2
+// FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
+//                                        ; Folding white space
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FWS;
+impl Parsable for FWS {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if rem.len() == 0 { return Err(ParseError::Eof); }
+        while rem.len() > 0 {
+            if is_wsp(rem[0]) {
+                rem = &rem[1..];
+            }
+            else if rem.len() > 2 && &rem[0..2]==b"\r\n" && is_wsp(rem[2]) {
+                rem = &rem[3..];
+            }
+            else {
+                break;
+            }
+        }
+        if rem.len() == input.len() { Err(ParseError::NotFound) }
+        else { Ok((FWS, rem)) }
+    }
+}
+impl Streamable for FWS {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b" "))) // FIXME - fold?
+    }
+}

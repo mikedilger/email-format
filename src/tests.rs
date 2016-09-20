@@ -45,3 +45,25 @@ fn test_parse_quoted_pair() {
     assert_eq!(qp.stream(&mut output).unwrap(), 2);
     assert_eq!(output, b"\\n");
 }
+
+#[test]
+fn test_fws() {
+    use rfc5322::types::FWS;
+
+    let (token, rem) = FWS::parse(b"   ").unwrap();
+    assert_eq!(token, FWS);
+    assert_eq!(rem, b"");
+    let (token, rem) = FWS::parse(b" \r\n  \t").unwrap();
+    assert_eq!(token, FWS);
+    assert_eq!(rem, b"");
+    let (token, rem) = FWS::parse(b" \r ").unwrap();
+    assert_eq!(token, FWS);
+    assert_eq!(rem, b"\r ");
+    let err = FWS::parse(b"\n ").err().unwrap();
+    assert_match!(err, ParseError::NotFound);
+    let err = FWS::parse(b"\r\n").err().unwrap();
+    assert_match!(err, ParseError::NotFound);
+    let (token, rem) = FWS::parse(b"\r\n\tx").unwrap();
+    assert_eq!(token, FWS);
+    assert_eq!(rem, b"x");
+}

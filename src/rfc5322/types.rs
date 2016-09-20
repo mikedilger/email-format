@@ -774,3 +774,18 @@ impl Streamable for AngleAddr {
         Ok(count)
     }
 }
+
+// 3.4
+// display-name    =   phrase
+#[derive(Debug, Clone, PartialEq)]
+pub struct DisplayName(pub Phrase);
+impl Parsable for DisplayName {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        Phrase::parse(input).map(|(p,rem)| (DisplayName(p),rem))
+    }
+}
+impl Streamable for DisplayName {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        self.0.stream(w)
+    }
+}

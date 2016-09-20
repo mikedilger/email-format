@@ -32,6 +32,16 @@ macro_rules! def_cclass {
     };
 }
 
+// Macro for assigning the returned remaining input of a parse function to an existing
+// variable
+macro_rules! parse {
+    ($pth:ident, $rem:ident) => {
+        {
+            $pth::parse($rem).map(|(value, r)| { $rem = r; value })
+        }
+    };
+}
+
 pub mod error;
 pub use self::error::ParseError;
 

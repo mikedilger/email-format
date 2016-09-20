@@ -922,3 +922,45 @@ impl Streamable for GroupList {
         }
     }
 }
+
+// 3.4
+// group           =   display-name ":" [group-list] ";" [CFWS]
+#[derive(Debug, Clone, PartialEq)]
+pub struct Group {
+    display_name: DisplayName,
+    group_list: Option<GroupList>,
+    cfws: Option<CFWS>,
+}
+impl Parsable for Group {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        if let Ok(dn) = parse!(DisplayName, rem) {
+            req!(rem, b":", input);
+            let group_list = parse!(GroupList, rem);
+            req!(rem, b";", input);
+            let cfws = parse!(CFWS, rem);
+            return Ok((Group {
+                display_name: dn,
+                group_list: group_list.ok(),
+                cfws: cfws.ok(),
+            }, rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Group {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(self.display_name.stream(w));
+        count += try!(w.write(b":"));
+        if let Some(ref gl) = self.group_list {
+            count += try!(gl.stream(w));
+        }
+        count += try!(w.write(b";"));
+        if let Some(ref cfws) = self.cfws {
+            count += try!(cfws.stream(w));
+        }
+        Ok(count)
+    }
+}

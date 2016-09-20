@@ -222,3 +222,26 @@ impl Streamable for CFWS {
         Ok(count)
     }
 }
+
+// 3.2.3
+// atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
+//                     "!" / "#" /        ;  characters not including
+//                     "$" / "%" /        ;  specials.  Used for atoms.
+//                     "&" / "'" /
+//                     "*" / "+" /
+//                     "-" / "/" /
+//                     "=" / "?" /
+//                     "^" / "_" /
+//                     "`" / "{" /
+//                     "|" / "}" /
+//                     "~"
+#[inline]
+pub fn is_atext(c: u8) -> bool {
+    is_alpha(c) || is_digit(c)
+        || c==b'!' || c==b'#'  || c==b'$' || c==b'%'
+        || c==b'&' || c==b'\'' || c==b'*' || c==b'+'
+        || c==b'-' || c==b'/'  || c==b'=' || c==b'?'
+        || c==b'^' || c==b'_'  || c==b'`' || c==b'{'
+        || c==b'|' || c==b'}'  || c==b'~'
+}
+def_cclass!(AText, is_atext);

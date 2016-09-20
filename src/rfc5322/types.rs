@@ -380,3 +380,33 @@ impl Streamable for DotAtom {
 #[inline]
 pub fn is_qtext(c: u8) -> bool { c==33 || (c>=35 && c<=91) || (c>=93 && c<=126) }
 def_cclass!(QText, is_qtext);
+
+// 3.2.4
+// qcontent        =   qtext / quoted-pair
+#[derive(Debug, Clone, PartialEq)]
+pub enum QContent {
+    QText(QText),
+    QuotedPair(QuotedPair),
+}
+impl Parsable for QContent {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = QText::parse(input) {
+            Ok((QContent::QText(x), rem))
+        }
+        else if let Ok((x, rem)) = QuotedPair::parse(input) {
+            Ok((QContent::QuotedPair(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for QContent {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            QContent::QText(ref x) => x.stream(w),
+            QContent::QuotedPair(ref x) => x.stream(w),
+        }
+    }
+}

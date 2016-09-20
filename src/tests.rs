@@ -209,3 +209,24 @@ fn test_dot_atom() {
     assert!(dot_atom.post_cfws.is_none());
     assert_eq!(remainder, b". ");
 }
+
+#[test]
+fn test_qcontent() {
+    use rfc5322::types::{QContent, QText, QuotedPair};
+
+    let input = b"!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]\
+                 ^_`abcdefghijklmnopqrstuvwxyz{|}~".to_vec();
+    let input2 = input.clone();
+    let (token, remainder) = QContent::parse(input.as_slice()).unwrap();
+    assert_eq!(token, QContent::QText( QText(input2) ));
+    assert_eq!(remainder, b"");
+
+    let input = b"\\nc".to_vec();
+    let (token, remainder) = QContent::parse(input.as_slice()).unwrap();
+    assert_eq!(token, QContent::QuotedPair( QuotedPair(b'n') ));
+    assert_eq!(remainder, b"c");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(token.stream(&mut output).unwrap(), 2);
+    assert_eq!(output, b"\\n");
+}

@@ -994,3 +994,44 @@ impl Streamable for Address {
         }
     }
 }
+
+// 3.4
+// address-list    =   (address *("," address)) / obs-addr-list
+#[derive(Debug, Clone, PartialEq)]
+pub struct AddressList(pub Vec<Address>);
+impl Parsable for AddressList {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut output: Vec<Address> = Vec::new();
+        let mut savedrem = rem;
+        while let Ok(mailbox) = parse!(Address, rem) {
+            savedrem = rem;
+            output.push(mailbox);
+            if rem.len()==0 || rem[0]!=b',' {
+                break;
+            }
+            rem = &rem[1..];
+        }
+        rem = savedrem;
+        if output.len() == 0 {
+            Err(ParseError::NotFound)
+        } else {
+            Ok((AddressList(output), rem))
+        }
+    }
+}
+impl Streamable for AddressList {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        let mut virgin: bool = true;
+        for a in &self.0 {
+            if ! virgin {
+                count += try!(w.write(b","));
+            }
+            count += try!(a.stream(w));
+            virgin = false;
+        }
+        Ok(count)
+    }
+}

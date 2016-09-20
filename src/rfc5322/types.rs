@@ -245,3 +245,41 @@ pub fn is_atext(c: u8) -> bool {
         || c==b'|' || c==b'}'  || c==b'~'
 }
 def_cclass!(AText, is_atext);
+
+// 3.2.3
+// atom            =   [CFWS] 1*atext [CFWS]
+#[derive(Debug, Clone, PartialEq)]
+pub struct Atom {
+    pub pre_cfws: Option<CFWS>,
+    pub atext: AText,
+    pub post_cfws: Option<CFWS>,
+}
+impl Parsable for Atom {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len()==0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let pre_cfws = parse!(CFWS, rem);
+        if let Ok(atext) = parse!(AText, rem) {
+            let post_cfws = parse!(CFWS, rem);
+            return Ok((Atom {
+                pre_cfws: pre_cfws.ok(),
+                atext: atext,
+                post_cfws: post_cfws.ok(),
+            }, rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Atom {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref cfws) = self.pre_cfws {
+            count += try!(cfws.stream(w));
+        }
+        count += try!(self.atext.stream(w));
+        if let Some(ref cfws) = self.post_cfws {
+            count += try!(cfws.stream(w));
+        }
+        Ok(count)
+    }
+}

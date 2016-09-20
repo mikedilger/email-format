@@ -170,3 +170,27 @@ fn test_cfws() {
         trailing_ws: false,
     });
 }
+
+#[test]
+fn test_atom() {
+    use rfc5322::types::Atom;
+
+    let input = b"  \t( a,b,c\t \\nYes (and so on) \r\n ) atom\r\n ".to_vec();
+    let (atom, remainder) = Atom::parse(input.as_slice()).unwrap();
+    assert_eq!(atom.atext.0, b"atom".to_vec());
+    assert_eq!(remainder, b"");
+
+    let input = b" \t AMZamz019!#$%&'*+-/=?^_`{|}~ \t ".to_vec();
+    let (atom, remainder) = Atom::parse(input.as_slice()).unwrap();
+    assert_eq!(atom.atext.0, b"AMZamz019!#$%&'*+-/=?^_`{|}~".to_vec());
+    assert_eq!(remainder, b"");
+
+    let input = b" John Smith ".to_vec();
+    let (atom, remainder) = Atom::parse(input.as_slice()).unwrap();
+    assert_eq!(atom.atext.0, b"John".to_vec());
+    assert_eq!(remainder, b"Smith ");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(atom.stream(&mut output).unwrap(), 6);
+    assert_eq!(output, b" John ");
+}

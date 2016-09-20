@@ -351,3 +351,16 @@ fn test_angle_addr() {
     assert_eq!(token.stream(&mut output).unwrap(), 21);
     assert_eq!(output, input);
 }
+
+#[test]
+fn test_name_addr() {
+    use rfc5322::types::NameAddr;
+
+    let input = b" Bruce \"The Boss\" < bruce@net> \r\n ".to_vec();
+    let (token, rem) = NameAddr::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(token.stream(&mut output).unwrap(), 31);
+    assert_eq!(output, b" Bruce \"The Boss\" < bruce@net> ".to_vec());
+}

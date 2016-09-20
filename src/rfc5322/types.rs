@@ -789,3 +789,35 @@ impl Streamable for DisplayName {
         self.0.stream(w)
     }
 }
+
+// 3.4
+// name-addr       =   [display-name] angle-addr
+#[derive(Debug, Clone, PartialEq)]
+pub struct NameAddr {
+    pub display_name: Option<DisplayName>,
+    pub angle_addr: AngleAddr
+}
+impl Parsable for NameAddr {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let maybe_dn = parse!(DisplayName, rem);
+        if let Ok(aa) = parse!(AngleAddr, rem) {
+            return Ok((NameAddr {
+                display_name: maybe_dn.ok(),
+                angle_addr: aa,
+            }, rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for NameAddr {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if self.display_name.is_some() {
+            count += try!(self.display_name.as_ref().unwrap().stream(w));
+        }
+        count += try!(self.angle_addr.stream(w));
+        Ok(count)
+    }
+}

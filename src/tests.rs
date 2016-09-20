@@ -67,3 +67,13 @@ fn test_fws() {
     assert_eq!(token, FWS);
     assert_eq!(rem, b"x");
 }
+
+#[test]
+fn test_ctext() {
+    use rfc5322::types::CText;
+
+    let input = b"Thi,s;1:23isCt_#ext".to_vec();
+    let (token, remainder) = CText::parse(input.as_slice()).unwrap();
+    assert_eq!(token, CText(input.clone()));
+    assert_eq!(remainder, b"");
+}

@@ -91,3 +91,12 @@ impl Streamable for FWS {
         Ok(try!(w.write(b" "))) // FIXME - fold?
     }
 }
+
+// 3.2.2
+// ctext           =   %d33-39 /          ; Printable US-ASCII
+//                     %d42-91 /          ;  characters not including
+//                     %d93-126 /         ;  "(", ")", or "\"
+//                     obs-ctext
+#[inline]
+pub fn is_ctext(c: u8) -> bool { (c>=33 && c<=39) || (c>=42 && c<=91) || (c>=93 && c<=126) }
+def_cclass!(CText, is_ctext);

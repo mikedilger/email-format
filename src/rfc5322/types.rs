@@ -701,3 +701,34 @@ impl Streamable for Domain {
         }
     }
 }
+
+// 3.4.1
+// addr-spec       =   local-part "@" domain
+#[derive(Debug, Clone, PartialEq)]
+pub struct AddrSpec {
+    pub local_part: LocalPart,
+    pub domain: Domain,
+}
+impl Parsable for AddrSpec {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((lp, rem)) = LocalPart::parse(input) {
+            if rem.len() > 0 && rem[0]==b'@' {
+                if let Ok((d, rem)) = Domain::parse(&rem[1..]) {
+                    return Ok((AddrSpec {
+                        local_part: lp,
+                        domain: d
+                    }, rem));
+                }
+            }
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for AddrSpec {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(self.local_part.stream(w))
+           + try!(w.write(b"@"))
+           + try!(self.domain.stream(w)))
+    }
+}

@@ -295,3 +295,46 @@ fn test_domain_literal() {
     assert_eq!(token.trailing_ws, false);
     assert!(token.post_cfws.is_none());
 }
+
+#[test]
+fn test_addr_spec() {
+    use rfc5322::types::{AddrSpec, LocalPart, Domain, DotAtom, DotAtomText,
+                         QuotedString, QContent, DomainLiteral, AText, DText, QText};
+
+    let input = b"joe.smith@gmail.com".to_vec();
+    let (a, rem) = AddrSpec::parse(input.as_slice()).unwrap();
+    assert_eq!(a.local_part, LocalPart::DotAtom( DotAtom {
+        pre_cfws: None,
+        dot_atom_text: DotAtomText(vec![ AText(b"joe".to_vec()),
+                                         AText(b"smith".to_vec()) ]),
+        post_cfws: None,
+    }));
+    assert_eq!(a.domain, Domain::DotAtom( DotAtom {
+        pre_cfws: None,
+        dot_atom_text: DotAtomText(vec![ AText(b"gmail".to_vec()),
+                                         AText(b"com".to_vec()) ]),
+        post_cfws: None,
+    }));
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(a.stream(&mut output).unwrap(), 19);
+    assert_eq!(output, b"joe.smith@gmail.com".to_vec());
+
+    let input = b"\"joe smith\"@[2001:db8:85a3:8d3:1319:8a2e:370:7348]".to_vec();
+    let (a, rem) = AddrSpec::parse(input.as_slice()).unwrap();
+    assert_eq!(a.local_part, LocalPart::QuotedString( QuotedString {
+        pre_cfws: None,
+        qcontent: vec![ (false, QContent::QText(QText(b"joe".to_vec()))),
+                         (true, QContent::QText(QText(b"smith".to_vec()))) ],
+        trailing_ws: false,
+        post_cfws: None,
+    }));
+    assert_eq!(a.domain, Domain::DomainLiteral( DomainLiteral {
+        pre_cfws: None,
+        dtext: vec![(false, DText(b"2001:db8:85a3:8d3:1319:8a2e:370:7348".to_vec()))],
+        trailing_ws: false,
+        post_cfws: None,
+    }));
+    assert_eq!(rem, b"");
+}

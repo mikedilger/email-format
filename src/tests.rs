@@ -77,3 +77,47 @@ fn test_ctext() {
     assert_eq!(token, CText(input.clone()));
     assert_eq!(remainder, b"");
 }
+
+#[test]
+fn test_ccontent() {
+    use rfc5322::types::{CContent, CText, QuotedPair};
+
+    let input = b"Thi,s;1:23isCt_#ext".to_vec();
+    let (token, _) = CContent::parse(input.as_slice()).unwrap();
+    assert_eq!(token, CContent::CText(CText(input.clone())));
+
+    let input = b"\\n".to_vec();
+    let (token, _) = CContent::parse(input.as_slice()).unwrap();
+    assert_eq!(token, CContent::QuotedPair(QuotedPair(b'n')));
+
+    let input = b"(Comments can contain whitespace and \\( quoted \\\\ characters, and even ( nesting ) with or (without) whitepsace, but must balance parenthesis)".to_vec();
+    let (_, remainder) = CContent::parse(input.as_slice()).unwrap();
+    assert_eq!(remainder, b"");
+}
+
+#[test]
+fn test_comment() {
+    use rfc5322::types::{Comment, CContent, CText, QuotedPair};
+
+    let input = b"( a,b,c\t \\nYes (and so on) \r\n )".to_vec();
+    let (token, rem) = Comment::parse(input.as_slice()).unwrap();
+    assert_eq!(token, Comment {
+        ccontent: vec![
+            (true, CContent::CText( CText(b"a,b,c".to_vec()) )),
+            (true, CContent::QuotedPair( QuotedPair(b'n') )),
+            (false, CContent::CText( CText(b"Yes".to_vec()) )),
+            (true, CContent::Comment(Comment {
+                ccontent: vec![
+                    (false, CContent::CText( CText(b"and".to_vec()) )),
+                    (true, CContent::CText( CText(b"so".to_vec()) )),
+                    (true, CContent::CText( CText(b"on".to_vec()) )) ],
+                trailing_ws: false
+            }))],
+        trailing_ws: true,
+    });
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(token.stream(&mut output).unwrap(), 27);
+    assert_eq!(output, b"( a,b,c \\nYes (and so on) )");
+}

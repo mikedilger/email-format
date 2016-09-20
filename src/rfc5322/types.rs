@@ -100,3 +100,81 @@ impl Streamable for FWS {
 #[inline]
 pub fn is_ctext(c: u8) -> bool { (c>=33 && c<=39) || (c>=42 && c<=91) || (c>=93 && c<=126) }
 def_cclass!(CText, is_ctext);
+
+// 3.2.2
+// ccontent        =   ctext / quoted-pair / comment
+#[derive(Debug, Clone, PartialEq)]
+pub enum CContent {
+    CText(CText),
+    QuotedPair(QuotedPair),
+    Comment(Comment),
+}
+impl Parsable for CContent {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if let Ok((na, rem)) = CText::parse(input) {
+            Ok((CContent::CText(na), rem))
+        }
+        else if let Ok((asp, rem)) = QuotedPair::parse(input) {
+            Ok((CContent::QuotedPair(asp), rem))
+        }
+        else if let Ok((c, rem)) = Comment::parse(input) {
+            Ok((CContent::Comment(c), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for CContent {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            CContent::CText(ref x) => x.stream(w),
+            CContent::QuotedPair(ref x) => x.stream(w),
+            CContent::Comment(ref x) => x.stream(w),
+        }
+    }
+}
+
+// 3.2.2
+// comment         =   "(" *([FWS] ccontent) [FWS] ")"
+#[derive(Debug, Clone, PartialEq)]
+pub struct Comment {
+    pub ccontent: Vec<(bool, CContent)>, // bool representing if whitespace preceeds it
+    pub trailing_ws: bool,
+}
+impl Parsable for Comment {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem: &[u8] = input;
+        if rem.len() == 0 { return Err(ParseError::Eof); }
+        req!(rem, b"(", input);
+        let mut ccontent: Vec<(bool, CContent)> = Vec::new();
+        let mut ws: bool = false;
+        while rem.len() > 0 {
+            let t = parse!(FWS, rem);
+            ws = t.is_ok();
+            if let Ok(cc) = parse!(CContent, rem) {
+                ccontent.push((ws, cc));
+                continue;
+            }
+            break;
+        }
+        req!(rem, b")", input);
+        return Ok((Comment {
+            ccontent: ccontent,
+            trailing_ws: ws,
+        }, rem));
+    }
+}
+impl Streamable for Comment {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(w.write(b"("));
+        for &(ws, ref cc) in &self.ccontent {
+            if ws { count += try!(w.write(b" ")) }
+            count += try!(cc.stream(w));
+        }
+        if self.trailing_ws { count += try!(w.write(b" ")) }
+        count += try!(w.write(b")"));
+        Ok(count)
+    }
+}

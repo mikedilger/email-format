@@ -283,3 +283,42 @@ impl Streamable for Atom {
         Ok(count)
     }
 }
+
+// 3.2.3
+// dot-atom-text   =   1*atext *("." 1*atext)
+#[derive(Debug, Clone, PartialEq)]
+pub struct DotAtomText(pub Vec<AText>);
+impl Parsable for DotAtomText {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        let mut parts: Vec<AText> = Vec::new();
+        match parse!(AText, rem) {
+            Ok(part) => parts.push(part),
+            Err(e) => return Err(e),
+        }
+        while rem.len() > 0 {
+            if rem[0]!=b'.' { break; };
+            let rem2 = &rem[1..];
+            if let Ok((part, r)) = AText::parse(rem2) {
+                rem = r;
+                parts.push(part);
+                continue;
+            } else {
+                break;
+            }
+        }
+        Ok((DotAtomText(parts), rem))
+    }
+}
+impl Streamable for DotAtomText {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        let mut virgin: bool = true;
+        for part in &self.0 {
+            if !virgin { count += try!(w.write(b".")) }
+            count += try!(part.stream(w));
+            virgin = false;
+        }
+        Ok(count)
+    }
+}

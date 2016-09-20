@@ -851,3 +851,44 @@ impl Streamable for Mailbox {
         }
     }
 }
+
+// 3.4
+// mailbox-list    =   (mailbox *("," mailbox)) / obs-mbox-list
+#[derive(Debug, Clone, PartialEq)]
+pub struct MailboxList(pub Vec<Mailbox>);
+impl Parsable for MailboxList {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut output: Vec<Mailbox> = Vec::new();
+        let mut savedrem = rem;
+        while let Ok(mailbox) = parse!(Mailbox, rem) {
+            savedrem = rem;
+            output.push(mailbox);
+            if rem.len()==0 || rem[0]!=b',' {
+                break;
+            }
+            rem = &rem[1..];
+        }
+        rem = savedrem;
+        if output.len() == 0 {
+            Err(ParseError::NotFound)
+        } else {
+            Ok((MailboxList(output), rem))
+        }
+    }
+}
+impl Streamable for MailboxList {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        let mut virgin: bool = true;
+        for mb in &self.0 {
+            if ! virgin {
+                count += try!(w.write(b","));
+            }
+            count += try!(mb.stream(w));
+            virgin = false;
+        }
+        Ok(count)
+    }
+}

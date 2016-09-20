@@ -364,3 +364,22 @@ fn test_name_addr() {
     assert_eq!(token.stream(&mut output).unwrap(), 31);
     assert_eq!(output, b" Bruce \"The Boss\" < bruce@net> ".to_vec());
 }
+
+#[test]
+fn test_mailbox_list() {
+    use rfc5322::types::{MailboxList, Mailbox};
+
+    let input = b"a@b.c, \"j p\" <d.e@e.f>,,".to_vec();
+    let (mbl, rem) = MailboxList::parse(input.as_slice()).unwrap();
+    assert_eq!(mbl.0.len(), 2);
+    let mb2 = &mbl.0[1];
+    assert_eq!(match mb2 {
+        &Mailbox::NameAddr(_) => true,
+        &Mailbox::AddrSpec(_) => false,
+    }, true);
+    assert_eq!(rem, b",,");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(mbl.stream(&mut output).unwrap(), 22);
+    assert_eq!(output, b"a@b.c, \"j p\" <d.e@e.f>".to_vec());
+}

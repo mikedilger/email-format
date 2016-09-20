@@ -501,3 +501,32 @@ impl Streamable for Word {
         }
     }
 }
+
+// 3.2.5
+// phrase          =   1*word / obs-phrase
+#[derive(Debug, Clone, PartialEq)]
+pub struct Phrase(pub Vec<Word>);
+impl Parsable for Phrase {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut output: Vec<Word> = Vec::new();
+        while let Ok(word) = parse!(Word, rem) {
+            output.push(word);
+        }
+        if output.len() == 0 {
+            Err(ParseError::NotFound)
+        } else {
+            Ok((Phrase(output), rem))
+        }
+    }
+}
+impl Streamable for Phrase {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        for word in &self.0 {
+            count += try!(word.stream(w));
+        }
+        Ok(count)
+    }
+}

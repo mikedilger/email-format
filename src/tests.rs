@@ -249,3 +249,18 @@ fn test_quoted_string() {
     let unterminated = b" \t (a comment) \" \r\n bob joe (fred) ".to_vec();
     assert!(QuotedString::parse(unterminated.as_slice()).is_err());
 }
+
+#[test]
+fn test_phrase() {
+    use rfc5322::types::Phrase;
+
+    let input = b" John \"the Snake\" Stevens".to_vec();
+    let (phrase, remainder) = Phrase::parse(input.as_slice()).unwrap();
+    assert_eq!(phrase.0.len(), 3);
+    assert_eq!(remainder, b"");
+
+    let input = b" John Smith [Doctor]".to_vec();
+    let (phrase, remainder) = Phrase::parse(input.as_slice()).unwrap();
+    assert_eq!(phrase.0.len(), 2);
+    assert_eq!(remainder, b"[Doctor]");
+}

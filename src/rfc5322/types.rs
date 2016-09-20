@@ -530,3 +530,51 @@ impl Streamable for Phrase {
         Ok(count)
     }
 }
+
+// 3.2.5
+// unstructured    = (*([FWS] VCHAR) *WSP) / obs-unstruct
+#[derive(Debug, Clone, PartialEq)]
+pub struct Unstructured {
+    pub leading_ws: bool,
+    pub parts: Vec<VChar>, // always separated by whitespace
+    pub trailing_ws: bool,
+}
+impl Parsable for Unstructured {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut output: Vec<VChar> = Vec::new();
+        let t = parse!(FWS, rem);
+        let leading_ws: bool = t.is_ok();
+        while rem.len() > 0 {
+            let mut rem2 = match FWS::parse(rem) {
+                Ok((_, rem2)) => rem2,
+                Err(_) => rem,
+            };
+            if let Ok(vchar) = parse!(VChar, rem2) {
+                rem = rem2;
+                output.push(vchar);
+                continue;
+            }
+            break;
+        }
+        if output.len() == 0 { return Err(ParseError::NotFound); }
+        let t = parse!(WSP, rem);
+        Ok((Unstructured {
+            leading_ws: leading_ws,
+            parts: output,
+            trailing_ws: t.is_ok()
+        }, rem))
+    }
+}
+impl Streamable for Unstructured {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if self.leading_ws { count += try!(w.write(b" ")); }
+        for vc in &self.parts {
+            count += try!(vc.stream(w));
+        }
+        if self.trailing_ws { count += try!(w.write(b" ")); }
+        Ok(count)
+    }
+}

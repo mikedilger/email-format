@@ -264,3 +264,20 @@ fn test_phrase() {
     assert_eq!(phrase.0.len(), 2);
     assert_eq!(remainder, b"[Doctor]");
 }
+
+#[test]
+fn test_unstructured() {
+    use rfc5322::types::{Unstructured, VChar};
+
+    let input = b"This is; unstructured=5 \r\n ".to_vec();
+    let (u, remainder) = Unstructured::parse(input.as_slice()).unwrap();
+    assert_eq!(u, Unstructured {
+        leading_ws: false,
+        parts: vec![
+            VChar(b"This".to_vec()),
+            VChar(b"is;".to_vec()),
+            VChar(b"unstructured=5".to_vec())],
+        trailing_ws: true,
+    });
+    assert_eq!(remainder, b"\r\n "); // because trailing ws is only WSP not FWS
+}

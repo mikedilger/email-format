@@ -120,3 +120,27 @@ impl Streamable for ReplyTo {
            + try!(w.write(b"\r\n")))
     }
 }
+
+// 3.6.3
+// to              =   "To:" address-list CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct To(pub AddressList);
+impl Parsable for To {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"to:", input);
+        if let Ok(x) = parse!(AddressList, rem) {
+            req_crlf!(rem, input);
+            return Ok((To(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for To {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"To: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}

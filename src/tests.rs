@@ -471,3 +471,16 @@ fn test_orig_date() {
     assert_eq!(od.stream(&mut output).unwrap(), 39);
     assert_eq!(output, b"Date: Sat, 11 Jan 2000 00:00:00 +0000\r\n".to_vec());
 }
+
+#[test]
+fn test_from() {
+    use rfc5322::headers::From;
+
+    let input = b"froM:steven@a.b.c\r\n".to_vec();
+    let (from, rem) = From::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(from.stream(&mut output).unwrap(), 20);
+    assert_eq!(output, b"From: steven@a.b.c\r\n".to_vec());
+}

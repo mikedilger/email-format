@@ -484,3 +484,26 @@ fn test_from() {
     assert_eq!(from.stream(&mut output).unwrap(), 20);
     assert_eq!(output, b"From: steven@a.b.c\r\n".to_vec());
 }
+
+#[test]
+fn test_bcc() {
+    use rfc5322::headers::Bcc;
+
+    let input1 = b"bcc: (hah)\r\n".to_vec();
+    let (token, rem) = Bcc::parse(input1.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert!(match token {
+        Bcc::AddressList(_) => false,
+        Bcc::CFWS(_) => true,
+        Bcc::Empty => false,
+    });
+
+    let input1 = b"bcc: a@b,c@d\r\n".to_vec();
+    let (token, rem) = Bcc::parse(input1.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert!(match token {
+        Bcc::AddressList(_) => true,
+        Bcc::CFWS(_) => false,
+        Bcc::Empty => false,
+    });
+}

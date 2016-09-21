@@ -3,7 +3,7 @@ use std::io::Write;
 use std::io::Error as IoError;
 use std::ascii::AsciiExt;
 use super::{Parsable, ParseError, Streamable};
-use super::types::{DateTime, MailboxList, Mailbox, AddressList};
+use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS};
 
 macro_rules! req_name {
     ($rem:ident, $str:expr, $input:ident) => {
@@ -166,5 +166,44 @@ impl Streamable for Cc {
         Ok(try!(w.write(b"Cc: "))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
+    }
+}
+
+// 3.6.3
+// bcc             =   "Bcc:" [address-list / CFWS] CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub enum Bcc {
+    AddressList(AddressList),
+    CFWS(CFWS),
+    Empty
+}
+impl Parsable for Bcc {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"bcc:", input);
+        if let Ok(x) = parse!(AddressList, rem) {
+            req_crlf!(rem, input);
+            return Ok((Bcc::AddressList(x), rem));
+        }
+        if let Ok(x) = parse!(CFWS, rem) {
+            req_crlf!(rem, input);
+            return Ok((Bcc::CFWS(x), rem));
+        }
+        req_crlf!(rem, input);
+        return Ok((Bcc::Empty, rem));
+    }
+}
+impl Streamable for Bcc {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(w.write(b"Bcc: "));
+        count += match *self {
+            Bcc::AddressList(ref al) => try!(al.stream(w)),
+            Bcc::CFWS(ref cfws) => try!(cfws.stream(w)),
+            Bcc::Empty => 0,
+        };
+        count += try!(w.write(b"\r\n"));
+        Ok(count)
     }
 }

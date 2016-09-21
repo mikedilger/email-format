@@ -144,3 +144,27 @@ impl Streamable for To {
            + try!(w.write(b"\r\n")))
     }
 }
+
+// 3.6.3
+// cc              =   "Cc:" address-list CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct Cc(pub AddressList);
+impl Parsable for Cc {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"cc:", input);
+        if let Ok(x) = parse!(AddressList, rem) {
+            req_crlf!(rem, input);
+            return Ok((Cc(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Cc {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Cc: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}

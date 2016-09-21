@@ -1489,3 +1489,33 @@ impl Streamable for NoFoldLiteral {
            + try!(w.write(b"]")))
     }
 }
+
+// 3.6.4
+// id-right        =   dot-atom-text / no-fold-literal / obs-id-right
+#[derive(Debug, Clone, PartialEq)]
+pub enum IdRight {
+    DotAtomText(DotAtomText),
+    NoFoldLiteral(NoFoldLiteral),
+}
+impl Parsable for IdRight {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = DotAtomText::parse(input) {
+            Ok((IdRight::DotAtomText(x), rem))
+        }
+        else if let Ok((x, rem)) = NoFoldLiteral::parse(input) {
+            Ok((IdRight::NoFoldLiteral(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for IdRight {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            IdRight::DotAtomText(ref x) => x.stream(w),
+            IdRight::NoFoldLiteral(ref x) => x.stream(w),
+        }
+    }
+}

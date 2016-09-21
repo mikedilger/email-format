@@ -1519,3 +1519,23 @@ impl Streamable for IdRight {
         }
     }
 }
+
+// 3.6.4
+// id-left         =   dot-atom-text / obs-id-left
+#[derive(Debug, Clone, PartialEq)]
+pub struct IdLeft(pub DotAtomText);
+impl Parsable for IdLeft {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        if let Ok(dat) = parse!(DotAtomText, rem) {
+            return Ok((IdLeft(dat), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for IdLeft {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(self.0.stream(w)))
+    }
+}

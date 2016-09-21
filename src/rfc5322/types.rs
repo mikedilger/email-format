@@ -1539,3 +1539,55 @@ impl Streamable for IdLeft {
         Ok(try!(self.0.stream(w)))
     }
 }
+
+// 3.6.4
+// msg-id          =   [CFWS] "<" id-left "@" id-right ">" [CFWS]
+#[derive(Debug, Clone, PartialEq)]
+pub struct MsgId {
+    pub pre_cfws: Option<CFWS>,
+    pub id_left: IdLeft,
+    pub id_right: IdRight,
+    pub post_cfws: Option<CFWS>,
+}
+impl Parsable for MsgId {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let pre_cfws = parse!(CFWS, rem);
+        req!(rem, b"<", input);
+        let idl = match parse!(IdLeft, rem) {
+            Err(e) => return Err(e),
+            Ok(idl) => idl
+        };
+        req!(rem, b"@", input);
+        let idr = match parse!(IdRight, rem) {
+            Err(e) => return Err(e),
+            Ok(idr) => idr
+        };
+        req!(rem, b">", input);
+        let post_cfws = parse!(CFWS, rem);
+        Ok((MsgId {
+            pre_cfws: pre_cfws.ok(),
+            id_left: idl,
+            id_right: idr,
+            post_cfws: post_cfws.ok(),
+        }, rem))
+    }
+}
+impl Streamable for MsgId {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref cfws) = self.pre_cfws {
+            count += try!(cfws.stream(w));
+        }
+        count += try!(w.write(b"<"));
+        count += try!(self.id_left.stream(w));
+        count += try!(w.write(b"@"));
+        count += try!(self.id_right.stream(w));
+        count += try!(w.write(b">"));
+        if let Some(ref cfws) = self.post_cfws {
+            count += try!(cfws.stream(w));
+        }
+        Ok(count)
+    }
+}

@@ -507,3 +507,25 @@ fn test_bcc() {
         Bcc::Empty => false,
     });
 }
+
+#[test]
+fn test_msg_id() {
+    use rfc5322::types::{MsgId, IdLeft, IdRight, DotAtomText, AText};
+
+    let input = b"<950910bae2c7eff8d34297870a93dbb8@a.b.co.nz>".to_vec();
+    let (msgid, rem) = MsgId::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(msgid, MsgId {
+        pre_cfws: None,
+        id_left: IdLeft(DotAtomText(vec![
+            AText("950910bae2c7eff8d34297870a93dbb8".as_bytes().to_owned()),
+            ])),
+        id_right: IdRight::DotAtomText(DotAtomText(vec![
+            AText("a".as_bytes().to_owned()),
+            AText("b".as_bytes().to_owned()),
+            AText("co".as_bytes().to_owned()),
+            AText("nz".as_bytes().to_owned()),
+            ])),
+        post_cfws: None,
+    });
+}

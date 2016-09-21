@@ -42,6 +42,19 @@ macro_rules! parse {
     };
 }
 
+macro_rules! req {
+    ($rem:ident, $bytes:expr, $input:ident) => {
+        let len: usize = $bytes.len();
+        if $rem.len() < len {
+            return Err(ParseError::Eof);
+        }
+        if &$rem[0..len] != $bytes {
+            return Err(ParseError::Expected($bytes.to_vec()));
+        }
+        $rem = &$rem[len..];
+    };
+}
+
 pub mod error;
 pub use self::error::ParseError;
 

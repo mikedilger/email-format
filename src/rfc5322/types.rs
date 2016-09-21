@@ -1465,3 +1465,27 @@ impl Streamable for DateTime {
         Ok(count)
     }
 }
+
+// 3.6.4
+// no-fold-literal =   "[" *dtext "]"
+#[derive(Debug, Clone, PartialEq)]
+pub struct NoFoldLiteral(pub DText);
+impl Parsable for NoFoldLiteral {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req!(rem, b"[", input);
+        if let Ok(dtext) = parse!(DText, rem) {
+            req!(rem, b"]", input);
+            return Ok((NoFoldLiteral(dtext), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for NoFoldLiteral {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"["))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"]")))
+    }
+}

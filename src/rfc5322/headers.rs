@@ -231,3 +231,35 @@ impl Streamable for MessageId {
            + try!(w.write(b"\r\n")))
     }
 }
+
+// 3.6.4
+// in-reply-to     =   "In-Reply-To:" 1*msg-id CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct InReplyTo(pub Vec<MsgId>);
+impl Parsable for InReplyTo {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut contents: Vec<MsgId> = Vec::new();
+        req_name!(rem, b"in-reply-to:", input);
+        while let Ok(x) = parse!(MsgId, rem) {
+            contents.push(x);
+        }
+        if contents.len() == 0 {
+            return Err(ParseError::NotFound);
+        }
+        req_crlf!(rem, input);
+        Ok((InReplyTo(contents), rem))
+    }
+}
+impl Streamable for InReplyTo {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(w.write(b"In-Reply-To: "));
+        for msgid in &self.0 {
+            count += try!(msgid.stream(w))
+        }
+        count += try!(w.write(b"\r\n"));
+        Ok(count)
+    }
+}

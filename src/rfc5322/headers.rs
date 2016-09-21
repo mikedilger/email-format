@@ -3,7 +3,7 @@ use std::io::Write;
 use std::io::Error as IoError;
 use std::ascii::AsciiExt;
 use super::{Parsable, ParseError, Streamable};
-use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS};
+use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId};
 
 macro_rules! req_name {
     ($rem:ident, $str:expr, $input:ident) => {
@@ -205,5 +205,29 @@ impl Streamable for Bcc {
         };
         count += try!(w.write(b"\r\n"));
         Ok(count)
+    }
+}
+
+// 3.6.4
+// message-id      =   "Message-ID:" msg-id CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct MessageId(pub MsgId);
+impl Parsable for MessageId {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"message-id:", input);
+        if let Ok(x) = parse!(MsgId, rem) {
+            req_crlf!(rem, input);
+            return Ok((MessageId(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for MessageId {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Message-ID: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
     }
 }

@@ -3,7 +3,7 @@ use std::io::Write;
 use std::io::Error as IoError;
 use std::ascii::AsciiExt;
 use super::{Parsable, ParseError, Streamable};
-use super::types::{DateTime, MailboxList};
+use super::types::{DateTime, MailboxList, Mailbox};
 
 macro_rules! req_name {
     ($rem:ident, $str:expr, $input:ident) => {
@@ -68,6 +68,30 @@ impl Parsable for From {
 impl Streamable for From {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         Ok(try!(w.write(b"From: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}
+
+// 3.6.2
+// sender          =   "Sender:" mailbox CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct Sender(pub Mailbox);
+impl Parsable for Sender {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"sender:", input);
+        if let Ok(mb) = parse!(Mailbox, rem) {
+            req_crlf!(rem, input);
+            return Ok((Sender(mb), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Sender {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Sender: "))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }

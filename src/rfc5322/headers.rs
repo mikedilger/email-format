@@ -263,3 +263,35 @@ impl Streamable for InReplyTo {
         Ok(count)
     }
 }
+
+// 3.6.4
+// references      =   "References:" 1*msg-id CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct References(pub Vec<MsgId>);
+impl Parsable for References {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut contents: Vec<MsgId> = Vec::new();
+        req_name!(rem, b"references:", input);
+        while let Ok(x) = parse!(MsgId, rem) {
+            contents.push(x);
+        }
+        if contents.len() == 0 {
+            return Err(ParseError::NotFound);
+        }
+        req_crlf!(rem, input);
+        Ok((References(contents), rem))
+    }
+}
+impl Streamable for References {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(w.write(b"References: "));
+        for msgid in &self.0 {
+            count += try!(msgid.stream(w))
+        }
+        count += try!(w.write(b"\r\n"));
+        Ok(count)
+    }
+}

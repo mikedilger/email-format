@@ -194,3 +194,18 @@ fn test_atom() {
     assert_eq!(atom.stream(&mut output).unwrap(), 6);
     assert_eq!(output, b" John ");
 }
+
+#[test]
+fn test_dot_atom() {
+    use rfc5322::types::{DotAtom, AText};
+
+    let input = b" \r\n www.google.com. ".to_vec();
+    let (dot_atom, remainder) = DotAtom::parse(input.as_slice()).unwrap();
+    assert_eq!(dot_atom.dot_atom_text.0, vec![
+        AText(b"www".to_vec()),
+        AText(b"google".to_vec()),
+        AText(b"com".to_vec())]);
+    assert!(dot_atom.pre_cfws.is_some());
+    assert!(dot_atom.post_cfws.is_none());
+    assert_eq!(remainder, b". ");
+}

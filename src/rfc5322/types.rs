@@ -322,3 +322,42 @@ impl Streamable for DotAtomText {
         Ok(count)
     }
 }
+
+// 3.2.3
+// dot-atom        =   [CFWS] dot-atom-text [CFWS]
+#[derive(Debug, Clone, PartialEq)]
+pub struct DotAtom {
+    pub pre_cfws: Option<CFWS>,
+    pub dot_atom_text: DotAtomText,
+    pub post_cfws: Option<CFWS>,
+}
+impl Parsable for DotAtom {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if rem.len() == 0 { return Err(ParseError::Eof); }
+        let pre_cfws = parse!(CFWS, rem);
+        if let Ok(dat) = parse!(DotAtomText, rem) {
+            let post_cfws = parse!(CFWS, rem);
+            Ok((DotAtom {
+                pre_cfws: pre_cfws.ok(),
+                dot_atom_text: dat,
+                post_cfws: post_cfws.ok(),
+            }, rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for DotAtom {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref cfws) = self.pre_cfws {
+            count += try!(cfws.stream(w));
+        }
+        count += try!(self.dot_atom_text.stream(w));
+        if let Some(ref cfws) = self.post_cfws {
+            count += try!(cfws.stream(w));
+        }
+        Ok(count)
+    }
+}

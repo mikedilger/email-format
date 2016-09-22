@@ -1184,3 +1184,32 @@ impl Streamable for TimeOfDay {
         }
     }
 }
+
+// 3.3
+// time            =   time-of-day zone
+#[derive(Debug, Clone, PartialEq)]
+pub struct Time {
+    pub time_of_day: TimeOfDay,
+    pub zone: Zone,
+}
+impl Parsable for Time {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        if let Ok(tod) = parse!(TimeOfDay, rem) {
+            if let Ok(zone) = parse!(Zone, rem) {
+                return Ok((Time {
+                    time_of_day: tod,
+                    zone: zone
+                }, rem));
+            }
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Time {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(self.time_of_day.stream(w))
+           + try!(self.zone.stream(w)))
+    }
+}

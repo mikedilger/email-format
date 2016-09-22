@@ -455,3 +455,26 @@ impl Streamable for ResentSender {
     }
 }
 
+// 3.6.6
+// resent-to       =   "Resent-To:" address-list CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResentTo(pub AddressList);
+impl Parsable for ResentTo {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"resent-to:", input);
+        if let Ok(x) = parse!(AddressList, rem) {
+            req_crlf!(rem, input);
+            return Ok((ResentTo(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for ResentTo {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Resent-To: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}

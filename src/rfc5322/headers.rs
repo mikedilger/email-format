@@ -320,3 +320,27 @@ impl Streamable for Subject {
            + try!(w.write(b"\r\n")))
     }
 }
+
+// 3.6.5
+// comments        =   "Comments:" unstructured CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct Comments(pub Unstructured);
+impl Parsable for Comments {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"comments:", input);
+        if let Ok(x) = parse!(Unstructured, rem) {
+            req_crlf!(rem, input);
+            return Ok((Comments(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Comments {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Comments: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}

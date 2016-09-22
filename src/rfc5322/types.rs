@@ -1390,3 +1390,26 @@ impl Streamable for DayName {
         }
     }
 }
+
+// 3.3
+// day-of-week     =   ([FWS] day-name) / obs-day-of-week
+#[derive(Debug, Clone, PartialEq)]
+pub struct DayOfWeek(pub DayName);
+impl Parsable for DayOfWeek {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let _ = parse!(FWS, rem);
+        if let Ok(dn) = parse!(DayName, rem) {
+            Ok((DayOfWeek(dn), rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for DayOfWeek {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b" "))
+           + try!(self.0.stream(w)))
+    }
+}

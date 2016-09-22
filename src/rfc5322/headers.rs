@@ -4,7 +4,7 @@ use std::io::Error as IoError;
 use std::ascii::AsciiExt;
 use super::{Parsable, ParseError, Streamable};
 use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId,
-                   Unstructured, Phrase};
+                   Unstructured, Phrase, ReceivedToken};
 
 macro_rules! req_name {
     ($rem:ident, $str:expr, $input:ident) => {
@@ -566,3 +566,43 @@ impl Streamable for ResentMessageId {
     }
 }
 
+// 3.6.7
+// received        =   "Received:" *received-token ";" date-time CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct Received {
+    pub received_tokens: Vec<ReceivedToken>,
+    pub date_time: DateTime,
+}
+impl Parsable for Received {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"received:", input);
+        let mut tokens: Vec<ReceivedToken> = Vec::new();
+        while let Ok(r) = parse!(ReceivedToken, rem) {
+            tokens.push(r);
+        }
+        req!(rem, b";", input);
+        if let Ok(dt) = parse!(DateTime, rem) {
+            req_crlf!(rem, input);
+            return Ok((Received {
+                received_tokens: tokens,
+                date_time: dt
+            }, rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Received {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(w.write(b"Received: "));
+        for token in &self.received_tokens {
+            count += try!(token.stream(w));
+        }
+        count += try!(w.write(b";"));
+        count += try!(self.date_time.stream(w));
+        count += try!(w.write(b"\r\n"));
+        Ok(count)
+    }
+}

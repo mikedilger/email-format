@@ -458,3 +458,16 @@ fn test_date_time() {
     assert_eq!(t.stream(&mut output).unwrap(), 50);
     assert_eq!(output, b" Sun, 01 Dec 2000 12:12:12 -1300 (or thereabouts) ".to_vec());
 }
+
+#[test]
+fn test_orig_date() {
+    use rfc5322::headers::OrigDate;
+
+    let input = b"DATE: SAT, 11 Jan 2000 00:00:00 +0000\r\n".to_vec();
+    let (od, rem) = OrigDate::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(od.stream(&mut output).unwrap(), 39);
+    assert_eq!(output, b"Date: Sat, 11 Jan 2000 00:00:00 +0000\r\n".to_vec());
+}

@@ -1,4 +1,10 @@
 
+use std::io::Write;
+use std::io::Error as IoError;
+use std::ascii::AsciiExt;
+use super::{Parsable, ParseError, Streamable};
+use super::types::DateTime;
+
 macro_rules! req_name {
     ($rem:ident, $str:expr, $input:ident) => {
         let len: usize = $str.len();
@@ -15,5 +21,30 @@ macro_rules! req_crlf {
             return Err(ParseError::NotFound);
         }
         $rem = &$rem[2..];
+    }
+}
+
+// 3.6.1
+// orig-date       =   "Date:" date-time CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct OrigDate(pub DateTime);
+impl Parsable for OrigDate {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"date:", input);
+        if let Ok(dt) = parse!(DateTime, rem) {
+            req_crlf!(rem, input);
+            Ok((OrigDate(dt), rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for OrigDate {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Date:"))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
     }
 }

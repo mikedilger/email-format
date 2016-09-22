@@ -1292,3 +1292,32 @@ impl Streamable for Month {
         }
     }
 }
+
+// 3.3
+// day             =   ([FWS] 1*2DIGIT FWS) / obs-day
+#[derive(Debug, Clone, PartialEq)]
+pub struct Day(pub u8);
+impl Parsable for Day {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let _ = parse!(FWS, rem);
+        if rem.len() < 3 { return Err(ParseError::NotFound); }
+        if !is_digit(rem[0]) || !is_digit(rem[1]) {
+            return Err(ParseError::NotFound);
+        }
+        let v: u8 = 10 * ((rem[0]-48))
+                      + ((rem[1]-48));
+        rem = &rem[2..];
+        let fws = parse!(FWS, rem);
+        if fws.is_err() { return Err(ParseError::NotFound); }
+        Ok((Day(v), rem))
+    }
+}
+impl Streamable for Day {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        try!(write!(w, " {:02} ", self.0));
+        Ok(4)
+    }
+}
+

@@ -542,3 +542,27 @@ impl Streamable for ResentBcc {
     }
 }
 
+// 3.6.6
+// resent-msg-id   =   "Resent-Message-ID:" msg-id CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResentMessageId(pub MsgId);
+impl Parsable for ResentMessageId {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"resent-message-id:", input);
+        if let Ok(x) = parse!(MsgId, rem) {
+            req_crlf!(rem, input);
+            return Ok((ResentMessageId(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for ResentMessageId {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Resent-Message-ID: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}
+

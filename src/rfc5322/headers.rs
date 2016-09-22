@@ -381,3 +381,29 @@ impl Streamable for Keywords {
         Ok(count)
     }
 }
+
+// 3.6.6
+// resent-date     =   "Resent-Date:" date-time CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResentDate(pub DateTime);
+impl Parsable for ResentDate {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"resent-date:", input);
+        if let Ok(dt) = parse!(DateTime, rem) {
+            req_crlf!(rem, input);
+            Ok((ResentDate(dt), rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for ResentDate {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Resent-Date:"))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}
+

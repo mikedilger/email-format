@@ -1355,3 +1355,38 @@ impl Streamable for Date {
     }
 }
 
+// 3.3
+// day-name        =   "Mon" / "Tue" / "Wed" / "Thu" /
+//                     "Fri" / "Sat" / "Sun"
+#[derive(Debug, Clone, PartialEq)]
+pub struct DayName(pub u8);
+impl Parsable for DayName {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() < 3 { return Err(ParseError::NotFound); }
+        let three = &input[0..3].to_ascii_lowercase();
+        let rem = &input[3..];
+        if three==b"sun" { Ok((DayName(1), rem)) }
+        else if three==b"mon" { Ok((DayName(2), rem)) }
+        else if three==b"tue" { Ok((DayName(3), rem)) }
+        else if three==b"wed" { Ok((DayName(4), rem)) }
+        else if three==b"thu" { Ok((DayName(5), rem)) }
+        else if three==b"fri" { Ok((DayName(6), rem)) }
+        else if three==b"sat" { Ok((DayName(7), rem)) }
+        else { Err(ParseError::NotFound) }
+    }
+}
+impl Streamable for DayName {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match self.0 {
+            1 => Ok(try!(w.write(b"Sun"))),
+            2 => Ok(try!(w.write(b"Mon"))),
+            3 => Ok(try!(w.write(b"Tue"))),
+            4 => Ok(try!(w.write(b"Wed"))),
+            5 => Ok(try!(w.write(b"Thu"))),
+            6 => Ok(try!(w.write(b"Fri"))),
+            7 => Ok(try!(w.write(b"Sat"))),
+            _ => Err(IoError::new(::std::io::ErrorKind::InvalidData, "Day out of range"))
+        }
+    }
+}

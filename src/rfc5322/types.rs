@@ -1413,3 +1413,55 @@ impl Streamable for DayOfWeek {
            + try!(self.0.stream(w)))
     }
 }
+
+// 3.3
+// date-time       =   [ day-of-week "," ] date time [CFWS]
+#[derive(Debug, Clone, PartialEq)]
+pub struct DateTime {
+    pub day_of_week: Option<DayOfWeek>,
+    pub date: Date,
+    pub time: Time,
+    pub post_cfws: Option<CFWS>
+}
+impl Parsable for DateTime {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let mut day_of_week: Option<DayOfWeek> = None;
+        if let Ok(dow) = parse!(DayOfWeek, rem) {
+            if rem.len() != 0 && rem[0]==b',' {
+                rem = &rem[1..];
+                day_of_week = Some(dow);
+            } else {
+                rem = input;
+            }
+        }
+        if let Ok(date) = parse!(Date, rem) {
+            if let Ok(time) = parse!(Time, rem) {
+                let post_cfws = parse!(CFWS, rem);
+                return Ok((DateTime {
+                    day_of_week: day_of_week,
+                    date: date,
+                    time: time,
+                    post_cfws: post_cfws.ok()
+                }, rem));
+            }
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for DateTime {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref dow) = self.day_of_week {
+            count += try!(dow.stream(w));
+            count += try!(w.write(b","));
+        }
+        count += try!(self.date.stream(w));
+        count += try!(self.time.stream(w));
+        if let Some(ref cfws) = self.post_cfws {
+            count += try!(cfws.stream(w));
+        }
+        Ok(count)
+    }
+}

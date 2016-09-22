@@ -445,3 +445,16 @@ fn test_date() {
     assert_eq!(t.stream(&mut output).unwrap(), 13);
     assert_eq!(output, b" 22 Sep 2016 ".to_vec());
 }
+
+#[test]
+fn test_date_time() {
+    use rfc5322::types::DateTime;
+
+    let input = b"suN, 01 DEC 2000 12:12:12 -1300 (or thereabouts) \r\n ".to_vec();
+    let (t, rem) = DateTime::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(t.stream(&mut output).unwrap(), 50);
+    assert_eq!(output, b" Sun, 01 Dec 2000 12:12:12 -1300 (or thereabouts) ".to_vec());
+}

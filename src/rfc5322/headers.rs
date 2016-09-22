@@ -4,7 +4,7 @@ use std::io::Error as IoError;
 use std::ascii::AsciiExt;
 use super::{Parsable, ParseError, Streamable};
 use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId,
-                   Unstructured};
+                   Unstructured, Phrase};
 
 macro_rules! req_name {
     ($rem:ident, $str:expr, $input:ident) => {
@@ -342,5 +342,42 @@ impl Streamable for Comments {
         Ok(try!(w.write(b"Comments: "))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
+    }
+}
+
+// 3.6.5
+// keywords        =   "Keywords:" phrase *("," phrase) CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct Keywords(pub Vec<Phrase>);
+impl Parsable for Keywords {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"keywords:", input);
+        let mut output: Vec<Phrase> = Vec::new();
+        while let Ok(x) = parse!(Phrase, rem) {
+            output.push(x);
+        }
+        if output.len()==0 {
+            return Err(ParseError::NotFound);
+        }
+        req_crlf!(rem, input);
+        Ok((Keywords(output), rem))
+    }
+}
+impl Streamable for Keywords {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(w.write(b"Keywords: "));
+        let mut virgin = true;
+        for phrase in &self.0 {
+            if ! virgin {
+                count += try!(w.write(b","));
+            }
+            count += try!(phrase.stream(w));
+            virgin = false
+        }
+        count += try!(w.write(b"\r\n"));
+        Ok(count)
     }
 }

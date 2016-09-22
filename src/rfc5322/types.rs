@@ -1213,3 +1213,35 @@ impl Streamable for Time {
            + try!(self.zone.stream(w)))
     }
 }
+
+// 3.3
+// year            =   (FWS 4*DIGIT FWS) / obs-year
+#[derive(Debug, Clone, PartialEq)]
+pub struct Year(pub u32);
+impl Parsable for Year {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let fws = parse!(FWS, rem);
+        if fws.is_err() { return Err(ParseError::NotFound); }
+        if rem.len() < 5 { return Err(ParseError::NotFound); }
+        if !is_digit(rem[0]) || !is_digit(rem[1]) || !is_digit(rem[2]) || !is_digit(rem[3]) {
+            return Err(ParseError::NotFound);
+        }
+        let v: u32 = 1000 * ((rem[0]-48) as u32)
+                      + 100 * ((rem[1]-48) as u32)
+                      + 10 * ((rem[2]-48) as u32)
+                      + ((rem[3]-48) as u32);
+        rem = &rem[4..];
+        let fws = parse!(FWS, rem);
+        if fws.is_err() { return Err(ParseError::NotFound); }
+        Ok((Year(v), rem))
+    }
+}
+impl Streamable for Year {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        try!(write!(w, " {:04} ", self.0));
+        Ok(6)
+    }
+}
+

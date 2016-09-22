@@ -1035,3 +1035,43 @@ impl Streamable for AddressList {
         Ok(count)
     }
 }
+
+// 3.3
+// zone            =   (FWS ( "+" / "-" ) 4DIGIT) / obs-zone
+#[derive(Debug, Clone, PartialEq)]
+pub struct Zone(pub i32);
+impl Parsable for Zone {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        let fws = parse!(FWS, rem);
+        if fws.is_err() { return Err(ParseError::NotFound); }
+        if rem.len() < 5 { return Err(ParseError::NotFound); }
+        let sign: i32 = match rem[0] {
+            b'+' => 1,
+            b'-' => -1,
+            _ => return Err(ParseError::NotFound),
+        };
+        if !is_digit(rem[1]) || !is_digit(rem[2]) || !is_digit(rem[3]) || !is_digit(rem[4]) {
+            return Err(ParseError::NotFound);
+        }
+        let v: i32 = (1000 * ((rem[1]-48) as i32)
+                      + 100 * ((rem[2]-48) as i32)
+                      + 10 * ((rem[3]-48) as i32)
+                      + ((rem[4]-48) as i32)) * sign;
+        Ok((Zone(v), &rem[5..]))
+    }
+}
+impl Streamable for Zone {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let v = if self.0 < 0 {
+            try!(w.write(b" -"));
+            -self.0
+        } else {
+            try!(w.write(b" +"));
+            self.0
+        };
+        try!(write!(w, "{:04}", v));
+        Ok(6)
+    }
+}

@@ -383,3 +383,22 @@ fn test_mailbox_list() {
     assert_eq!(mbl.stream(&mut output).unwrap(), 22);
     assert_eq!(output, b"a@b.c, \"j p\" <d.e@e.f>".to_vec());
 }
+
+#[test]
+fn test_zone() {
+    use rfc5322::types::Zone;
+
+    let input = b" +1135".to_vec();
+    let (v, rem) = Zone::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(v.0, 1135_i32);
+
+    let input = b" \r\n -0700".to_vec();
+    let (v, rem) = Zone::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(v.0, -700_i32);
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(v.stream(&mut output).unwrap(), 6);
+    assert_eq!(output, b" -0700".to_vec());
+}

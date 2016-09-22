@@ -1321,3 +1321,37 @@ impl Streamable for Day {
     }
 }
 
+// 3.3
+// date            =   day month year
+#[derive(Debug, Clone, PartialEq)]
+pub struct Date {
+    pub day: Day,
+    pub month: Month,
+    pub year: Year,
+}
+impl Parsable for Date {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        if let Ok(day) = parse!(Day, rem) {
+            if let Ok(month) = parse!(Month, rem) {
+                if let Ok(year) = parse!(Year, rem) {
+                    return Ok((Date {
+                        day: day,
+                        month: month,
+                        year: year,
+                    }, rem));
+                }
+            }
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Date {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(self.day.stream(w))
+           + try!(self.month.stream(w))
+           + try!(self.year.stream(w)))
+    }
+}
+

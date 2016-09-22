@@ -429,3 +429,19 @@ fn test_time_of_day() {
     assert_eq!(t.stream(&mut output).unwrap(), 5);
     assert_eq!(output, b"01:01".to_vec());
 }
+
+#[test]
+fn test_date() {
+    use rfc5322::types::Date;
+
+    let input = b" 22 Sep 2016 ".to_vec();
+    let (t, rem) = Date::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(t.day.0, 22);
+    assert_eq!(t.month.0, 9);
+    assert_eq!(t.year.0, 2016);
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(t.stream(&mut output).unwrap(), 13);
+    assert_eq!(output, b" 22 Sep 2016 ".to_vec());
+}

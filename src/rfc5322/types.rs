@@ -1591,3 +1591,43 @@ impl Streamable for MsgId {
         Ok(count)
     }
 }
+
+// 3.6.7
+// received-token  =   word / angle-addr / addr-spec / domain
+#[derive(Debug, Clone, PartialEq)]
+pub enum ReceivedToken {
+    Word(Word),
+    AngleAddr(AngleAddr),
+    AddrSpec(AddrSpec),
+    Domain(Domain),
+}
+impl Parsable for ReceivedToken {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if let Ok((x, rem)) = Word::parse(input) {
+            Ok((ReceivedToken::Word(x), rem))
+        }
+        else if let Ok((x, rem)) = AngleAddr::parse(input) {
+            Ok((ReceivedToken::AngleAddr(x), rem))
+        }
+        else if let Ok((x, rem)) = AddrSpec::parse(input) {
+            Ok((ReceivedToken::AddrSpec(x), rem))
+        }
+        else if let Ok((x, rem)) = Domain::parse(input) {
+            Ok((ReceivedToken::Domain(x), rem))
+        }
+        else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for ReceivedToken {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            ReceivedToken::Word(ref x) => x.stream(w),
+            ReceivedToken::AngleAddr(ref x) => x.stream(w),
+            ReceivedToken::AddrSpec(ref x) => x.stream(w),
+            ReceivedToken::Domain(ref x) => x.stream(w),
+        }
+    }
+}

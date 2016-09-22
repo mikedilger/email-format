@@ -402,3 +402,30 @@ fn test_zone() {
     assert_eq!(v.stream(&mut output).unwrap(), 6);
     assert_eq!(output, b" -0700".to_vec());
 }
+
+#[test]
+fn test_time_of_day() {
+    use rfc5322::types::TimeOfDay;
+
+    let input = b"17:25:049".to_vec();
+    let (t, rem) = TimeOfDay::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"9");
+    assert_eq!(t.hour.0, 17);
+    assert_eq!(t.minute.0, 25);
+    assert_eq!(t.second.as_ref().unwrap().0, 4);
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(t.stream(&mut output).unwrap(), 8);
+    assert_eq!(output, b"17:25:04".to_vec());
+
+    let input = b"01:019".to_vec();
+    let (t, rem) = TimeOfDay::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"9");
+    assert_eq!(t.hour.0, 1);
+    assert_eq!(t.minute.0, 1);
+    assert_eq!(t.second, None);
+
+    let mut output: Vec<u8> = Vec::new();
+    assert_eq!(t.stream(&mut output).unwrap(), 5);
+    assert_eq!(output, b"01:01".to_vec());
+}

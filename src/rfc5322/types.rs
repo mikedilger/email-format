@@ -1136,3 +1136,51 @@ impl Streamable for Hour {
     }
 }
 
+// 3.3
+// time-of-day     =   hour ":" minute [ ":" second ]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TimeOfDay {
+    pub hour: Hour,
+    pub minute: Minute,
+    pub second: Option<Second>
+}
+impl Parsable for TimeOfDay {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        if let Ok(hour) = parse!(Hour, rem) {
+            req!(rem, b":", input);
+            if let Ok(minute) = parse!(Minute, rem) {
+                let saved = rem;
+                if rem.len() > 0 && rem[0]==b':' {
+                    rem = &rem[1..];
+                    if let Ok(second) = parse!(Second, rem) {
+                        return Ok((TimeOfDay {
+                            hour: hour,
+                            minute: minute,
+                            second: Some(second),
+                        }, rem));
+                    }
+                }
+                return Ok((TimeOfDay {
+                    hour: hour,
+                    minute: minute,
+                    second: None,
+                }, saved));
+            }
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for TimeOfDay {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        if self.second.is_some() {
+            try!(write!(w, "{:02}:{:02}:{:02}", self.hour.0, self.minute.0,
+                        self.second.as_ref().unwrap().0));
+            Ok(8)
+        } else {
+            try!(write!(w, "{:02}:{:02}", self.hour.0, self.minute.0));
+            Ok(5)
+        }
+    }
+}

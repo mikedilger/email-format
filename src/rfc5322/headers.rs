@@ -430,3 +430,28 @@ impl Streamable for ResentFrom {
            + try!(w.write(b"\r\n")))
     }
 }
+
+// 3.6.6
+// resent-sender   =   "Resent-Sender:" mailbox CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResentSender(pub Mailbox);
+impl Parsable for ResentSender {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"resent-sender:", input);
+        if let Ok(mb) = parse!(Mailbox, rem) {
+            req_crlf!(rem, input);
+            return Ok((ResentSender(mb), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for ResentSender {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Resent-Sender: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
+    }
+}
+

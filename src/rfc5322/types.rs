@@ -1,6 +1,7 @@
 
 use std::io::Write;
 use std::io::Error as IoError;
+use std::ascii::AsciiExt;
 use super::{Parsable, Streamable, ParseError};
 
 // RFC 5234, B.1  Core Rules
@@ -1245,3 +1246,49 @@ impl Streamable for Year {
     }
 }
 
+// 3.3
+// month           =   "Jan" / "Feb" / "Mar" / "Apr" /
+//                     "May" / "Jun" / "Jul" / "Aug" /
+//                     "Sep" / "Oct" / "Nov" / "Dec"
+#[derive(Debug, Clone, PartialEq)]
+pub struct Month(pub u8);
+impl Parsable for Month {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() < 3 { return Err(ParseError::NotFound); }
+        let three = &input[0..3].to_ascii_lowercase();
+        let rem = &input[3..];
+        if three==b"jan" { Ok((Month(1), rem)) }
+        else if three==b"feb" { Ok((Month(2), rem)) }
+        else if three==b"mar" { Ok((Month(3), rem)) }
+        else if three==b"apr" { Ok((Month(4), rem)) }
+        else if three==b"may" { Ok((Month(5), rem)) }
+        else if three==b"jun" { Ok((Month(6), rem)) }
+        else if three==b"jul" { Ok((Month(7), rem)) }
+        else if three==b"aug" { Ok((Month(8), rem)) }
+        else if three==b"sep" { Ok((Month(9), rem)) }
+        else if three==b"oct" { Ok((Month(10), rem)) }
+        else if three==b"nov" { Ok((Month(11), rem)) }
+        else if three==b"dec" { Ok((Month(12), rem)) }
+        else { Err(ParseError::NotFound) }
+    }
+}
+impl Streamable for Month {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match self.0 {
+            1 => Ok(try!(w.write(b"Jan"))),
+            2 => Ok(try!(w.write(b"Feb"))),
+            3 => Ok(try!(w.write(b"Mar"))),
+            4 => Ok(try!(w.write(b"Apr"))),
+            5 => Ok(try!(w.write(b"May"))),
+            6 => Ok(try!(w.write(b"Jun"))),
+            7 => Ok(try!(w.write(b"Jul"))),
+            8 => Ok(try!(w.write(b"Aug"))),
+            9 => Ok(try!(w.write(b"Sep"))),
+            10 => Ok(try!(w.write(b"Oct"))),
+            11 => Ok(try!(w.write(b"Nov"))),
+            12 => Ok(try!(w.write(b"Dec"))),
+            _ => Err(IoError::new(::std::io::ErrorKind::InvalidData, "Month out of range"))
+        }
+    }
+}

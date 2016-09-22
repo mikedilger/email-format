@@ -503,3 +503,42 @@ impl Streamable for ResentCc {
     }
 }
 
+// 3.6.6
+// resent-bcc      =   "Resent-Bcc:" [address-list / CFWS] CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub enum ResentBcc {
+    AddressList(AddressList),
+    CFWS(CFWS),
+    Empty
+}
+impl Parsable for ResentBcc {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        let mut rem = input;
+        req_name!(rem, b"resent-bcc:", input);
+        if let Ok(x) = parse!(AddressList, rem) {
+            req_crlf!(rem, input);
+            return Ok((ResentBcc::AddressList(x), rem));
+        }
+        if let Ok(x) = parse!(CFWS, rem) {
+            req_crlf!(rem, input);
+            return Ok((ResentBcc::CFWS(x), rem));
+        }
+        req_crlf!(rem, input);
+        return Ok((ResentBcc::Empty, rem));
+    }
+}
+impl Streamable for ResentBcc {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(w.write(b"Resent-Bcc: "));
+        count += match *self {
+            ResentBcc::AddressList(ref al) => try!(al.stream(w)),
+            ResentBcc::CFWS(ref cfws) => try!(cfws.stream(w)),
+            ResentBcc::Empty => 0,
+        };
+        count += try!(w.write(b"\r\n"));
+        Ok(count)
+    }
+}
+

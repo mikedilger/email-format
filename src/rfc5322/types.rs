@@ -1075,3 +1075,64 @@ impl Streamable for Zone {
         Ok(6)
     }
 }
+
+// 3.3
+// second          =   2DIGIT / obs-second
+#[derive(Debug, Clone, PartialEq)]
+pub struct Second(pub u8);
+impl Parsable for Second {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() < 2 { return Err(ParseError::NotFound); }
+        if !is_digit(input[0]) || !is_digit(input[1]) { return Err(ParseError::NotFound); }
+        let v: u8 = (10 * (input[0]-48)) + (input[1]-48);
+        Ok((Second(v), &input[2..]))
+    }
+}
+impl Streamable for Second {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        try!(write!(w, "{:02}", self.0));
+        Ok(2)
+    }
+}
+
+// 3.3
+// minute          =   2DIGIT / obs-minute
+#[derive(Debug, Clone, PartialEq)]
+pub struct Minute(pub u8);
+impl Parsable for Minute {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() < 2 { return Err(ParseError::NotFound); }
+        if !is_digit(input[0]) || !is_digit(input[1]) { return Err(ParseError::NotFound); }
+        let v: u8 = (10 * (input[0]-48)) + (input[1]-48);
+        Ok((Minute(v), &input[2..]))
+    }
+}
+impl Streamable for Minute {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        try!(write!(w, "{:02}", self.0));
+        Ok(2)
+    }
+}
+
+// 3.3
+// hour          =   2DIGIT / obs-hour
+#[derive(Debug, Clone, PartialEq)]
+pub struct Hour(pub u8);
+impl Parsable for Hour {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() < 2 { return Err(ParseError::NotFound); }
+        if !is_digit(input[0]) || !is_digit(input[1]) { return Err(ParseError::NotFound); }
+        let v: u8 = (10 * (input[0]-48)) + (input[1]-48);
+        Ok((Hour(v), &input[2..]))
+    }
+}
+impl Streamable for Hour {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        try!(write!(w, "{:02}", self.0));
+        Ok(2)
+    }
+}
+

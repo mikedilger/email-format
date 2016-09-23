@@ -1631,3 +1631,49 @@ impl Streamable for ReceivedToken {
         }
     }
 }
+
+// 3.6.7
+// path            =   angle-addr / ([CFWS] "<" [CFWS] ">" [CFWS])
+#[derive(Debug, Clone, PartialEq)]
+pub enum Path {
+    AngleAddr(AngleAddr),
+    Other(Option<CFWS>, Option<CFWS>, Option<CFWS>),
+}
+impl Parsable for Path {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(aa) = parse!(AngleAddr, rem) {
+            return Ok((Path::AngleAddr(aa), rem));
+        }
+        let c1 = parse!(CFWS, rem).ok();
+        req!(rem, b"<", input);
+        let c2 = parse!(CFWS, rem).ok();
+        req!(rem, b">", input);
+        let c3 = parse!(CFWS, rem).ok();
+        Ok((Path::Other(c1,c2,c3), rem))
+    }
+}
+impl Streamable for Path {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            Path::AngleAddr(ref aa) => aa.stream(w),
+            Path::Other(ref c1, ref c2, ref c3) => {
+                let mut count: usize = 0;
+                if let &Some(ref c) = c1 {
+                    count += try!(c.stream(w));
+                }
+                count += try!(w.write(b"<"));
+                if let &Some(ref c) = c2 {
+                    count += try!(c.stream(w));
+                }
+                count += try!(w.write(b">"));
+                if let &Some(ref c) = c3 {
+                    count += try!(c.stream(w));
+                }
+                Ok(count)
+            }
+        }
+    }
+}
+
+

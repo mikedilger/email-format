@@ -1683,3 +1683,23 @@ impl Streamable for Path {
 #[inline]
 pub fn is_ftext(c: u8) -> bool { (c>=33 && c<=57) || (c>=59 && c<=126) }
 def_cclass!(FText, is_ftext);
+
+// 3.6.8
+// field-name      =   1*ftext
+#[derive(Debug, Clone, PartialEq)]
+pub struct FieldName(pub FText);
+impl Parsable for FieldName {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(ftext) = parse!(FText, rem) {
+            Ok((FieldName(ftext), rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for FieldName {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        self.0.stream(w)
+    }
+}

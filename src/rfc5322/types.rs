@@ -1676,4 +1676,10 @@ impl Streamable for Path {
     }
 }
 
-
+// 3.6.8
+// ftext           =   %d33-57 /          ; Printable US-ASCII
+//                     %d59-126           ;  characters not including
+//                                        ;  ":".
+#[inline]
+pub fn is_ftext(c: u8) -> bool { (c>=33 && c<=57) || (c>=59 && c<=126) }
+def_cclass!(FText, is_ftext);

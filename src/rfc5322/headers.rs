@@ -4,7 +4,7 @@ use std::io::Error as IoError;
 use std::ascii::AsciiExt;
 use super::{Parsable, ParseError, Streamable};
 use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId,
-                   Unstructured, Phrase, ReceivedToken};
+                   Unstructured, Phrase, ReceivedToken, Path};
 
 macro_rules! req_name {
     ($rem:ident, $str:expr, $input:ident) => {
@@ -628,5 +628,28 @@ impl Streamable for Received {
         count += try!(self.date_time.stream(w));
         count += try!(w.write(b"\r\n"));
         Ok(count)
+    }
+}
+
+// 3.6.7
+// return          =   "Return-Path:" path CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub struct Return(pub Path);
+impl Parsable for Return {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        req_name!(rem, b"return-path:", input);
+        if let Ok(path) = parse!(Path, rem) {
+            req_crlf!(rem, input);
+            return Ok((Return(path), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Return {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        Ok(try!(w.write(b"Return-Path: "))
+           + try!(self.0.stream(w))
+           + try!(w.write(b"\r\n")))
     }
 }

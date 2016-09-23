@@ -62,6 +62,7 @@ pub mod headers;
 
 use std::io::Write;
 use std::io::Error as IoError;
+use self::headers::{Return, Received};
 
 pub trait Parsable: Sized {
     /// Parse the object off of the beginning of the `input`.  If found, returns Some object,
@@ -72,4 +73,40 @@ pub trait Parsable: Sized {
 pub trait Streamable {
     /// Serializes and sends the content out to `w`, returning the number of bytes written.
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError>;
+}
+
+// 3.6.7
+// trace           =   [return]
+//                     1*received
+#[derive(Debug, Clone, PartialEq)]
+pub struct Trace {
+    return_path: Option<Return>,
+    received: Vec<Received>
+}
+impl Parsable for Trace {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        let maybe_return = parse!(Return, rem).ok();
+        let mut received: Vec<Received> = Vec::new();
+        while let Ok(r) = parse!(Received, rem) {
+            received.push(r);
+        }
+        if received.len() < 1 { return Err(ParseError::NotFound); }
+        Ok((Trace {
+            return_path: maybe_return,
+            received: received,
+        }, rem))
+    }
+}
+impl Streamable for Trace {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        if let Some(ref rp) = self.return_path {
+            count += try!(rp.stream(w));
+        }
+        for r in &self.received {
+            count += try!(r.stream(w));
+        }
+        Ok(count)
+    }
 }

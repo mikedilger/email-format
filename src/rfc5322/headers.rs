@@ -568,9 +568,17 @@ impl Streamable for ResentMessageId {
 
 // 3.6.7
 // received        =   "Received:" *received-token ";" date-time CRLF
+// Errata ID 3979:
+// received        =   "Received:" [1*received-token / CFWS]
+//                     ";" date-time CRLF
+#[derive(Debug, Clone, PartialEq)]
+pub enum ReceivedTokens {
+    Tokens(Vec<ReceivedToken>),
+    Comment(CFWS),
+}
 #[derive(Debug, Clone, PartialEq)]
 pub struct Received {
-    pub received_tokens: Vec<ReceivedToken>,
+    pub received_tokens: ReceivedTokens,
     pub date_time: DateTime,
 }
 impl Parsable for Received {
@@ -582,11 +590,20 @@ impl Parsable for Received {
         while let Ok(r) = parse!(ReceivedToken, rem) {
             tokens.push(r);
         }
+        let received_tokens = if tokens.len()==0 {
+            if let Ok(cfws) = parse!(CFWS, rem) {
+                ReceivedTokens::Comment(cfws)
+            } else {
+                return Err(ParseError::NotFound);
+            }
+        } else {
+            ReceivedTokens::Tokens(tokens)
+        };
         req!(rem, b";", input);
         if let Ok(dt) = parse!(DateTime, rem) {
             req_crlf!(rem, input);
             return Ok((Received {
-                received_tokens: tokens,
+                received_tokens: received_tokens,
                 date_time: dt
             }, rem));
         }
@@ -597,8 +614,15 @@ impl Streamable for Received {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         count += try!(w.write(b"Received: "));
-        for token in &self.received_tokens {
-            count += try!(token.stream(w));
+        match self.received_tokens {
+            ReceivedTokens::Tokens(ref vec) => {
+                for token in vec {
+                    count += try!(token.stream(w));
+                }
+            },
+            ReceivedTokens::Comment(ref c) => {
+                count += try!(c.stream(w));
+            },
         }
         count += try!(w.write(b";"));
         count += try!(self.date_time.stream(w));

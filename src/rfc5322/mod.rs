@@ -65,6 +65,8 @@ use std::io::Error as IoError;
 use self::headers::{Return, Received};
 use self::headers::{ResentDate, ResentFrom, ResentSender, ResentTo, ResentCc, ResentBcc,
                     ResentMessageId};
+use self::headers::{OrigDate, From, Sender, ReplyTo, To, Cc, Bcc, MessageId, InReplyTo,
+                    References, Subject, Comments, Keywords, OptionalField};
 
 pub trait Parsable: Sized {
     /// Parse the object off of the beginning of the `input`.  If found, returns Some object,
@@ -160,6 +162,94 @@ impl Streamable for ResentField {
             ResentField::Cc(ref x) => x.stream(w),
             ResentField::Bcc(ref x) => x.stream(w),
             ResentField::MessageId(ref x) => x.stream(w),
+        }
+    }
+}
+
+// 3.6
+// a sub part of the Fields definition
+#[derive(Debug, Clone, PartialEq)]
+pub enum Field {
+    OrigDate(OrigDate),
+    From(From),
+    Sender(Sender),
+    ReplyTo(ReplyTo),
+    To(To),
+    Cc(Cc),
+    Bcc(Bcc),
+    MessageId(MessageId),
+    InReplyTo(InReplyTo),
+    References(References),
+    Subject(Subject),
+    Comments(Comments),
+    Keywords(Keywords),
+    OptionalField(OptionalField),
+}
+impl Parsable for Field {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(x) = parse!(OrigDate, rem) {
+            return Ok((Field::OrigDate(x), rem));
+        }
+        if let Ok(x) = parse!(From, rem) {
+            return Ok((Field::From(x), rem));
+        }
+        if let Ok(x) = parse!(Sender, rem) {
+            return Ok((Field::Sender(x), rem));
+        }
+        if let Ok(x) = parse!(ReplyTo, rem) {
+            return Ok((Field::ReplyTo(x), rem));
+        }
+        if let Ok(x) = parse!(To, rem) {
+            return Ok((Field::To(x), rem));
+        }
+        if let Ok(x) = parse!(Cc, rem) {
+            return Ok((Field::Cc(x), rem));
+        }
+        if let Ok(x) = parse!(Bcc, rem) {
+            return Ok((Field::Bcc(x), rem));
+        }
+        if let Ok(x) = parse!(MessageId, rem) {
+            return Ok((Field::MessageId(x), rem));
+        }
+        if let Ok(x) = parse!(InReplyTo, rem) {
+            return Ok((Field::InReplyTo(x), rem));
+        }
+        if let Ok(x) = parse!(References, rem) {
+            return Ok((Field::References(x), rem));
+        }
+        if let Ok(x) = parse!(Subject, rem) {
+            return Ok((Field::Subject(x), rem));
+        }
+        if let Ok(x) = parse!(Comments, rem) {
+            return Ok((Field::Comments(x), rem));
+        }
+        if let Ok(x) = parse!(Keywords, rem) {
+            return Ok((Field::Keywords(x), rem));
+        }
+        if let Ok(x) = parse!(OptionalField, rem) {
+            return Ok((Field::OptionalField(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for Field {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            Field::OrigDate(ref x) => x.stream(w),
+            Field::From(ref x) => x.stream(w),
+            Field::Sender(ref x) => x.stream(w),
+            Field::ReplyTo(ref x) => x.stream(w),
+            Field::To(ref x) => x.stream(w),
+            Field::Cc(ref x) => x.stream(w),
+            Field::Bcc(ref x) => x.stream(w),
+            Field::MessageId(ref x) => x.stream(w),
+            Field::InReplyTo(ref x) => x.stream(w),
+            Field::References(ref x) => x.stream(w),
+            Field::Subject(ref x) => x.stream(w),
+            Field::Comments(ref x) => x.stream(w),
+            Field::Keywords(ref x) => x.stream(w),
+            Field::OptionalField(ref x) => x.stream(w),
         }
     }
 }

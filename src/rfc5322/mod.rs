@@ -63,6 +63,8 @@ pub mod headers;
 use std::io::Write;
 use std::io::Error as IoError;
 use self::headers::{Return, Received};
+use self::headers::{ResentDate, ResentFrom, ResentSender, ResentTo, ResentCc, ResentBcc,
+                    ResentMessageId};
 
 pub trait Parsable: Sized {
     /// Parse the object off of the beginning of the `input`.  If found, returns Some object,
@@ -108,5 +110,56 @@ impl Streamable for Trace {
             count += try!(r.stream(w));
         }
         Ok(count)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ResentField {
+    Date(ResentDate),
+    From(ResentFrom),
+    Sender(ResentSender),
+    To(ResentTo),
+    Cc(ResentCc),
+    Bcc(ResentBcc),
+    MessageId(ResentMessageId),
+}
+impl Parsable for ResentField {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(x) = parse!(ResentDate, rem) {
+            return Ok((ResentField::Date(x), rem));
+        }
+        if let Ok(x) = parse!(ResentFrom, rem) {
+            return Ok((ResentField::From(x), rem));
+        }
+        if let Ok(x) = parse!(ResentSender, rem) {
+            return Ok((ResentField::Sender(x), rem));
+        }
+        if let Ok(x) = parse!(ResentTo, rem) {
+            return Ok((ResentField::To(x), rem));
+        }
+        if let Ok(x) = parse!(ResentCc, rem) {
+            return Ok((ResentField::Cc(x), rem));
+        }
+        if let Ok(x) = parse!(ResentBcc, rem) {
+            return Ok((ResentField::Bcc(x), rem));
+        }
+        if let Ok(x) = parse!(ResentMessageId, rem) {
+            return Ok((ResentField::MessageId(x), rem));
+        }
+        Err(ParseError::NotFound)
+    }
+}
+impl Streamable for ResentField {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        match *self {
+            ResentField::Date(ref x) => x.stream(w),
+            ResentField::From(ref x) => x.stream(w),
+            ResentField::Sender(ref x) => x.stream(w),
+            ResentField::To(ref x) => x.stream(w),
+            ResentField::Cc(ref x) => x.stream(w),
+            ResentField::Bcc(ref x) => x.stream(w),
+            ResentField::MessageId(ref x) => x.stream(w),
+        }
     }
 }

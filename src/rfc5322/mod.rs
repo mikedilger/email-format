@@ -420,3 +420,14 @@ impl Streamable for Fields {
         Ok(count)
     }
 }
+
+// 3.5
+// text            =   %d1-9 /            ; Characters excluding CR
+//                     %d11 /             ;  and LF
+//                     %d12 /
+//                     %d14-127
+#[inline]
+pub fn is_text(c: u8) -> bool {
+    (c>=1 && c<=9) || c==11 || c==12 || (c>=14 && c<=127)
+}
+def_cclass!(Text, is_text);

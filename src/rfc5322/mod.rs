@@ -361,3 +361,62 @@ impl Streamable for TraceBlock {
         }
     }
 }
+
+// 3.6
+// fields          =   *(trace
+//                       *optional-field /
+//                       *(resent-date /
+//                        resent-from /
+//                        resent-sender /
+//                        resent-to /
+//                        resent-cc /
+//                        resent-bcc /
+//                        resent-msg-id))
+//                     *(orig-date /
+//                     from /
+//                     sender /
+//                     reply-to /
+//                     to /
+//                     cc /
+//                     bcc /
+//                     message-id /
+//                     in-reply-to /
+//                     references /
+//                     subject /
+//                     comments /
+//                     keywords /
+//                     optional-field)
+#[derive(Debug, Clone, PartialEq)]
+pub struct Fields {
+    pub trace_blocks: Vec<TraceBlock>,
+    pub fields: Vec<Field>,
+}
+impl Parsable for Fields {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        let mut trace_blocks: Vec<TraceBlock> = Vec::new();
+        while let Ok(tb) = parse!(TraceBlock, rem) {
+            trace_blocks.push(tb);
+        }
+        let mut fields: Vec<Field> = Vec::new();
+        while let Ok(f) = parse!(Field, rem) {
+            fields.push(f);
+        }
+        Ok((Fields {
+            trace_blocks: trace_blocks,
+            fields: fields,
+        }, rem))
+    }
+}
+impl Streamable for Fields {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        for tb in &self.trace_blocks {
+            count += try!(tb.stream(w));
+        }
+        for f in &self.fields {
+            count += try!(f.stream(w));
+        }
+        Ok(count)
+    }
+}

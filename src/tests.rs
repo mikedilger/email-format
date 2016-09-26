@@ -529,3 +529,31 @@ fn test_msg_id() {
         post_cfws: None,
     });
 }
+
+#[test]
+fn test_body() {
+    use rfc5322::Body;
+
+    let input = b"This is a test email".to_vec();
+    let (body, rem) = Body::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(body.0, input);
+
+    let input = b"This is a test email\r\n".to_vec();
+    let (body, rem) = Body::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(body.0, input);
+
+    let input = b"This is a test email\r\nVery simple, though.\r\n".to_vec();
+    let (body, rem) = Body::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(body.0, input);
+
+    let input = b"This is a test email\r\n\r\nok\r\n".to_vec();
+    let (body, rem) = Body::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(body.0, input);
+
+    let input = b"This is a test email\r\n\r\nbad\rbad\r\n".to_vec();
+    assert_match!(Body::parse(input.as_slice()), Err(_));
+}

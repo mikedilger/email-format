@@ -62,6 +62,7 @@ pub mod headers;
 
 use std::io::Write;
 use std::io::Error as IoError;
+use buf_read_ext::BufReadExt;
 use self::headers::{Return, Received};
 use self::headers::{ResentDate, ResentFrom, ResentSender, ResentTo, ResentCc, ResentBcc,
                     ResentMessageId};
@@ -431,3 +432,43 @@ pub fn is_text(c: u8) -> bool {
     (c>=1 && c<=9) || c==11 || c==12 || (c>=14 && c<=127)
 }
 def_cclass!(Text, is_text);
+
+// 3.5
+// body            =   (*(*998text CRLF) *998text) / obs-body
+#[derive(Debug, Clone, PartialEq)]
+// for performance/memory reasons, we store as a Vec<u8>
+// rather than Vec<Line> where Line is Vec<Text>.
+pub struct Body(pub Vec<u8>);
+impl Parsable for Body {
+    fn parse(mut input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut body: Vec<u8> = Vec::new();
+        let mut line_number: usize = 0;
+        loop {
+            line_number += 1;
+            let mut line: Vec<u8> = Vec::new();
+            match input.stream_until_token(b"\r\n", &mut line) {
+                Err(e) => return Err(ParseError::Io(e)),
+                Ok((_, found)) => {
+                    let mut rem = &*line;
+                    if let Ok(text) = parse!(Text, rem) {
+                        if rem.len() > 0 {
+                            return Err(ParseError::InvalidBodyChar(rem[0]));
+                        }
+                        if text.0.len() > 998 {
+                            return Err(ParseError::LineTooLong(line_number));
+                        }
+                        body.extend(text.0.clone());
+                    }
+                    if !found { break; } // end of input
+                    else { body.extend_from_slice(b"\r\n"); }
+                }
+            }
+        }
+        Ok((Body(body), input))
+    }
+}
+impl Streamable for Body {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        w.write(&self.0)
+    }
+}

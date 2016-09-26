@@ -1,3 +1,36 @@
+// Format validated types representing lexical tokens defined in
+// RFC 5322 (as well as some referred from RFC 5234)
+// in order to support SMTP (RFC 5321)
+
+// Macro for defining sequences of characters within a character class
+macro_rules! def_cclass {
+    ( $typ:ident, $test:ident) => {
+        #[derive(Debug, Clone, PartialEq)]
+        pub struct $typ(pub Vec<u8>);
+        impl Parsable for $typ {
+            fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+                let mut pos: usize = 0;
+                let mut output: Vec<u8> = Vec::new();
+                while pos < input.len() && $test(input[pos]) {
+                    output.push(input[pos]);
+                    pos += 1;
+                }
+                if output.len() > 0 {
+                    Ok( ($typ(output), &input[pos..]) )
+                }
+                else {
+                    if pos >= input.len() { Err( ParseError::Eof ) }
+                    else { Err( ParseError::NotFound ) }
+                }
+            }
+        }
+        impl Streamable for $typ {
+            fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+                Ok(try!(w.write(&self.0[..])))
+            }
+        }
+    };
+}
 
 pub mod error;
 pub use self::error::ParseError;

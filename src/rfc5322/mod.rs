@@ -293,3 +293,41 @@ impl Streamable for ResentTraceBlock {
     }
 }
 
+// 3.6
+// a sub part of the Fields definition
+#[derive(Debug, Clone, PartialEq)]
+pub struct OptTraceBlock {
+    pub trace: Trace,
+    pub opt_fields: Vec<OptionalField>,
+}
+impl Parsable for OptTraceBlock {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(t) = parse!(Trace, rem) {
+            let mut fields: Vec<OptionalField> = Vec::new();
+            while let Ok(f) = parse!(OptionalField, rem) {
+                fields.push(f);
+            }
+            if fields.len() == 0 {
+                Err(ParseError::ExpectedType("Optional Field"))
+            } else {
+                Ok((OptTraceBlock {
+                    trace: t,
+                    opt_fields: fields
+                }, rem))
+            }
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for OptTraceBlock {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(self.trace.stream(w));
+        for field in &self.opt_fields {
+            count += try!(field.stream(w));
+        }
+        Ok(count)
+    }
+}

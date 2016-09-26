@@ -253,3 +253,43 @@ impl Streamable for Field {
         }
     }
 }
+
+// 3.6
+// a sub part of the Fields definition
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResentTraceBlock {
+    pub trace: Trace,
+    pub resent_fields: Vec<ResentField>,
+}
+impl Parsable for ResentTraceBlock {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(t) = parse!(Trace, rem) {
+            let mut fields: Vec<ResentField> = Vec::new();
+            while let Ok(f) = parse!(ResentField, rem) {
+                fields.push(f);
+            }
+            if fields.len() == 0 {
+                Err(ParseError::ExpectedType("Resent Field"))
+            } else {
+                Ok((ResentTraceBlock {
+                    trace: t,
+                    resent_fields: fields
+                }, rem))
+            }
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for ResentTraceBlock {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(self.trace.stream(w));
+        for field in &self.resent_fields {
+            count += try!(field.stream(w));
+        }
+        Ok(count)
+    }
+}
+

@@ -7,6 +7,7 @@ pub enum ParseError {
     Eof,
     NotFound,
     Expected(Vec<u8>),
+    ExpectedType(&'static str),
 }
 
 impl fmt::Display for ParseError {
@@ -15,6 +16,8 @@ impl fmt::Display for ParseError {
         match *self {
             ParseError::Expected(ref bytes) => write!(f, "{}. Expected {:?}",
                                                       self.description(), bytes),
+            ParseError::ExpectedType(ref t) => write!(f, "{}. Expected {}",
+                                                      self.description(), t),
             _ => write!(f, "{}", self.description()),
         }
     }
@@ -26,6 +29,8 @@ impl fmt::Debug for ParseError {
         match *self {
             ParseError::Expected(ref bytes) => write!(f, "{}. Expected {:?}",
                                                       self.description(), bytes),
+            ParseError::ExpectedType(ref t) => write!(f, "{}. Expected {}",
+                                                      self.description(), t),
             _ => write!(f, "{}", self.description()),
         }
     }
@@ -38,6 +43,7 @@ impl StdError for ParseError {
             ParseError::Eof => "End of File",
             ParseError::NotFound => "Not Found",
             ParseError::Expected(_) => "Expectation Failed",
+            ParseError::ExpectedType(_) => "Expectation Failed",
         }
     }
 
@@ -47,6 +53,7 @@ impl StdError for ParseError {
             ParseError::Eof => None,
             ParseError::NotFound => None,
             ParseError::Expected(_) => None,
+            ParseError::ExpectedType(_) => None,
         }
     }
 }

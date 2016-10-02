@@ -10,6 +10,7 @@ pub enum ParseError {
     ExpectedType(&'static str),
     Io(IoError),
     InvalidBodyChar(u8),
+    LineTooLong(usize),
 }
 
 impl fmt::Display for ParseError {
@@ -24,6 +25,7 @@ impl fmt::Display for ParseError {
                                             self.description(), e),
             ParseError::InvalidBodyChar(ref c) => write!(f, "{}: {}",
                                                          self.description(), c),
+            ParseError::LineTooLong(ref l) => write!(f, "Line {} is too long", l),
             _ => write!(f, "{}", self.description()),
         }
     }
@@ -41,6 +43,7 @@ impl fmt::Debug for ParseError {
                                              self.description(), e),
             ParseError::InvalidBodyChar(ref c) => write!(f, "{}: {}",
                                                          self.description(), c),
+            ParseError::LineTooLong(ref l) => write!(f, "Line {} is too long", l),
             _ => write!(f, "{}", self.description()),
         }
     }
@@ -56,6 +59,7 @@ impl StdError for ParseError {
             ParseError::ExpectedType(_) => "Expectation Failed",
             ParseError::Io(_) => "I/O Error",
             ParseError::InvalidBodyChar(_) => "Invalid Body Character",
+            ParseError::LineTooLong(_) => "Line too long",
         }
     }
 
@@ -68,6 +72,7 @@ impl StdError for ParseError {
             ParseError::ExpectedType(_) => None,
             ParseError::Io(ref e) => Some(e),
             ParseError::InvalidBodyChar(_) => None,
+            ParseError::LineTooLong(_) => None,
         }
     }
 }

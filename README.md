@@ -2,11 +2,14 @@
 
 Implementation of email data structure, builder and streaming thereof.
 
-Features include (many of these are still TBD):
+## Features
+
+* Extensive RFC 5322 Parser/validator for email composition
+
+## Features TBD
 
 * Supports MIME multipart messages via streaming (large parts never need to occupy memory
   more than a buffer at a time)
-* Extensive RFC 5322 Parser/validator for email composition
 * Ergonomic function signatures
 * Minimal copying of data
 * Implements `email` crate's `SendableEmail`, and so it works with the `lettre` crate.

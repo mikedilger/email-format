@@ -472,3 +472,43 @@ impl Streamable for Body {
         w.write(&self.0)
     }
 }
+
+// 3.5
+// message         =   (fields / obs-fields)
+//                     [CRLF body]
+#[derive(Debug, Clone, PartialEq)]
+pub struct Message {
+    pub fields: Fields,
+    pub body: Option<Body>
+}
+impl Parsable for Message {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(fields) = parse!(Fields, rem) {
+            if &rem[..2] != b"\r\n" {
+                return Ok((Message {
+                    fields: fields,
+                    body: None,
+                }, rem));
+            }
+            rem = &rem[2..];
+            parse!(Body, rem).map(|b| (Message {
+                fields: fields,
+                body: Some(b),
+            }, rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+impl Streamable for Message {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        let mut count: usize = 0;
+        count += try!(self.fields.stream(w));
+        if let Some(ref body) = self.body {
+            count += try!(body.stream(w));
+        }
+        Ok(count)
+    }
+
+}

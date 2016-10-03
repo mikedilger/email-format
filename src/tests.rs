@@ -557,3 +557,70 @@ fn test_body() {
     let input = b"This is a test email\r\n\r\nbad\rbad\r\n".to_vec();
     assert_match!(Body::parse(input.as_slice()), Err(_));
 }
+
+#[test]
+fn test_message_1() {
+    use rfc5322::{Message, Fields, Field, Body};
+    use rfc5322::headers::{Subject, From, To};
+    use rfc5322::types::{Unstructured, MailboxList, VChar, AddrSpec, DotAtom, CFWS,
+                         AText, DotAtomText, LocalPart, Domain,
+                         Mailbox, Address, AddressList};
+
+    let input = b"Subject: This is a test\r\n\
+From: me@mydomain.net\r\n\
+To: you@yourdomain.net\r\n\
+\r\n\
+This is the body.\r\n\
+Simple.".to_vec();
+
+    let (message, rem) = Message::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+    assert_eq!(message, Message {
+        fields: Fields {
+            trace_blocks: vec![],
+            fields: vec![
+                Field::Subject(Subject(Unstructured {
+                    leading_ws: true,
+                    parts: vec![VChar(b"This".to_vec()),
+                                VChar(b"is".to_vec()),
+                                VChar(b"a".to_vec()),
+                                VChar(b"test".to_vec())],
+                    trailing_ws: false,
+                })),
+                Field::From(From(MailboxList(vec![Mailbox::AddrSpec(AddrSpec {
+                    local_part: LocalPart::DotAtom(DotAtom {
+                        pre_cfws: Some(CFWS {
+                            comments: vec![],
+                            trailing_ws: true,
+                        }),
+                        dot_atom_text: DotAtomText(vec![AText(b"me".to_vec())]),
+                        post_cfws: None,
+                    }),
+                    domain: Domain::DotAtom(DotAtom {
+                        pre_cfws: None,
+                        dot_atom_text: DotAtomText(vec![AText(b"mydomain".to_vec()),
+                                                        AText(b"net".to_vec())]),
+                        post_cfws: None })
+                })]))),
+                Field::To(To(AddressList( vec![
+                    Address::Mailbox(
+                        Mailbox::AddrSpec(AddrSpec {
+                            local_part: LocalPart::DotAtom(DotAtom {
+                                pre_cfws: Some(CFWS {
+                                    comments: vec![],
+                                    trailing_ws: true,
+                                }),
+                                dot_atom_text: DotAtomText(vec![AText(b"you".to_vec())]),
+                                post_cfws: None,
+                            }),
+                            domain: Domain::DotAtom(DotAtom {
+                                pre_cfws: None,
+                                dot_atom_text: DotAtomText(vec![AText(b"yourdomain".to_vec()),
+                                                                AText(b"net".to_vec())]),
+                                post_cfws: None })
+                        }))]))),
+                ]
+        },
+        body: Some(Body(b"This is the body.\r\nSimple.".to_vec())),
+    });
+}

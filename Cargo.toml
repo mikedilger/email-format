@@ -4,3 +4,4 @@ version = "0.1.0-unstable"
 authors = ["Mike Dilger <mike@optcomp.nz>"]
 
 [dependencies]
+buf-read-ext = "0.2"

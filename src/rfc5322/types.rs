@@ -928,9 +928,9 @@ impl Streamable for GroupList {
 // group           =   display-name ":" [group-list] ";" [CFWS]
 #[derive(Debug, Clone, PartialEq)]
 pub struct Group {
-    display_name: DisplayName,
-    group_list: Option<GroupList>,
-    cfws: Option<CFWS>,
+    pub display_name: DisplayName,
+    pub group_list: Option<GroupList>,
+    pub cfws: Option<CFWS>,
 }
 impl Parsable for Group {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {

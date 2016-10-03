@@ -1,7 +1,13 @@
 [package]
 name = "email-format"
 version = "0.2.0-unstable"
+description = "Email message format (parser and data structure)"
 authors = ["Mike Dilger <mike@optcomp.nz>"]
+readme = "README.md"
+repository = "https://github.com/mikedilger/email-format"
+documentation = "https://mikedilger.github.io/email-format"
+license = "MIT OR Apache-2.0"
+keywords = [ "email", "rfc5322" ]
 
 [dependencies]
 buf-read-ext = "0.2"

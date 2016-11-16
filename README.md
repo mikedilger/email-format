@@ -1,24 +1,26 @@
 # email-format
 
-Implementation of email data structure, builder and streaming thereof.
+"Internet Message Format" meticulously implemented for email construction
+and validation, as defined in RFC 5322 and other RFCs.
 
 ## Features
 
-* Extensive RFC 5322 Parser/validator for email composition
-
-## Features TBD
-
-* Supports MIME multipart messages via streaming (large parts never need to occupy memory
-  more than a buffer at a time)
-* Ergonomic function signatures
-* Minimal copying of data
-* Implements `email` crate's `SendableEmail`, and so it works with the `lettre` crate.
+* Extensive RFC 5322 Parser/validator
 
 ## Limitations
 
-The parser is not sufficient for parsing incoming emails.  RFC 5322 specifically requires
-such parsers to recognize obsolete syntax.  For generation of emails, obsolete syntax is
-not necessary, and usage of such is obsoleted by the RFC.
+* Obsolete email formats are not implemented in the parser.  Therefore, it is not sufficient
+  for parsing inbound emails if you need to recognize formats that were obsoleted in 2008.
+
+## Plans (not yet implemented)
+
+* Support for RFC 6854 (updated From and Sender syntax)
+* Support for MIME (RFC 2045, RFC 4021, RFC 2231, RFC 6352)
+* Support for streaming of MIME parts from disk.
+* Support for all headers registered at IANA (http://www.iana.org/assignments/message-headers/message-headers.xhtml)
+* More ergonomic function signatures
+* Less copying of data
+* Implementation of `email` crate's `SendableEmail`, and so it works with the `lettre` crate (will be inefficient due to the way SendableEmail is defined).
 
 ## History
 

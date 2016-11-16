@@ -18,6 +18,9 @@ macro_rules! req_name {
 
 macro_rules! req_crlf {
     ($rem:ident, $input:ident) => {
+        if $rem.len() < 2 {
+            return Err(ParseError::NotFound);
+        }
         if &$rem[..2] != b"\r\n" {
             return Err(ParseError::NotFound);
         }

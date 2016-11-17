@@ -2,6 +2,7 @@
 use std::io::Write;
 use std::io::Error as IoError;
 use std::ascii::AsciiExt;
+use ::TryFrom;
 use super::{Parsable, ParseError, Streamable};
 use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId,
                    Unstructured, Phrase, ReceivedToken, Path, FieldName};
@@ -25,6 +26,23 @@ macro_rules! req_crlf {
             return Err(ParseError::NotFound);
         }
         $rem = &$rem[2..];
+    }
+}
+
+macro_rules! impl_try_from {
+    ($from:ident, $to:ident) => {
+        impl<'a> TryFrom<&'a [u8]> for $to {
+            type Err = ParseError;
+            fn try_from(input: &'a [u8]) -> Result<$to, ParseError> {
+                Ok($to(try!($from::parse(input).map(|(x,_)| x))))
+            }
+        }
+        impl<'a> TryFrom<$from> for $to {
+            type Err = ParseError;
+            fn try_from(input: $from) -> Result<$to, ParseError> {
+                Ok($to(input))
+            }
+        }
     }
 }
 
@@ -52,6 +70,7 @@ impl Streamable for OrigDate {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(DateTime, OrigDate);
 
 // 3.6.2
 // from            =   "From:" mailbox-list CRLF
@@ -76,6 +95,7 @@ impl Streamable for From {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(MailboxList, From);
 
 // 3.6.2
 // sender          =   "Sender:" mailbox CRLF
@@ -100,6 +120,7 @@ impl Streamable for Sender {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(Mailbox, Sender);
 
 // 3.6.2
 // reply-to        =   "Reply-To:" address-list CRLF
@@ -124,6 +145,7 @@ impl Streamable for ReplyTo {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(AddressList, ReplyTo);
 
 // 3.6.3
 // to              =   "To:" address-list CRLF
@@ -148,6 +170,7 @@ impl Streamable for To {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(AddressList, To);
 
 // 3.6.3
 // cc              =   "Cc:" address-list CRLF
@@ -172,6 +195,7 @@ impl Streamable for Cc {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(AddressList, Cc);
 
 // 3.6.3
 // bcc             =   "Bcc:" [address-list / CFWS] CRLF
@@ -211,6 +235,18 @@ impl Streamable for Bcc {
         Ok(count)
     }
 }
+impl<'a> TryFrom<&'a [u8]> for Bcc {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<Bcc, ParseError> {
+        Ok(Bcc::AddressList(try!(AddressList::parse(input).map(|(x,_)| x))))
+    }
+}
+impl<'a> TryFrom<AddressList> for Bcc {
+    type Err = ParseError;
+    fn try_from(input: AddressList) -> Result<Bcc, ParseError> {
+        Ok(Bcc::AddressList(input))
+    }
+}
 
 // 3.6.4
 // message-id      =   "Message-ID:" msg-id CRLF
@@ -235,6 +271,7 @@ impl Streamable for MessageId {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(MsgId, MessageId);
 
 // 3.6.4
 // in-reply-to     =   "In-Reply-To:" 1*msg-id CRLF
@@ -267,6 +304,24 @@ impl Streamable for InReplyTo {
         Ok(count)
     }
 }
+impl<'a> TryFrom<&'a [u8]> for InReplyTo {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<InReplyTo, ParseError> {
+        let mut msgids: Vec<MsgId> = Vec::new();
+        let mut rem = input;
+        while let Ok(x) = parse!(MsgId, rem) {
+            msgids.push(x);
+        }
+        Ok(InReplyTo(msgids))
+    }
+}
+impl<'a> TryFrom<Vec<MsgId>> for InReplyTo {
+    type Err = ParseError;
+    fn try_from(input: Vec<MsgId>) -> Result<InReplyTo, ParseError> {
+        Ok(InReplyTo(input))
+    }
+}
+
 
 // 3.6.4
 // references      =   "References:" 1*msg-id CRLF
@@ -299,6 +354,23 @@ impl Streamable for References {
         Ok(count)
     }
 }
+impl<'a> TryFrom<&'a [u8]> for References {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<References, ParseError> {
+        let mut msgids: Vec<MsgId> = Vec::new();
+        let mut rem = input;
+        while let Ok(x) = parse!(MsgId, rem) {
+            msgids.push(x);
+        }
+        Ok(References(msgids))
+    }
+}
+impl<'a> TryFrom<Vec<MsgId>> for References {
+    type Err = ParseError;
+    fn try_from(input: Vec<MsgId>) -> Result<References, ParseError> {
+        Ok(References(input))
+    }
+}
 
 // 3.6.5
 // subject         =   "Subject:" unstructured CRLF
@@ -323,6 +395,7 @@ impl Streamable for Subject {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(Unstructured, Subject);
 
 // 3.6.5
 // comments        =   "Comments:" unstructured CRLF
@@ -347,6 +420,7 @@ impl Streamable for Comments {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(Unstructured, Comments);
 
 // 3.6.5
 // keywords        =   "Keywords:" phrase *("," phrase) CRLF
@@ -384,6 +458,23 @@ impl Streamable for Keywords {
         Ok(count)
     }
 }
+impl<'a> TryFrom<&'a [u8]> for Keywords {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<Keywords, ParseError> {
+        let mut msgids: Vec<Phrase> = Vec::new();
+        let mut rem = input;
+        while let Ok(x) = parse!(Phrase, rem) {
+            msgids.push(x);
+        }
+        Ok(Keywords(msgids))
+    }
+}
+impl<'a> TryFrom<Vec<Phrase>> for Keywords {
+    type Err = ParseError;
+    fn try_from(input: Vec<Phrase>) -> Result<Keywords, ParseError> {
+        Ok(Keywords(input))
+    }
+}
 
 // 3.6.6
 // resent-date     =   "Resent-Date:" date-time CRLF
@@ -409,6 +500,7 @@ impl Streamable for ResentDate {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(DateTime, ResentDate);
 
 // 3.6.6
 // resent-from     =   "Resent-From:" mailbox-list CRLF
@@ -433,6 +525,7 @@ impl Streamable for ResentFrom {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(MailboxList, ResentFrom);
 
 // 3.6.6
 // resent-sender   =   "Resent-Sender:" mailbox CRLF
@@ -457,6 +550,7 @@ impl Streamable for ResentSender {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(Mailbox, ResentSender);
 
 // 3.6.6
 // resent-to       =   "Resent-To:" address-list CRLF
@@ -481,6 +575,7 @@ impl Streamable for ResentTo {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(AddressList, ResentTo);
 
 // 3.6.6
 // resent-cc       =   "Resent-Cc:" address-list CRLF
@@ -505,6 +600,7 @@ impl Streamable for ResentCc {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(AddressList, ResentCc);
 
 // 3.6.6
 // resent-bcc      =   "Resent-Bcc:" [address-list / CFWS] CRLF
@@ -544,6 +640,18 @@ impl Streamable for ResentBcc {
         Ok(count)
     }
 }
+impl<'a> TryFrom<&'a [u8]> for ResentBcc {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<ResentBcc, ParseError> {
+        Ok(ResentBcc::AddressList(try!(AddressList::parse(input).map(|(x,_)| x))))
+    }
+}
+impl<'a> TryFrom<AddressList> for ResentBcc {
+    type Err = ParseError;
+    fn try_from(input: AddressList) -> Result<ResentBcc, ParseError> {
+        Ok(ResentBcc::AddressList(input))
+    }
+}
 
 // 3.6.6
 // resent-msg-id   =   "Resent-Message-ID:" msg-id CRLF
@@ -568,6 +676,7 @@ impl Streamable for ResentMessageId {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(MsgId, ResentMessageId);
 
 // 3.6.7
 // received        =   "Received:" *received-token ";" date-time CRLF
@@ -633,6 +742,23 @@ impl Streamable for Received {
         Ok(count)
     }
 }
+impl<'a> TryFrom<&'a [u8]> for Received {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<Received, ParseError> {
+        let mut fudged_input: Vec<u8> = "Received: ".as_bytes().to_owned();
+        fudged_input.extend(&*input);
+        fudged_input.extend("\r\n".as_bytes());
+        Ok(try!(Received::parse(input)).0)
+    }
+}
+impl<'a> TryFrom<(ReceivedTokens, DateTime)> for Received {
+    type Err = ParseError;
+    fn try_from(input: (ReceivedTokens, DateTime)) -> Result<Received, ParseError> {
+        Ok(Received {
+            received_tokens: input.0,
+            date_time: input.1 })
+    }
+}
 
 // 3.6.7
 // return          =   "Return-Path:" path CRLF
@@ -656,6 +782,7 @@ impl Streamable for Return {
            + try!(w.write(b"\r\n")))
     }
 }
+impl_try_from!(Path, Return);
 
 // 3.6.8
 // optional-field  =   field-name ":" unstructured CRLF
@@ -686,5 +813,13 @@ impl Streamable for OptionalField {
            + try!(w.write(b":"))
            + try!(self.value.stream(w))
            + try!(w.write(b"\r\n")))
+    }
+}
+impl<'a> TryFrom<(FieldName, Unstructured)> for OptionalField {
+    type Err = ParseError;
+    fn try_from(input: (FieldName, Unstructured)) -> Result<OptionalField, ParseError> {
+        Ok(OptionalField {
+            name: input.0,
+            value: input.1 })
     }
 }

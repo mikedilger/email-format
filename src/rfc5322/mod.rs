@@ -63,6 +63,7 @@ pub mod headers;
 use std::io::Write;
 use std::io::Error as IoError;
 use buf_read_ext::BufReadExt;
+use ::TryFrom;
 use self::headers::{Return, Received};
 use self::headers::{ResentDate, ResentFrom, ResentSender, ResentTo, ResentCc, ResentBcc,
                     ResentMessageId};
@@ -470,6 +471,18 @@ impl Parsable for Body {
 impl Streamable for Body {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         w.write(&self.0)
+    }
+}
+impl<'a> TryFrom<&'a [u8]> for Body {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<Body, ParseError> {
+        Ok(try!(Body::parse(input)).0)
+    }
+}
+impl<'a> TryFrom<&'a str> for Body {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<Body, ParseError> {
+        Ok(try!(Body::parse(input.as_bytes())).0)
     }
 }
 

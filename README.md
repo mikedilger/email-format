@@ -6,6 +6,9 @@ and validation, as defined in RFC 5322 and other RFCs.
 ## Features
 
 * Extensive RFC 5322 Parser/validator
+* If you generate an email using this crate, you are guaranteed that will be a valid
+  RFC 5322 formatted email, or else you will get a ParseError. The only exception that I
+  am currently aware of is that lines can be longer than 998 characters (see issue #3).
 
 ## Limitations
 
@@ -14,10 +17,11 @@ and validation, as defined in RFC 5322 and other RFCs.
 
 ## Plans (not yet implemented)
 
-* Support for RFC 6854 (updated From and Sender syntax)
+* Support for email headers defined in other RFCs:
+** Support for RFC 6854 (updated From and Sender syntax)
+** Support for all headers registered at IANA (http://www.iana.org/assignments/message-headers/message-headers.xhtml)
 * Support for MIME (RFC 2045, RFC 4021, RFC 2231, RFC 6352)
 * Support for streaming of MIME parts from disk.
-* Support for all headers registered at IANA (http://www.iana.org/assignments/message-headers/message-headers.xhtml)
 * More ergonomic function signatures
 * Less copying of data
 * Implementation of `email` crate's `SendableEmail`, and so it works with the `lettre` crate (will be inefficient due to the way SendableEmail is defined).

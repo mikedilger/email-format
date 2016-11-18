@@ -37,6 +37,12 @@ macro_rules! impl_try_from {
                 Ok($to(try!($from::parse(input).map(|(x,_)| x))))
             }
         }
+        impl<'a> TryFrom<&'a str> for $to {
+            type Err = ParseError;
+            fn try_from(input: &'a str) -> Result<$to, ParseError> {
+                Ok($to(try!($from::parse(input.as_bytes()).map(|(x,_)| x))))
+            }
+        }
         impl<'a> TryFrom<$from> for $to {
             type Err = ParseError;
             fn try_from(input: $from) -> Result<$to, ParseError> {

@@ -373,6 +373,19 @@ impl Email {
     }
 }
 
+impl Parsable for Email {
+    fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
+        let mut rem = input;
+        if let Ok(message) = Message::parse(rem).map(|(value, r)| { rem = r; value }) {
+            Ok((Email {
+                message: message
+            }, rem))
+        } else {
+            Err(ParseError::NotFound)
+        }
+    }
+}
+
 impl Streamable for Email {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         self.message.stream(w)

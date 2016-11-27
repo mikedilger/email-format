@@ -624,3 +624,56 @@ Simple.".to_vec();
         body: Some(Body(b"This is the body.\r\nSimple.".to_vec())),
     });
 }
+
+#[test]
+fn test_email_struct_functions() {
+    use ::Email;
+    let mut email = Email::new("mike@sample.com",
+                               "Wed, 05 Jan 2015 15:13:05 +1300").unwrap();
+
+    email.set_date("Wed, 06 Jan 2015 15:13:05 +1300".as_bytes()).unwrap();
+    let date1 = email.get_date();
+    email.set_date("Fri, 30 Dec 2000 09:11:56 -1100").unwrap();
+    let date2 = email.get_date();
+    assert!(date1 != date2);
+    email.set_date(date2).unwrap();
+
+    email.set_from("mike@sample.com".as_bytes()).unwrap();
+    let from1 = email.get_from();
+    email.set_from("mike@sample2.com").unwrap();
+    let from2 = email.get_from();
+    assert!(from1 != from2);
+    email.set_from(from2).unwrap();
+
+    assert!(email.get_sender().is_none());
+    email.set_sender("mike@sample.com".as_bytes()).unwrap();
+    let sender1 = email.get_sender().unwrap();
+    email.set_sender("mike@sample2.com").unwrap();
+    let sender2 = email.get_sender().unwrap();
+    assert!(sender1 != sender2);
+    email.set_sender(sender2).unwrap();
+
+    assert!(email.get_reply_to().is_none());
+    email.set_reply_to("mike@sample.com".as_bytes()).unwrap();
+    let reply_to1 = email.get_reply_to().unwrap();
+    email.set_reply_to("mike@sample2.com").unwrap();
+    let reply_to2 = email.get_reply_to().unwrap();
+    assert!(reply_to1 != reply_to2);
+    email.set_reply_to(reply_to2).unwrap();
+
+    assert!(email.get_to().is_none());
+    email.set_to("mike@sample.com".as_bytes()).unwrap();
+    let to1 = email.get_to().unwrap();
+    email.set_to("mike@sample2.com").unwrap();
+    let to2 = email.get_to().unwrap();
+    assert!(to1 != to2);
+    email.set_to(to2).unwrap();
+
+    assert!(email.get_cc().is_none());
+    email.set_cc("mike@sample.com, webmaster@sample.com".as_bytes()).unwrap();
+    let cc1 = email.get_cc().unwrap();
+    email.set_cc("mike@sample2.com, mike@sample.com").unwrap();
+    let cc2 = email.get_cc().unwrap();
+    assert!(cc1 != cc2);
+    email.set_cc(cc2).unwrap();
+}

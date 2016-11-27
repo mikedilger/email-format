@@ -6,6 +6,9 @@ mod tests;
 
 pub mod rfc5322;
 
+use std::io::Write;
+use std::io::Error as IoError;
+
 use rfc5322::{Message, Fields, Field};
 use rfc5322::{Parsable, Streamable};
 use rfc5322::error::ParseError;
@@ -367,5 +370,11 @@ impl Email {
     }
     pub fn get_body(&self) -> Option<Body> {
         self.message.body.clone()
+    }
+}
+
+impl Streamable for Email {
+    fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
+        self.message.stream(w)
     }
 }

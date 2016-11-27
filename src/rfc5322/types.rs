@@ -572,8 +572,13 @@ impl Streamable for Unstructured {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if self.leading_ws { count += try!(w.write(b" ")); }
+        let mut first: bool = true;
         for vc in &self.parts {
+            if !first {
+                count += try!(w.write(b" "));
+            }
             count += try!(vc.stream(w));
+            first = false;
         }
         if self.trailing_ws { count += try!(w.write(b" ")); }
         Ok(count)

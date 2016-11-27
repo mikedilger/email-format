@@ -716,3 +716,31 @@ fn test_email_example() {
                 \r\n\
                 Your Friend".as_bytes());
 }
+
+#[test]
+fn test_email_parse_stream() {
+    use ::Email;
+    use ::rfc5322::{Parsable, Streamable};
+
+    let input = "Date: Wed, 05 Jan 2015 15:13:05 +1300\r\n\
+                 From: myself@mydomain.com\r\n\
+                 Sender: from_myself@mydomain.com\r\n\
+                 Reply-To: My Mailer <no-reply@mydomain.com>\r\n\
+                 To: You <you@yourdomain.com>\r\n\
+                 Cc: Our Friend <friend@frienddomain.com>\r\n\
+                 Message-ID: <id/20161128115731.29084.maelstrom@mydomain.com>\r\n\
+                 Subject: Hello Friend\r\n\
+                 \r\n\
+                 Good to hear from you.\r\n\
+                 I wish you the best.\r\n\
+                 \r\n\
+                 Your Friend".as_bytes();
+
+    let (email, remainder) = Email::parse(&input).unwrap();
+    assert_eq!(remainder.len(), 0);
+
+    let mut output: Vec<u8> = Vec::new();
+    email.stream(&mut output).unwrap();
+
+    assert_eq!(input, &*output);
+}

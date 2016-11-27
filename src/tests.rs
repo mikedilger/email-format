@@ -677,3 +677,42 @@ fn test_email_struct_functions() {
     assert!(cc1 != cc2);
     email.set_cc(cc2).unwrap();
 }
+
+#[test]
+fn test_email_example() {
+    use ::Email;
+
+    let mut email = Email::new(
+        "myself@mydomain.com",  // "From:"
+        "Wed, 05 Jan 2015 15:13:05 +1300" // "Date:"
+            ).unwrap();
+    email.set_sender("from_myself@mydomain.com").unwrap();
+    email.set_reply_to("My Mailer <no-reply@mydomain.com>").unwrap();
+    email.set_to("You <you@yourdomain.com>").unwrap();
+    email.set_cc("Our Friend <friend@frienddomain.com>").unwrap();
+    email.set_message_id("<id/20161128115731.29084.maelstrom@mydomain.com>").unwrap();
+    email.set_subject("Hello Friend").unwrap();
+    email.set_body("Good to hear from you.\r\n\
+                    I wish you the best.\r\n\
+                    \r\n\
+                    Your Friend").unwrap();
+
+
+    let mut output: Vec<u8> = Vec::new();
+    email.stream(&mut output).unwrap();
+
+    assert_eq!(output,
+               "Date:Wed, 05 Jan 2015 15:13:05 +1300\r\n\
+                From:myself@mydomain.com\r\n\
+                Sender:from_myself@mydomain.com\r\n\
+                Reply-To:My Mailer <no-reply@mydomain.com>\r\n\
+                To:You <you@yourdomain.com>\r\n\
+                Cc:Our Friend <friend@frienddomain.com>\r\n\
+                Message-ID:<id/20161128115731.29084.maelstrom@mydomain.com>\r\n\
+                Subject:Hello Friend\r\n\
+                \r\n\
+                Good to hear from you.\r\n\
+                I wish you the best.\r\n\
+                \r\n\
+                Your Friend".as_bytes());
+}

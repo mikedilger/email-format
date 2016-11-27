@@ -519,9 +519,9 @@ impl Streamable for Message {
         let mut count: usize = 0;
         count += try!(self.fields.stream(w));
         if let Some(ref body) = self.body {
+            count += try!(w.write(b"\r\n"));
             count += try!(body.stream(w));
         }
         Ok(count)
     }
-
 }

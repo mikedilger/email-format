@@ -96,7 +96,7 @@ impl Parsable for From {
 }
 impl Streamable for From {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"From: "))
+        Ok(try!(w.write(b"From:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -121,7 +121,7 @@ impl Parsable for Sender {
 }
 impl Streamable for Sender {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Sender: "))
+        Ok(try!(w.write(b"Sender:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -146,7 +146,7 @@ impl Parsable for ReplyTo {
 }
 impl Streamable for ReplyTo {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Reply-To: "))
+        Ok(try!(w.write(b"Reply-To:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -171,7 +171,7 @@ impl Parsable for To {
 }
 impl Streamable for To {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"To: "))
+        Ok(try!(w.write(b"To:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -196,7 +196,7 @@ impl Parsable for Cc {
 }
 impl Streamable for Cc {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Cc: "))
+        Ok(try!(w.write(b"Cc:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -231,7 +231,7 @@ impl Parsable for Bcc {
 impl Streamable for Bcc {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(w.write(b"Bcc: "));
+        count += try!(w.write(b"Bcc:"));
         count += match *self {
             Bcc::AddressList(ref al) => try!(al.stream(w)),
             Bcc::CFWS(ref cfws) => try!(cfws.stream(w)),
@@ -272,7 +272,7 @@ impl Parsable for MessageId {
 }
 impl Streamable for MessageId {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Message-ID: "))
+        Ok(try!(w.write(b"Message-ID:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -302,7 +302,7 @@ impl Parsable for InReplyTo {
 impl Streamable for InReplyTo {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(w.write(b"In-Reply-To: "));
+        count += try!(w.write(b"In-Reply-To:"));
         for msgid in &self.0 {
             count += try!(msgid.stream(w))
         }
@@ -352,7 +352,7 @@ impl Parsable for References {
 impl Streamable for References {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(w.write(b"References: "));
+        count += try!(w.write(b"References:"));
         for msgid in &self.0 {
             count += try!(msgid.stream(w))
         }
@@ -396,7 +396,7 @@ impl Parsable for Subject {
 }
 impl Streamable for Subject {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Subject: "))
+        Ok(try!(w.write(b"Subject:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -421,7 +421,7 @@ impl Parsable for Comments {
 }
 impl Streamable for Comments {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Comments: "))
+        Ok(try!(w.write(b"Comments:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -451,7 +451,7 @@ impl Parsable for Keywords {
 impl Streamable for Keywords {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(w.write(b"Keywords: "));
+        count += try!(w.write(b"Keywords:"));
         let mut virgin = true;
         for phrase in &self.0 {
             if ! virgin {
@@ -526,7 +526,7 @@ impl Parsable for ResentFrom {
 }
 impl Streamable for ResentFrom {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Resent-From: "))
+        Ok(try!(w.write(b"Resent-From:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -551,7 +551,7 @@ impl Parsable for ResentSender {
 }
 impl Streamable for ResentSender {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Resent-Sender: "))
+        Ok(try!(w.write(b"Resent-Sender:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -576,7 +576,7 @@ impl Parsable for ResentTo {
 }
 impl Streamable for ResentTo {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Resent-To: "))
+        Ok(try!(w.write(b"Resent-To:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -601,7 +601,7 @@ impl Parsable for ResentCc {
 }
 impl Streamable for ResentCc {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Resent-Cc: "))
+        Ok(try!(w.write(b"Resent-Cc:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -636,7 +636,7 @@ impl Parsable for ResentBcc {
 impl Streamable for ResentBcc {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(w.write(b"Resent-Bcc: "));
+        count += try!(w.write(b"Resent-Bcc:"));
         count += match *self {
             ResentBcc::AddressList(ref al) => try!(al.stream(w)),
             ResentBcc::CFWS(ref cfws) => try!(cfws.stream(w)),
@@ -677,7 +677,7 @@ impl Parsable for ResentMessageId {
 }
 impl Streamable for ResentMessageId {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Resent-Message-ID: "))
+        Ok(try!(w.write(b"Resent-Message-ID:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }
@@ -731,7 +731,7 @@ impl Parsable for Received {
 impl Streamable for Received {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(w.write(b"Received: "));
+        count += try!(w.write(b"Received:"));
         match self.received_tokens {
             ReceivedTokens::Tokens(ref vec) => {
                 for token in vec {
@@ -751,7 +751,7 @@ impl Streamable for Received {
 impl<'a> TryFrom<&'a [u8]> for Received {
     type Err = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Received, ParseError> {
-        let mut fudged_input: Vec<u8> = "Received: ".as_bytes().to_owned();
+        let mut fudged_input: Vec<u8> = "Received:".as_bytes().to_owned();
         fudged_input.extend(&*input);
         fudged_input.extend("\r\n".as_bytes());
         Ok(try!(Received::parse(input)).0)
@@ -783,7 +783,7 @@ impl Parsable for Return {
 }
 impl Streamable for Return {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"Return-Path: "))
+        Ok(try!(w.write(b"Return-Path:"))
            + try!(self.0.stream(w))
            + try!(w.write(b"\r\n")))
     }

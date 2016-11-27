@@ -481,8 +481,8 @@ fn test_from() {
     assert_eq!(rem, b"");
 
     let mut output: Vec<u8> = Vec::new();
-    assert_eq!(from.stream(&mut output).unwrap(), 20);
-    assert_eq!(output, b"From: steven@a.b.c\r\n".to_vec());
+    assert_eq!(from.stream(&mut output).unwrap(), 19);
+    assert_eq!(output, b"From:steven@a.b.c\r\n".to_vec());
 }
 
 #[test]

@@ -86,6 +86,8 @@ use rfc5322::Body;
 use rfc5322::headers::{From, OrigDate, Sender, ReplyTo, To, Cc, Bcc, MessageId,
                            InReplyTo, References, Subject, Comments, Keywords,
                            OptionalField};
+use rfc5322::types::{DateTime};
+
 
 /// Attempt to construct `Self` via a conversion (borrowed from rust `std`)
 ///
@@ -422,14 +424,17 @@ impl Email {
         output
     }
 
-    // TBD: trace
-    // TBD: resent-date
-    // TBD: resent-from
-    // TBD: resent-sender
-    // TBD: resent-to
-    // TBD: resent-cc
-    // TBD: resent-bcc
-    // TBD: resent-msg-id
+    pub fn add_resent_trace_block(&mut self, resent_trace_block: ResentTraceBlock)
+                                  -> Result<(), ParseError>
+    {
+        self.message.fields.trace_blocks.push(::rfc5322::TraceBlock::Resent(resent_trace_block.0));
+    }
+
+    pub fn add_opt_trace_block(&mut self, opt_trace_block: OptTraceBlock)
+                                  -> Result<(), ParseError>
+    {
+        self.message.fields.trace_blocks.push(::rfc5322::TraceBlock::Opt(opt_trace_block.0));
+    }
 
     pub fn set_body<B>(&mut self, body: B) -> Result<(), ParseError>
         where Body: TryFrom<B, Err=ParseError>
@@ -472,5 +477,53 @@ impl fmt::Display for Email {
             // rfc5322 formatted emails fall within utf8
             write!(f, "{}", ::std::str::from_utf8_unchecked(&*output))
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ResentTraceBlock(::rfc5322::ResentTraceBlock);
+
+impl ResentTraceBlock {
+    pub fn new<P,R>(return_path: Option<P>, received: Vec<R>) -> Result<ResentTraceBlock, ParseError>
+        where Return: TryFrom<P, Err=ParseError>, Received: TryFrom<R, Err=ParseError>
+    {
+        Ok(ResentTraceBlock(::rfc5322::ResentTraceBlock {
+            trace: Trace {
+                return_path: return_path.map(|rp| try!(TryFrom::try_from(rp))),
+                received: received.iter().map(|r| try!(TryFrom::try_from(r))).collect(),
+            },
+            resent_fields: Vec::new(),
+        }))
+    }
+
+    pub fn add_field<R>(&mut self, resent_field: R) -> Result<(), ParseError>
+        where ResentField: TryFrom<R, Err=ParseError>
+    {
+        self.0.resent_fields.push(try!(TryFrom::try_from(resent_field)));
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct OptTraceBlock(::rfc5322::OptTraceBlock);
+
+impl OptTraceBlock {
+    pub fn new<P,R>(return_path: P, received: R) -> Result<OptTraceBlock, ParseError>
+        where Return: TryFrom<P, Err=ParseError>, Received: TryFrom<R, Err=ParseError>
+    {
+        Ok(OptTraceBlock(::rfc5322::OptTraceBlock {
+            trace: Trace {
+                return_path: try!(TryFrom::try_from(return_path)),
+                received: try!(TryFrom::try_from(received)),
+            },
+            opt_fields: Vec::new(),
+        }))
+    }
+
+    pub fn add_field<O>(&mut self, opt_field: O) -> Result<(), ParseError>
+        where OptionalField: TryFrom<O, Err=ParseError>
+    {
+        self.0.opt_fields.push(try!(TryFrom::try_from(opt_field)));
+        Ok(())
     }
 }

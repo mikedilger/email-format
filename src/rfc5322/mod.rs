@@ -167,6 +167,12 @@ impl Streamable for ResentField {
         }
     }
 }
+impl<'a> TryFrom<$from> for ResentField {
+    type Err = ParseError;
+    fn try_from(input: $from) -> Result<ResentField, ParseError> {
+        Ok(ResentField(input))
+    }
+}
 
 // 3.6
 // a sub part of the Fields definition

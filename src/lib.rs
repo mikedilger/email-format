@@ -36,6 +36,7 @@ pub mod rfc5322;
 
 use std::io::Write;
 use std::io::Error as IoError;
+use std::fmt;
 
 use rfc5322::{Message, Fields, Field};
 use rfc5322::{Parsable, Streamable};
@@ -417,5 +418,18 @@ impl Parsable for Email {
 impl Streamable for Email {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         self.message.stream(w)
+    }
+}
+
+impl fmt::Display for Email {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        let mut output: Vec<u8> = Vec::new();
+        if let Err(_) = self.stream(&mut output) {
+            return Err(fmt::Error);
+        }
+        unsafe {
+            // rfc5322 formatted emails fall within utf8
+            write!(f, "{}", ::std::str::from_utf8_unchecked(&*output))
+        }
     }
 }

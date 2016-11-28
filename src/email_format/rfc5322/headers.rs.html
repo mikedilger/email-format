@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/rfc5322/headers.rs`.">
+    <meta name="description" content="Source to the Rust file `rfc5322/headers.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>headers.rs.html -- source</title>
 
-    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
     
 
     
@@ -729,11 +729,156 @@
 <span id="685">685</span>
 <span id="686">686</span>
 <span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
 </pre><pre class='rust '>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Write</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Error</span> <span class='kw'>as</span> <span class='ident'>IoError</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ascii</span>::<span class='ident'>AsciiExt</span>;
+<span class='kw'>use</span> ::<span class='ident'>TryFrom</span>;
 <span class='kw'>use</span> <span class='kw'>super</span>::{<span class='ident'>Parsable</span>, <span class='ident'>ParseError</span>, <span class='ident'>Streamable</span>};
 <span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>types</span>::{<span class='ident'>DateTime</span>, <span class='ident'>MailboxList</span>, <span class='ident'>Mailbox</span>, <span class='ident'>AddressList</span>, <span class='ident'>CFWS</span>, <span class='ident'>MsgId</span>,
                    <span class='ident'>Unstructured</span>, <span class='ident'>Phrase</span>, <span class='ident'>ReceivedToken</span>, <span class='ident'>Path</span>, <span class='ident'>FieldName</span>};
@@ -750,10 +895,36 @@
 
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>req_crlf</span> {
     (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>input</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
+        <span class='kw'>if</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>.<span class='ident'>len</span>() <span class='op'>&lt;</span> <span class='number'>2</span> {
+            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>);
+        }
         <span class='kw'>if</span> <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>[..<span class='number'>2</span>] <span class='op'>!=</span> <span class='string'>b&quot;\r\n&quot;</span> {
             <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>);
         }
         <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>[<span class='number'>2</span>..];
+    }
+}
+
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_try_from</span> {
+    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
+        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span> {
+            <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+            <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+                <span class='prelude-val'>Ok</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+            }
+        }
+        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span> {
+            <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+            <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+                <span class='prelude-val'>Ok</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>()).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+            }
+        }
+        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span> {
+            <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+            <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+                <span class='prelude-val'>Ok</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>(<span class='ident'>input</span>))
+            }
+        }
     }
 }
 
@@ -781,6 +952,7 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>DateTime</span>, <span class='ident'>OrigDate</span>);
 
 <span class='comment'>// 3.6.2</span>
 <span class='comment'>// from            =   &quot;From:&quot; mailbox-list CRLF</span>
@@ -800,11 +972,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>From</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;From: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;From:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MailboxList</span>, <span class='ident'>From</span>);
 
 <span class='comment'>// 3.6.2</span>
 <span class='comment'>// sender          =   &quot;Sender:&quot; mailbox CRLF</span>
@@ -824,11 +997,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Sender</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Sender: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Sender:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Mailbox</span>, <span class='ident'>Sender</span>);
 
 <span class='comment'>// 3.6.2</span>
 <span class='comment'>// reply-to        =   &quot;Reply-To:&quot; address-list CRLF</span>
@@ -848,11 +1022,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ReplyTo</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Reply-To: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Reply-To:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>ReplyTo</span>);
 
 <span class='comment'>// 3.6.3</span>
 <span class='comment'>// to              =   &quot;To:&quot; address-list CRLF</span>
@@ -872,11 +1047,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>To</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;To: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;To:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>To</span>);
 
 <span class='comment'>// 3.6.3</span>
 <span class='comment'>// cc              =   &quot;Cc:&quot; address-list CRLF</span>
@@ -896,11 +1072,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Cc</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Cc: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Cc:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>Cc</span>);
 
 <span class='comment'>// 3.6.3</span>
 <span class='comment'>// bcc             =   &quot;Bcc:&quot; [address-list / CFWS] CRLF</span>
@@ -930,7 +1107,7 @@
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Bcc</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Bcc: &quot;</span>));
+        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Bcc:&quot;</span>));
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
             <span class='ident'>Bcc</span>::<span class='ident'>AddressList</span>(<span class='kw-2'>ref</span> <span class='ident'>al</span>) <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>al</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)),
             <span class='ident'>Bcc</span>::<span class='ident'>CFWS</span>(<span class='kw-2'>ref</span> <span class='ident'>cfws</span>) <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>cfws</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)),
@@ -938,6 +1115,18 @@
         };
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>));
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Bcc</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Bcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Bcc</span>::<span class='ident'>AddressList</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>AddressList</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Bcc</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='ident'>AddressList</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Bcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Bcc</span>::<span class='ident'>AddressList</span>(<span class='ident'>input</span>))
     }
 }
 
@@ -959,11 +1148,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>MessageId</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Message-ID: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Message-ID:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>MessageId</span>);
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// in-reply-to     =   &quot;In-Reply-To:&quot; 1*msg-id CRLF</span>
@@ -988,7 +1178,7 @@
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>InReplyTo</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;In-Reply-To: &quot;</span>));
+        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;In-Reply-To:&quot;</span>));
         <span class='kw'>for</span> <span class='ident'>msgid</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span> {
             <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>msgid</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
         }
@@ -996,6 +1186,24 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>InReplyTo</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>InReplyTo</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>msgids</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
+        <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>rem</span>) {
+            <span class='ident'>msgids</span>.<span class='ident'>push</span>(<span class='ident'>x</span>);
+        }
+        <span class='prelude-val'>Ok</span>(<span class='ident'>InReplyTo</span>(<span class='ident'>msgids</span>))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>InReplyTo</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>InReplyTo</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>InReplyTo</span>(<span class='ident'>input</span>))
+    }
+}
+
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// references      =   &quot;References:&quot; 1*msg-id CRLF</span>
@@ -1020,12 +1228,29 @@
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>References</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;References: &quot;</span>));
+        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;References:&quot;</span>));
         <span class='kw'>for</span> <span class='ident'>msgid</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span> {
             <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>msgid</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
         }
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>));
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>References</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>References</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>msgids</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
+        <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>rem</span>) {
+            <span class='ident'>msgids</span>.<span class='ident'>push</span>(<span class='ident'>x</span>);
+        }
+        <span class='prelude-val'>Ok</span>(<span class='ident'>References</span>(<span class='ident'>msgids</span>))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>References</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>References</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>References</span>(<span class='ident'>input</span>))
     }
 }
 
@@ -1047,11 +1272,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Subject</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Subject: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Subject:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Unstructured</span>, <span class='ident'>Subject</span>);
 
 <span class='comment'>// 3.6.5</span>
 <span class='comment'>// comments        =   &quot;Comments:&quot; unstructured CRLF</span>
@@ -1071,11 +1297,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Comments</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Comments: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Comments:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Unstructured</span>, <span class='ident'>Comments</span>);
 
 <span class='comment'>// 3.6.5</span>
 <span class='comment'>// keywords        =   &quot;Keywords:&quot; phrase *(&quot;,&quot; phrase) CRLF</span>
@@ -1100,7 +1327,7 @@
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Keywords</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Keywords: &quot;</span>));
+        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Keywords:&quot;</span>));
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>virgin</span> <span class='op'>=</span> <span class='bool-val'>true</span>;
         <span class='kw'>for</span> <span class='ident'>phrase</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span> {
             <span class='kw'>if</span> <span class='op'>!</span> <span class='ident'>virgin</span> {
@@ -1111,6 +1338,23 @@
         }
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>));
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Keywords</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Keywords</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>msgids</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Phrase</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
+        <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Phrase</span>, <span class='ident'>rem</span>) {
+            <span class='ident'>msgids</span>.<span class='ident'>push</span>(<span class='ident'>x</span>);
+        }
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Keywords</span>(<span class='ident'>msgids</span>))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Phrase</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>Keywords</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Phrase</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Keywords</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Keywords</span>(<span class='ident'>input</span>))
     }
 }
 
@@ -1138,6 +1382,7 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>DateTime</span>, <span class='ident'>ResentDate</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-from     =   &quot;Resent-From:&quot; mailbox-list CRLF</span>
@@ -1157,11 +1402,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentFrom</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-From: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-From:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MailboxList</span>, <span class='ident'>ResentFrom</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-sender   =   &quot;Resent-Sender:&quot; mailbox CRLF</span>
@@ -1181,11 +1427,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentSender</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Sender: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Sender:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Mailbox</span>, <span class='ident'>ResentSender</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-to       =   &quot;Resent-To:&quot; address-list CRLF</span>
@@ -1205,11 +1452,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentTo</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-To: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-To:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>ResentTo</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-cc       =   &quot;Resent-Cc:&quot; address-list CRLF</span>
@@ -1229,11 +1477,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentCc</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Cc: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Cc:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>ResentCc</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-bcc      =   &quot;Resent-Bcc:&quot; [address-list / CFWS] CRLF</span>
@@ -1263,7 +1512,7 @@
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentBcc</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Bcc: &quot;</span>));
+        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Bcc:&quot;</span>));
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
             <span class='ident'>ResentBcc</span>::<span class='ident'>AddressList</span>(<span class='kw-2'>ref</span> <span class='ident'>al</span>) <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>al</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)),
             <span class='ident'>ResentBcc</span>::<span class='ident'>CFWS</span>(<span class='kw-2'>ref</span> <span class='ident'>cfws</span>) <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>cfws</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)),
@@ -1271,6 +1520,18 @@
         };
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>));
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ResentBcc</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>ResentBcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>ResentBcc</span>::<span class='ident'>AddressList</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>AddressList</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ResentBcc</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='ident'>AddressList</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>ResentBcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>ResentBcc</span>::<span class='ident'>AddressList</span>(<span class='ident'>input</span>))
     }
 }
 
@@ -1292,11 +1553,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentMessageId</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Message-ID: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Resent-Message-ID:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>ResentMessageId</span>);
 
 <span class='comment'>// 3.6.7</span>
 <span class='comment'>// received        =   &quot;Received:&quot; *received-token &quot;;&quot; date-time CRLF</span>
@@ -1345,7 +1607,7 @@
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Received</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Received: &quot;</span>));
+        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Received:&quot;</span>));
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>received_tokens</span> {
             <span class='ident'>ReceivedTokens</span>::<span class='ident'>Tokens</span>(<span class='kw-2'>ref</span> <span class='ident'>vec</span>) <span class='op'>=&gt;</span> {
                 <span class='kw'>for</span> <span class='ident'>token</span> <span class='kw'>in</span> <span class='ident'>vec</span> {
@@ -1360,6 +1622,23 @@
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>date_time</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
         <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>));
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Received</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Received</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>fudged_input</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='string'>&quot;Received:&quot;</span>.<span class='ident'>as_bytes</span>().<span class='ident'>to_owned</span>();
+        <span class='ident'>fudged_input</span>.<span class='ident'>extend</span>(<span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>input</span>);
+        <span class='ident'>fudged_input</span>.<span class='ident'>extend</span>(<span class='string'>&quot;\r\n&quot;</span>.<span class='ident'>as_bytes</span>());
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Received</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>)).<span class='number'>0</span>)
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span>(<span class='ident'>ReceivedTokens</span>, <span class='ident'>DateTime</span>)<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Received</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: (<span class='ident'>ReceivedTokens</span>, <span class='ident'>DateTime</span>)) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Received</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Received</span> {
+            <span class='ident'>received_tokens</span>: <span class='ident'>input</span>.<span class='number'>0</span>,
+            <span class='ident'>date_time</span>: <span class='ident'>input</span>.<span class='number'>1</span> })
     }
 }
 
@@ -1380,11 +1659,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Return</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Return-Path: &quot;</span>))
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;Return-Path:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
     }
 }
+<span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Path</span>, <span class='ident'>Return</span>);
 
 <span class='comment'>// 3.6.8</span>
 <span class='comment'>// optional-field  =   field-name &quot;:&quot; unstructured CRLF</span>
@@ -1415,6 +1695,14 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;:&quot;</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>value</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>))
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>)))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span>(<span class='ident'>FieldName</span>, <span class='ident'>Unstructured</span>)<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>OptionalField</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: (<span class='ident'>FieldName</span>, <span class='ident'>Unstructured</span>)) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>OptionalField</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='prelude-val'>Ok</span>(<span class='ident'>OptionalField</span> {
+            <span class='ident'>name</span>: <span class='ident'>input</span>.<span class='number'>0</span>,
+            <span class='ident'>value</span>: <span class='ident'>input</span>.<span class='number'>1</span> })
     }
 }
 </pre>
@@ -1472,13 +1760,13 @@
     
 
     <script>
-        window.rootPath = "../../../../";
+        window.rootPath = "../../../";
         window.currentCrate = "email_format";
         window.playgroundUrl = "";
     </script>
-    <script src="../../../../jquery.js"></script>
-    <script src="../../../../main.js"></script>
-    
-    <script defer src="../../../../search-index.js"></script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script src="../../../extra.js"></script>
+    <script defer src="../../../search-index.js"></script>
 </body>
 </html>

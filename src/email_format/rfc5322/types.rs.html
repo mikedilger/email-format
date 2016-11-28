@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/rfc5322/types.rs`.">
+    <meta name="description" content="Source to the Rust file `rfc5322/types.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>types.rs.html -- source</title>
 
-    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
     
 
     
@@ -1747,6 +1747,21 @@
 <span id="1703">1703</span>
 <span id="1704">1704</span>
 <span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
 </pre><pre class='rust '>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Write</span>;
@@ -2322,8 +2337,13 @@
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
         <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>leading_ws</span> { <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot; &quot;</span>)); }
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>first</span>: <span class='ident'>bool</span> <span class='op'>=</span> <span class='bool-val'>true</span>;
         <span class='kw'>for</span> <span class='ident'>vc</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>parts</span> {
+            <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>first</span> {
+                <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot; &quot;</span>));
+            }
             <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>vc</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+            <span class='ident'>first</span> <span class='op'>=</span> <span class='bool-val'>false</span>;
         }
         <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>trailing_ws</span> { <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot; &quot;</span>)); }
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
@@ -2678,9 +2698,9 @@
 <span class='comment'>// group           =   display-name &quot;:&quot; [group-list] &quot;;&quot; [CFWS]</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Group</span> {
-    <span class='ident'>display_name</span>: <span class='ident'>DisplayName</span>,
-    <span class='ident'>group_list</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>GroupList</span><span class='op'>&gt;</span>,
-    <span class='ident'>cfws</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>CFWS</span><span class='op'>&gt;</span>,
+    <span class='kw'>pub</span> <span class='ident'>display_name</span>: <span class='ident'>DisplayName</span>,
+    <span class='kw'>pub</span> <span class='ident'>group_list</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>GroupList</span><span class='op'>&gt;</span>,
+    <span class='kw'>pub</span> <span class='ident'>cfws</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>CFWS</span><span class='op'>&gt;</span>,
 }
 <span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>Group</span> {
     <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
@@ -3144,14 +3164,20 @@
 <span class='comment'>// 3.3</span>
 <span class='comment'>// day-of-week     =   ([FWS] day-name) / obs-day-of-week</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DayOfWeek</span>(<span class='kw'>pub</span> <span class='ident'>DayName</span>);
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DayOfWeek</span> {
+    <span class='kw'>pub</span> <span class='ident'>pre_fws</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>FWS</span><span class='op'>&gt;</span>,
+    <span class='kw'>pub</span> <span class='ident'>day_name</span>: <span class='ident'>DayName</span>,
+}
 <span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>DayOfWeek</span> {
     <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> { <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>Eof</span>); }
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>let</span> _ <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>FWS</span>, <span class='ident'>rem</span>);
+        <span class='kw'>let</span> <span class='ident'>pre_fws</span> <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>FWS</span>, <span class='ident'>rem</span>);
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>dn</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>DayName</span>, <span class='ident'>rem</span>) {
-            <span class='prelude-val'>Ok</span>((<span class='ident'>DayOfWeek</span>(<span class='ident'>dn</span>), <span class='ident'>rem</span>))
+            <span class='prelude-val'>Ok</span>((<span class='ident'>DayOfWeek</span> {
+                <span class='ident'>pre_fws</span>: <span class='ident'>pre_fws</span>.<span class='ident'>ok</span>(),
+                <span class='ident'>day_name</span>: <span class='ident'>dn</span>,
+            }, <span class='ident'>rem</span>))
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
         }
@@ -3159,8 +3185,12 @@
 }
 <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>DayOfWeek</span> {
     <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot; &quot;</span>))
-           <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)))
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>fws</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>pre_fws</span> {
+            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>fws</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+        }
+        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>day_name</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+        <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
 
@@ -3508,13 +3538,13 @@
     
 
     <script>
-        window.rootPath = "../../../../";
+        window.rootPath = "../../../";
         window.currentCrate = "email_format";
         window.playgroundUrl = "";
     </script>
-    <script src="../../../../jquery.js"></script>
-    <script src="../../../../main.js"></script>
-    
-    <script defer src="../../../../search-index.js"></script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script src="../../../extra.js"></script>
+    <script defer src="../../../search-index.js"></script>
 </body>
 </html>

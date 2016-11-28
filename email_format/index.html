@@ -47,14 +47,95 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/email_format/src/lib.rs.html#2-7' title='goto source code'>[src]</a></span></h1>
-<h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+               </span><a id='src-0' class='srclink' href='../src/email_format/lib.rs.html#1-476' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>This crate allows you to construct email messages in a way that assures that
+they are compliant with relevant email standards (especially RFC 5322).  Invalid
+data submitted will return a ParseError.</p>
+
+<p>The main structure to work with is <code>Email</code>. It has many functions to set or add
+headers and to set the body. All of these will accept an <code>&amp;str</code> or <code>&amp;[u8]</code> argument
+and attempt to parse it. These setters return a <code>Result&lt;(), ParseError&gt;</code> as the parse
+may fail.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>email_format</span>;
+
+<span class='kw'>use</span> <span class='ident'>email_format</span>::<span class='ident'>Email</span>;
+
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+  <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>email</span> <span class='op'>=</span> <span class='ident'>Email</span>::<span class='ident'>new</span>(
+      <span class='string'>&quot;myself@mydomain.com&quot;</span>,  <span class='comment'>// &quot;From:&quot;</span>
+      <span class='string'>&quot;Wed, 05 Jan 2015 15:13:05 +1300&quot;</span> <span class='comment'>// &quot;Date:&quot;</span>
+  ).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_sender</span>(<span class='string'>&quot;from_myself@mydomain.com&quot;</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_reply_to</span>(<span class='string'>&quot;My Mailer &lt;no-reply@mydomain.com&gt;&quot;</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_to</span>(<span class='string'>&quot;You &lt;you@yourdomain.com&gt;&quot;</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_cc</span>(<span class='string'>&quot;Our Friend &lt;friend@frienddomain.com&gt;&quot;</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_message_id</span>(<span class='string'>&quot;&lt;id/20161128115731.29084.maelstrom@mydomain.com&gt;&quot;</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_subject</span>(<span class='string'>&quot;Hello Friend&quot;</span>).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_body</span>(<span class='string'>&quot;Good to hear from you.\r\n\
+                  I wish you the best.\r\n\
+                  \r\n\
+                  Your Friend&quot;</span>).<span class='ident'>unwrap</span>();
+
+  <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>email</span>);
+}<a class='test-arrow' target='_blank' href=''>Run</a></pre>
+
+<p>This outputs:</p>
+
+<pre><code class="language-text">Date:Wed, 05 Jan 2015 15:13:05 +1300
+From:myself@mydomain.com
+Sender:from_myself@mydomain.com
+Reply-To:My Mailer &lt;no-reply@mydomain.com&gt;
+To:You &lt;you@yourdomain.com&gt;
+Cc:Our Friend &lt;friend@frienddomain.com&gt;
+Message-ID:&lt;id/20161128115731.29084.maelstrom@mydomain.com&gt;
+Subject:Hello Friend
+
+Good to hear from you.
+I wish you the best.
+
+Your Friend
+</code></pre>
+
+<p>On the other hand, the following will fail because the sender email address is invalid:</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>email_format</span>;
+
+<span class='kw'>use</span> <span class='ident'>email_format</span>::<span class='ident'>Email</span>;
+
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+  <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>email</span> <span class='op'>=</span> <span class='ident'>Email</span>::<span class='ident'>new</span>(
+      <span class='string'>&quot;myself@mydomain.com&quot;</span>,  <span class='comment'>// &quot;From:&quot;</span>
+      <span class='string'>&quot;Wed, 05 Jan 2015 15:13:05 +1300&quot;</span> <span class='comment'>// &quot;Date:&quot;</span>
+  ).<span class='ident'>unwrap</span>();
+  <span class='ident'>email</span>.<span class='ident'>set_sender</span>(<span class='string'>&quot;from_myself@(mydomain.com)&quot;</span>).<span class='ident'>unwrap</span>();
+}<a class='test-arrow' target='_blank' href=''>Run</a></pre>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                        <tr class=' module-item'>
                            <td><a class='mod' href='rfc5322/index.html'
                                   title='email_format::rfc5322'>rfc5322</a></td>
-                           <td class='docblock short'>
+                           <td class='docblock-short'>
+                                <p>This module contains nitty-gritty details about parsing, storage, and streaming
+an <code>Email</code>.</p>
+                           </td>
+                       </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.Email.html'
+                                  title='email_format::Email'>Email</a></td>
+                           <td class='docblock-short'>
                                 
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.TryFrom.html'
+                                  title='email_format::TryFrom'>TryFrom</a></td>
+                           <td class='docblock-short'>
+                                <p>Attempt to construct <code>Self</code> via a conversion (borrowed from rust <code>std</code>)</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -116,7 +197,7 @@
     </script>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
+    <script src="../extra.js"></script>
     <script defer src="../search-index.js"></script>
 </body>
 </html>

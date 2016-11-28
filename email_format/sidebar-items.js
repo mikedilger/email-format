@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["rfc5322",""]]});
+initSidebarItems({"mod":[["rfc5322","This module contains nitty-gritty details about parsing, storage, and streaming an `Email`."]],"struct":[["Email",""]],"trait":[["TryFrom","Attempt to construct `Self` via a conversion (borrowed from rust `std`)"]]});

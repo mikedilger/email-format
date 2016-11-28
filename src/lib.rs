@@ -2,7 +2,12 @@
 //! they are compliant with relevant email standards (especially RFC 5322).  Invalid
 //! data submitted will return a ParseError.
 //!
-//! ````
+//! The main structure to work with is `Email`. It has many functions to set or add
+//! headers and to set the body. All of these will accept an `&str` or `&[u8]` argument
+//! and attempt to parse it. These setters return a `Result<(), ParseError>` as the parse
+//! may fail.
+//!
+//! ```
 //! extern crate email_format;
 //!
 //! use email_format::Email;
@@ -25,13 +30,49 @@
 //!
 //!   println!("{}", email);
 //! }
-//! ````
+//! ```
+//!
+//! This outputs:
+//!
+//! ```text
+//! Date:Wed, 05 Jan 2015 15:13:05 +1300
+//! From:myself@mydomain.com
+//! Sender:from_myself@mydomain.com
+//! Reply-To:My Mailer <no-reply@mydomain.com>
+//! To:You <you@yourdomain.com>
+//! Cc:Our Friend <friend@frienddomain.com>
+//! Message-ID:<id/20161128115731.29084.maelstrom@mydomain.com>
+//! Subject:Hello Friend
+//!
+//! Good to hear from you.
+//! I wish you the best.
+//!
+//! Your Friend
+//! ```
+//!
+//! On the other hand, the following will fail because the sender email address is invalid:
+//!
+//! ```rust,should_panic
+//! extern crate email_format;
+//!
+//! use email_format::Email;
+//!
+//! fn main() {
+//!   let mut email = Email::new(
+//!       "myself@mydomain.com",  // "From:"
+//!       "Wed, 05 Jan 2015 15:13:05 +1300" // "Date:"
+//!   ).unwrap();
+//!   email.set_sender("from_myself@(mydomain.com)").unwrap();
+//! }
+//! ```
 
 extern crate buf_read_ext;
 
 #[cfg(test)]
 mod tests;
 
+/// This module contains nitty-gritty details about parsing, storage, and streaming
+/// an `Email`.
 pub mod rfc5322;
 
 use std::io::Write;
@@ -46,7 +87,7 @@ use rfc5322::headers::{From, OrigDate, Sender, ReplyTo, To, Cc, Bcc, MessageId,
                            InReplyTo, References, Subject, Comments, Keywords,
                            OptionalField};
 
-/// Attempt to construct `Self` via a conversion.
+/// Attempt to construct `Self` via a conversion (borrowed from rust `std`)
 ///
 /// This TryFrom trait is defined in the rust std library but is behind a
 /// feature gate.  We place it here so that people using stable compilers

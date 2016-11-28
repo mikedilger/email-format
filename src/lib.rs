@@ -1,3 +1,31 @@
+//! This crate allows you to construct email messages in a way that assures that
+//! they are compliant with relevant email standards (especially RFC 5322).  Invalid
+//! data submitted will return a ParseError.
+//!
+//! ````
+//! extern crate email_format;
+//!
+//! use email_format::Email;
+//!
+//! fn main() {
+//!   let mut email = Email::new(
+//!       "myself@mydomain.com",  // "From:"
+//!       "Wed, 05 Jan 2015 15:13:05 +1300" // "Date:"
+//!   ).unwrap();
+//!   email.set_sender("from_myself@mydomain.com").unwrap();
+//!   email.set_reply_to("My Mailer <no-reply@mydomain.com>").unwrap();
+//!   email.set_to("You <you@yourdomain.com>").unwrap();
+//!   email.set_cc("Our Friend <friend@frienddomain.com>").unwrap();
+//!   email.set_message_id("<id/20161128115731.29084.maelstrom@mydomain.com>").unwrap();
+//!   email.set_subject("Hello Friend").unwrap();
+//!   email.set_body("Good to hear from you.\r\n\
+//!                   I wish you the best.\r\n\
+//!                   \r\n\
+//!                   Your Friend").unwrap();
+//!
+//!   println!("{}", email);
+//! }
+//! ````
 
 extern crate buf_read_ext;
 

@@ -81,6 +81,7 @@ impl Streamable for OrigDate {
     }
 }
 impl_try_from!(DateTime, OrigDate);
+impl_display!(OrigDate);
 
 // 3.6.2
 // from            =   "From:" mailbox-list CRLF
@@ -106,6 +107,7 @@ impl Streamable for From {
     }
 }
 impl_try_from!(MailboxList, From);
+impl_display!(From);
 
 // 3.6.2
 // sender          =   "Sender:" mailbox CRLF
@@ -131,6 +133,7 @@ impl Streamable for Sender {
     }
 }
 impl_try_from!(Mailbox, Sender);
+impl_display!(Sender);
 
 // 3.6.2
 // reply-to        =   "Reply-To:" address-list CRLF
@@ -156,6 +159,7 @@ impl Streamable for ReplyTo {
     }
 }
 impl_try_from!(AddressList, ReplyTo);
+impl_display!(ReplyTo);
 
 // 3.6.3
 // to              =   "To:" address-list CRLF
@@ -181,6 +185,7 @@ impl Streamable for To {
     }
 }
 impl_try_from!(AddressList, To);
+impl_display!(To);
 
 // 3.6.3
 // cc              =   "Cc:" address-list CRLF
@@ -206,6 +211,7 @@ impl Streamable for Cc {
     }
 }
 impl_try_from!(AddressList, Cc);
+impl_display!(Cc);
 
 // 3.6.3
 // bcc             =   "Bcc:" [address-list / CFWS] CRLF
@@ -261,6 +267,7 @@ impl<'a> TryFrom<AddressList> for Bcc {
         Ok(Bcc::AddressList(input))
     }
 }
+impl_display!(Bcc);
 
 // 3.6.4
 // message-id      =   "Message-ID:" msg-id CRLF
@@ -286,6 +293,7 @@ impl Streamable for MessageId {
     }
 }
 impl_try_from!(MsgId, MessageId);
+impl_display!(MessageId);
 
 // 3.6.4
 // in-reply-to     =   "In-Reply-To:" 1*msg-id CRLF
@@ -339,6 +347,7 @@ impl<'a> TryFrom<Vec<MsgId>> for InReplyTo {
         Ok(InReplyTo(input))
     }
 }
+impl_display!(InReplyTo);
 
 
 // 3.6.4
@@ -393,6 +402,7 @@ impl<'a> TryFrom<Vec<MsgId>> for References {
         Ok(References(input))
     }
 }
+impl_display!(References);
 
 // 3.6.5
 // subject         =   "Subject:" unstructured CRLF
@@ -418,6 +428,7 @@ impl Streamable for Subject {
     }
 }
 impl_try_from!(Unstructured, Subject);
+impl_display!(Subject);
 
 // 3.6.5
 // comments        =   "Comments:" unstructured CRLF
@@ -443,6 +454,7 @@ impl Streamable for Comments {
     }
 }
 impl_try_from!(Unstructured, Comments);
+impl_display!(Comments);
 
 // 3.6.5
 // keywords        =   "Keywords:" phrase *("," phrase) CRLF
@@ -501,6 +513,7 @@ impl<'a> TryFrom<Vec<Phrase>> for Keywords {
         Ok(Keywords(input))
     }
 }
+impl_display!(Keywords);
 
 // 3.6.6
 // resent-date     =   "Resent-Date:" date-time CRLF
@@ -527,6 +540,7 @@ impl Streamable for ResentDate {
     }
 }
 impl_try_from!(DateTime, ResentDate);
+impl_display!(ResentDate);
 
 // 3.6.6
 // resent-from     =   "Resent-From:" mailbox-list CRLF
@@ -552,6 +566,7 @@ impl Streamable for ResentFrom {
     }
 }
 impl_try_from!(MailboxList, ResentFrom);
+impl_display!(ResentFrom);
 
 // 3.6.6
 // resent-sender   =   "Resent-Sender:" mailbox CRLF
@@ -577,6 +592,7 @@ impl Streamable for ResentSender {
     }
 }
 impl_try_from!(Mailbox, ResentSender);
+impl_display!(ResentSender);
 
 // 3.6.6
 // resent-to       =   "Resent-To:" address-list CRLF
@@ -602,6 +618,7 @@ impl Streamable for ResentTo {
     }
 }
 impl_try_from!(AddressList, ResentTo);
+impl_display!(ResentTo);
 
 // 3.6.6
 // resent-cc       =   "Resent-Cc:" address-list CRLF
@@ -627,6 +644,7 @@ impl Streamable for ResentCc {
     }
 }
 impl_try_from!(AddressList, ResentCc);
+impl_display!(ResentCc);
 
 // 3.6.6
 // resent-bcc      =   "Resent-Bcc:" [address-list / CFWS] CRLF
@@ -682,6 +700,7 @@ impl<'a> TryFrom<AddressList> for ResentBcc {
         Ok(ResentBcc::AddressList(input))
     }
 }
+impl_display!(ResentBcc);
 
 // 3.6.6
 // resent-msg-id   =   "Resent-Message-ID:" msg-id CRLF
@@ -707,6 +726,7 @@ impl Streamable for ResentMessageId {
     }
 }
 impl_try_from!(MsgId, ResentMessageId);
+impl_display!(ResentMessageId);
 
 // 3.6.7
 // received        =   "Received:" *received-token ";" date-time CRLF
@@ -794,6 +814,7 @@ impl<'a> TryFrom<(ReceivedTokens, DateTime)> for Received {
             date_time: input.1 })
     }
 }
+impl_display!(Received);
 
 // 3.6.7
 // return          =   "Return-Path:" path CRLF
@@ -818,6 +839,7 @@ impl Streamable for Return {
     }
 }
 impl_try_from!(Path, Return);
+impl_display!(Return);
 
 // 3.6.8
 // optional-field  =   field-name ":" unstructured CRLF
@@ -858,3 +880,4 @@ impl<'a> TryFrom<(FieldName, Unstructured)> for OptionalField {
             value: input.1 })
     }
 }
+impl_display!(OptionalField);

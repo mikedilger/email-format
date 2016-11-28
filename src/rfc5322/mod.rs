@@ -55,6 +55,23 @@ macro_rules! req {
     };
 }
 
+macro_rules! impl_display {
+    ($t:ty) => {
+        impl ::std::fmt::Display for $t {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
+                let mut output: Vec<u8> = Vec::new();
+                if let Err(_) = self.stream(&mut output) {
+                    return Err(::std::fmt::Error);
+                }
+                unsafe {
+                    // rfc5322 formatted emails fall within utf8
+                    write!(f, "{}", ::std::str::from_utf8_unchecked(&*output))
+                }
+            }
+        }
+    }
+}
+
 pub mod error;
 pub use self::error::ParseError;
 pub mod types;
@@ -116,6 +133,7 @@ impl Streamable for Trace {
         Ok(count)
     }
 }
+impl_display!(Trace);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ResentField {
@@ -167,6 +185,7 @@ impl Streamable for ResentField {
         }
     }
 }
+impl_display!(ResentField);
 
 // 3.6
 // a sub part of the Fields definition
@@ -255,6 +274,7 @@ impl Streamable for Field {
         }
     }
 }
+impl_display!(Field);
 
 // 3.6
 // a sub part of the Fields definition
@@ -294,6 +314,7 @@ impl Streamable for ResentTraceBlock {
         Ok(count)
     }
 }
+impl_display!(ResentTraceBlock);
 
 // 3.6
 // a sub part of the Fields definition
@@ -333,6 +354,7 @@ impl Streamable for OptTraceBlock {
         Ok(count)
     }
 }
+impl_display!(OptTraceBlock);
 
 // 3.6
 // a sub part of the Fields definition
@@ -363,6 +385,7 @@ impl Streamable for TraceBlock {
         }
     }
 }
+impl_display!(TraceBlock);
 
 // 3.6
 // fields          =   *(trace
@@ -422,6 +445,7 @@ impl Streamable for Fields {
         Ok(count)
     }
 }
+impl_display!(Fields);
 
 // 3.5
 // text            =   %d1-9 /            ; Characters excluding CR
@@ -490,6 +514,7 @@ impl<'a> TryFrom<&'a str> for Body {
         TryFrom::try_from(input.as_bytes())
     }
 }
+impl_display!(Body);
 
 // 3.5
 // message         =   (fields / obs-fields)
@@ -530,3 +555,4 @@ impl Streamable for Message {
         Ok(count)
     }
 }
+impl_display!(Message);

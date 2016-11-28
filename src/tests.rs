@@ -455,8 +455,8 @@ fn test_date_time() {
     assert_eq!(rem, b"");
 
     let mut output: Vec<u8> = Vec::new();
-    assert_eq!(t.stream(&mut output).unwrap(), 50);
-    assert_eq!(output, b" Sun, 01 Dec 2000 12:12:12 -1300 (or thereabouts) ".to_vec());
+    assert_eq!(t.stream(&mut output).unwrap(), 49);
+    assert_eq!(output, b"Sun, 01 Dec 2000 12:12:12 -1300 (or thereabouts) ".to_vec());
 }
 
 #[test]

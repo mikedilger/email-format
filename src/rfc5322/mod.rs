@@ -476,13 +476,18 @@ impl Streamable for Body {
 impl<'a> TryFrom<&'a [u8]> for Body {
     type Err = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Body, ParseError> {
-        Ok(try!(Body::parse(input)).0)
+        let (out,rem) = try!(Body::parse(input));
+        if rem.len() > 0 {
+            Err(ParseError::TrailingInput(input.len() - rem.len()))
+        } else {
+            Ok(out)
+        }
     }
 }
 impl<'a> TryFrom<&'a str> for Body {
     type Err = ParseError;
     fn try_from(input: &'a str) -> Result<Body, ParseError> {
-        Ok(try!(Body::parse(input.as_bytes())).0)
+        TryFrom::try_from(input.as_bytes())
     }
 }
 

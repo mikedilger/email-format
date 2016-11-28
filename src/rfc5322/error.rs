@@ -11,6 +11,7 @@ pub enum ParseError {
     Io(IoError),
     InvalidBodyChar(u8),
     LineTooLong(usize),
+    TrailingInput(usize),
 }
 
 impl fmt::Display for ParseError {
@@ -26,6 +27,7 @@ impl fmt::Display for ParseError {
             ParseError::InvalidBodyChar(ref c) => write!(f, "{}: {}",
                                                          self.description(), c),
             ParseError::LineTooLong(ref l) => write!(f, "Line {} is too long", l),
+            ParseError::TrailingInput(ref c) => write!(f, "Trailing input at byte {}", c),
             _ => write!(f, "{}", self.description()),
         }
     }
@@ -44,6 +46,7 @@ impl fmt::Debug for ParseError {
             ParseError::InvalidBodyChar(ref c) => write!(f, "{}: {}",
                                                          self.description(), c),
             ParseError::LineTooLong(ref l) => write!(f, "Line {} is too long", l),
+            ParseError::TrailingInput(ref c) => write!(f, "Trailing input at byte {}", c),
             _ => write!(f, "{}", self.description()),
         }
     }
@@ -60,6 +63,7 @@ impl StdError for ParseError {
             ParseError::Io(_) => "I/O Error",
             ParseError::InvalidBodyChar(_) => "Invalid Body Character",
             ParseError::LineTooLong(_) => "Line too long",
+            ParseError::TrailingInput(_) => "Trailing input",
         }
     }
 
@@ -73,6 +77,7 @@ impl StdError for ParseError {
             ParseError::Io(ref e) => Some(e),
             ParseError::InvalidBodyChar(_) => None,
             ParseError::LineTooLong(_) => None,
+            ParseError::TrailingInput(_) => None,
         }
     }
 }

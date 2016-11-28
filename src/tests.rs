@@ -744,3 +744,12 @@ fn test_email_parse_stream() {
 
     assert_eq!(input, &*output);
 }
+
+#[test]
+#[should_panic]
+fn test_trailing_input() {
+    use ::TryFrom;
+    use ::rfc5322::headers::Sender;
+
+    let _: Sender = TryFrom::try_from("mike@optcomp.nz[.xyz]").unwrap();
+}

@@ -34,13 +34,17 @@ macro_rules! impl_try_from {
         impl<'a> TryFrom<&'a [u8]> for $to {
             type Err = ParseError;
             fn try_from(input: &'a [u8]) -> Result<$to, ParseError> {
-                Ok($to(try!($from::parse(input).map(|(x,_)| x))))
+                let (out,rem) = try!($from::parse(input));
+                if rem.len() > 0 {
+                    return Err(ParseError::TrailingInput(input.len() - rem.len()));
+                }
+                Ok($to(out))
             }
         }
         impl<'a> TryFrom<&'a str> for $to {
             type Err = ParseError;
             fn try_from(input: &'a str) -> Result<$to, ParseError> {
-                Ok($to(try!($from::parse(input.as_bytes()).map(|(x,_)| x))))
+                TryFrom::try_from(input.as_bytes())
             }
         }
         impl<'a> TryFrom<$from> for $to {
@@ -244,7 +248,11 @@ impl Streamable for Bcc {
 impl<'a> TryFrom<&'a [u8]> for Bcc {
     type Err = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Bcc, ParseError> {
-        Ok(Bcc::AddressList(try!(AddressList::parse(input).map(|(x,_)| x))))
+        let (out,rem) = try!(AddressList::parse(input));
+        if rem.len() > 0 {
+            return Err(ParseError::TrailingInput(input.len() - rem.len()));
+        }
+        Ok(Bcc::AddressList(out))
     }
 }
 impl<'a> TryFrom<AddressList> for Bcc {
@@ -318,7 +326,11 @@ impl<'a> TryFrom<&'a [u8]> for InReplyTo {
         while let Ok(x) = parse!(MsgId, rem) {
             msgids.push(x);
         }
-        Ok(InReplyTo(msgids))
+        if rem.len() > 0 {
+            Err(ParseError::TrailingInput(input.len() - rem.len()))
+        } else {
+            Ok(InReplyTo(msgids))
+        }
     }
 }
 impl<'a> TryFrom<Vec<MsgId>> for InReplyTo {
@@ -368,7 +380,11 @@ impl<'a> TryFrom<&'a [u8]> for References {
         while let Ok(x) = parse!(MsgId, rem) {
             msgids.push(x);
         }
-        Ok(References(msgids))
+        if rem.len() > 0 {
+            Err(ParseError::TrailingInput(input.len() - rem.len()))
+        } else {
+            Ok(References(msgids))
+        }
     }
 }
 impl<'a> TryFrom<Vec<MsgId>> for References {
@@ -472,7 +488,11 @@ impl<'a> TryFrom<&'a [u8]> for Keywords {
         while let Ok(x) = parse!(Phrase, rem) {
             msgids.push(x);
         }
-        Ok(Keywords(msgids))
+        if rem.len() > 0 {
+            Err(ParseError::TrailingInput(input.len() - rem.len()))
+        } else {
+            Ok(Keywords(msgids))
+        }
     }
 }
 impl<'a> TryFrom<Vec<Phrase>> for Keywords {
@@ -649,7 +669,11 @@ impl Streamable for ResentBcc {
 impl<'a> TryFrom<&'a [u8]> for ResentBcc {
     type Err = ParseError;
     fn try_from(input: &'a [u8]) -> Result<ResentBcc, ParseError> {
-        Ok(ResentBcc::AddressList(try!(AddressList::parse(input).map(|(x,_)| x))))
+        let (out,rem) = try!(AddressList::parse(input));
+        if rem.len() > 0 {
+            return Err(ParseError::TrailingInput(input.len() - rem.len()));
+        }
+        Ok(ResentBcc::AddressList(out))
     }
 }
 impl<'a> TryFrom<AddressList> for ResentBcc {
@@ -754,7 +778,12 @@ impl<'a> TryFrom<&'a [u8]> for Received {
         let mut fudged_input: Vec<u8> = "Received:".as_bytes().to_owned();
         fudged_input.extend(&*input);
         fudged_input.extend("\r\n".as_bytes());
-        Ok(try!(Received::parse(input)).0)
+        let (out,rem) = try!(Received::parse(input));
+        if rem.len() > 0 {
+            return Err(ParseError::TrailingInput(input.len() - rem.len()));
+        } else {
+            Ok(out)
+        }
     }
 }
 impl<'a> TryFrom<(ReceivedTokens, DateTime)> for Received {

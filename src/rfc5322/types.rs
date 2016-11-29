@@ -16,27 +16,32 @@ const HTAB: u8 = 0x09;   //   HTAB           =  %x09      ; horizontal tab
 #[inline]
 pub fn is_vchar(c: u8) -> bool { c>=0x21 && c<=0x7E }
 def_cclass!(VChar, is_vchar);
+impl_display!(VChar);
 
 // RFC 5234, B.1  Core Rules  WSP            =  SP / HTAB ; white space
 #[inline]
 pub fn is_wsp(c: u8) -> bool { c==SP || c==HTAB }
 def_cclass!(WSP, is_wsp);
+impl_display!(WSP);
 
 // RFC 5234, B.1  Core Rules  CHAR           =  %x01-7F ; any 7-bit US-ASCII character,
 //                                                      ;  excluding NUL
 #[inline]
 pub fn is_ascii(c: u8) -> bool { c>=1 && c<=127 }
 def_cclass!(ASCII, is_ascii);
+impl_display!(ASCII);
 
 // RFC 5234, B.1  Core Rules  DIGIT          =  %x30-39   ; 0-9
 #[inline]
 pub fn is_digit(c: u8) -> bool { c>=0x30 && c<=0x39 }
 def_cclass!(Digit, is_digit);
+impl_display!(Digit);
 
 // RFC 5234, B.1  Core Rules  ALPHA          = %x41-5A / %x61-7A   ; A-Z / a-z
 #[inline]
 pub fn is_alpha(c: u8) -> bool { (c>=0x41 && c<=0x5A) || (c>=0x61 && c<=0x7A) }
 def_cclass!(Alpha, is_alpha);
+impl_display!(Alpha);
 
 // 3.2.1
 // quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
@@ -62,6 +67,7 @@ impl Streamable for QuotedPair {
            + try!(w.write(&[self.0])))
     }
 }
+impl_display!(QuotedPair);
 
 // 3.2.2
 // FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
@@ -92,6 +98,7 @@ impl Streamable for FWS {
         Ok(try!(w.write(b" "))) // FIXME - fold?
     }
 }
+impl_display!(FWS);
 
 // 3.2.2
 // ctext           =   %d33-39 /          ; Printable US-ASCII
@@ -101,6 +108,7 @@ impl Streamable for FWS {
 #[inline]
 pub fn is_ctext(c: u8) -> bool { (c>=33 && c<=39) || (c>=42 && c<=91) || (c>=93 && c<=126) }
 def_cclass!(CText, is_ctext);
+impl_display!(CText);
 
 // 3.2.2
 // ccontent        =   ctext / quoted-pair / comment
@@ -135,6 +143,7 @@ impl Streamable for CContent {
         }
     }
 }
+impl_display!(CContent);
 
 // 3.2.2
 // comment         =   "(" *([FWS] ccontent) [FWS] ")"
@@ -179,6 +188,7 @@ impl Streamable for Comment {
         Ok(count)
     }
 }
+impl_display!(Comment);
 
 // 3.2.2
 // CFWS            =   (1*([FWS] comment) [FWS]) / FWS
@@ -223,6 +233,7 @@ impl Streamable for CFWS {
         Ok(count)
     }
 }
+impl_display!(CFWS);
 
 // 3.2.3
 // atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
@@ -246,6 +257,7 @@ pub fn is_atext(c: u8) -> bool {
         || c==b'|' || c==b'}'  || c==b'~'
 }
 def_cclass!(AText, is_atext);
+impl_display!(AText);
 
 // 3.2.3
 // atom            =   [CFWS] 1*atext [CFWS]
@@ -284,6 +296,7 @@ impl Streamable for Atom {
         Ok(count)
     }
 }
+impl_display!(Atom);
 
 // 3.2.3
 // dot-atom-text   =   1*atext *("." 1*atext)
@@ -323,6 +336,7 @@ impl Streamable for DotAtomText {
         Ok(count)
     }
 }
+impl_display!(DotAtomText);
 
 // 3.2.3
 // dot-atom        =   [CFWS] dot-atom-text [CFWS]
@@ -362,6 +376,7 @@ impl Streamable for DotAtom {
         Ok(count)
     }
 }
+impl_display!(DotAtom);
 
 // 3.2.3 (we don't need to parse this one, it is not used.  could be used as a tokenization
 //        point in lexical analysis)
@@ -381,6 +396,7 @@ impl Streamable for DotAtom {
 #[inline]
 pub fn is_qtext(c: u8) -> bool { c==33 || (c>=35 && c<=91) || (c>=93 && c<=126) }
 def_cclass!(QText, is_qtext);
+impl_display!(QText);
 
 // 3.2.4
 // qcontent        =   qtext / quoted-pair
@@ -411,6 +427,7 @@ impl Streamable for QContent {
         }
     }
 }
+impl_display!(QContent);
 
 // 3.2.4
 // quoted-string   =   [CFWS]
@@ -472,6 +489,7 @@ impl Streamable for QuotedString {
         Ok(count)
     }
 }
+impl_display!(QuotedString);
 
 // 3.2.5
 // word            =   atom / quoted-string
@@ -502,6 +520,7 @@ impl Streamable for Word {
         }
     }
 }
+impl_display!(Word);
 
 // 3.2.5
 // phrase          =   1*word / obs-phrase
@@ -531,6 +550,7 @@ impl Streamable for Phrase {
         Ok(count)
     }
 }
+impl_display!(Phrase);
 
 // 3.2.5
 // unstructured    = (*([FWS] VCHAR) *WSP) / obs-unstruct
@@ -584,6 +604,7 @@ impl Streamable for Unstructured {
         Ok(count)
     }
 }
+impl_display!(Unstructured);
 
 // 3.4.1
 // local-part      =   dot-atom / quoted-string / obs-local-part
@@ -614,6 +635,7 @@ impl Streamable for LocalPart {
         }
     }
 }
+impl_display!(LocalPart);
 
 // 3.4.1
 // dtext           =   %d33-90 /          ; Printable US-ASCII
@@ -622,6 +644,7 @@ impl Streamable for LocalPart {
 #[inline]
 pub fn is_dtext(c: u8) -> bool { (c>=33 && c<=90) || (c>=94 && c<=126) }
 def_cclass!(DText, is_dtext);
+impl_display!(DText);
 
 // 3.4.1
 // domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
@@ -677,6 +700,7 @@ impl Streamable for DomainLiteral {
         Ok(count)
     }
 }
+impl_display!(DomainLiteral);
 
 // 3.4.1
 // domain          =   dot-atom / domain-literal / obs-domain
@@ -707,6 +731,7 @@ impl Streamable for Domain {
         }
     }
 }
+impl_display!(Domain);
 
 // 3.4.1
 // addr-spec       =   local-part "@" domain
@@ -738,6 +763,8 @@ impl Streamable for AddrSpec {
            + try!(self.domain.stream(w)))
     }
 }
+impl_display!(AddrSpec);
+
 // 3.4
 // angle-addr      =   [CFWS] "<" addr-spec ">" [CFWS] /
 //                     obs-angle-addr
@@ -780,6 +807,7 @@ impl Streamable for AngleAddr {
         Ok(count)
     }
 }
+impl_display!(AngleAddr);
 
 // 3.4
 // display-name    =   phrase
@@ -795,6 +823,7 @@ impl Streamable for DisplayName {
         self.0.stream(w)
     }
 }
+impl_display!(DisplayName);
 
 // 3.4
 // name-addr       =   [display-name] angle-addr
@@ -827,6 +856,7 @@ impl Streamable for NameAddr {
         Ok(count)
     }
 }
+impl_display!(NameAddr);
 
 // 3.4
 // mailbox         =   name-addr / addr-spec
@@ -857,6 +887,7 @@ impl Streamable for Mailbox {
         }
     }
 }
+impl_display!(Mailbox);
 
 // 3.4
 // mailbox-list    =   (mailbox *("," mailbox)) / obs-mbox-list
@@ -898,6 +929,7 @@ impl Streamable for MailboxList {
         Ok(count)
     }
 }
+impl_display!(MailboxList);
 
 // 3.4
 // group-list      =   mailbox-list / CFWS / obs-group-list
@@ -928,6 +960,7 @@ impl Streamable for GroupList {
         }
     }
 }
+impl_display!(GroupList);
 
 // 3.4
 // group           =   display-name ":" [group-list] ";" [CFWS]
@@ -970,6 +1003,7 @@ impl Streamable for Group {
         Ok(count)
     }
 }
+impl_display!(Group);
 
 // 3.4
 // address         =   mailbox / group
@@ -1000,6 +1034,7 @@ impl Streamable for Address {
         }
     }
 }
+impl_display!(Address);
 
 // 3.4
 // address-list    =   (address *("," address)) / obs-addr-list
@@ -1041,6 +1076,7 @@ impl Streamable for AddressList {
         Ok(count)
     }
 }
+impl_display!(AddressList);
 
 // 3.3
 // zone            =   (FWS ( "+" / "-" ) 4DIGIT) / obs-zone
@@ -1081,6 +1117,7 @@ impl Streamable for Zone {
         Ok(6)
     }
 }
+impl_display!(Zone);
 
 // 3.3
 // second          =   2DIGIT / obs-second
@@ -1101,6 +1138,7 @@ impl Streamable for Second {
         Ok(2)
     }
 }
+impl_display!(Second);
 
 // 3.3
 // minute          =   2DIGIT / obs-minute
@@ -1121,6 +1159,7 @@ impl Streamable for Minute {
         Ok(2)
     }
 }
+impl_display!(Minute);
 
 // 3.3
 // hour          =   2DIGIT / obs-hour
@@ -1141,6 +1180,7 @@ impl Streamable for Hour {
         Ok(2)
     }
 }
+impl_display!(Hour);
 
 // 3.3
 // time-of-day     =   hour ":" minute [ ":" second ]
@@ -1190,6 +1230,7 @@ impl Streamable for TimeOfDay {
         }
     }
 }
+impl_display!(TimeOfDay);
 
 // 3.3
 // time            =   time-of-day zone
@@ -1219,6 +1260,7 @@ impl Streamable for Time {
            + try!(self.zone.stream(w)))
     }
 }
+impl_display!(Time);
 
 // 3.3
 // year            =   (FWS 4*DIGIT FWS) / obs-year
@@ -1250,6 +1292,7 @@ impl Streamable for Year {
         Ok(6)
     }
 }
+impl_display!(Year);
 
 // 3.3
 // month           =   "Jan" / "Feb" / "Mar" / "Apr" /
@@ -1297,6 +1340,7 @@ impl Streamable for Month {
         }
     }
 }
+impl_display!(Month);
 
 // 3.3
 // day             =   ([FWS] 1*2DIGIT FWS) / obs-day
@@ -1325,6 +1369,7 @@ impl Streamable for Day {
         Ok(4)
     }
 }
+impl_display!(Day);
 
 // 3.3
 // date            =   day month year
@@ -1359,6 +1404,7 @@ impl Streamable for Date {
            + try!(self.year.stream(w)))
     }
 }
+impl_display!(Date);
 
 // 3.3
 // day-name        =   "Mon" / "Tue" / "Wed" / "Thu" /
@@ -1395,6 +1441,7 @@ impl Streamable for DayName {
         }
     }
 }
+impl_display!(DayName);
 
 // 3.3
 // day-of-week     =   ([FWS] day-name) / obs-day-of-week
@@ -1428,6 +1475,7 @@ impl Streamable for DayOfWeek {
         Ok(count)
     }
 }
+impl_display!(DayOfWeek);
 
 // 3.3
 // date-time       =   [ day-of-week "," ] date time [CFWS]
@@ -1480,6 +1528,7 @@ impl Streamable for DateTime {
         Ok(count)
     }
 }
+impl_display!(DateTime);
 
 // 3.6.4
 // no-fold-literal =   "[" *dtext "]"
@@ -1504,6 +1553,7 @@ impl Streamable for NoFoldLiteral {
            + try!(w.write(b"]")))
     }
 }
+impl_display!(NoFoldLiteral);
 
 // 3.6.4
 // id-right        =   dot-atom-text / no-fold-literal / obs-id-right
@@ -1534,6 +1584,7 @@ impl Streamable for IdRight {
         }
     }
 }
+impl_display!(IdRight);
 
 // 3.6.4
 // id-left         =   dot-atom-text / obs-id-left
@@ -1554,6 +1605,7 @@ impl Streamable for IdLeft {
         Ok(try!(self.0.stream(w)))
     }
 }
+impl_display!(IdLeft);
 
 // 3.6.4
 // msg-id          =   [CFWS] "<" id-left "@" id-right ">" [CFWS]
@@ -1606,6 +1658,7 @@ impl Streamable for MsgId {
         Ok(count)
     }
 }
+impl_display!(MsgId);
 
 // 3.6.7
 // received-token  =   word / angle-addr / addr-spec / domain
@@ -1646,6 +1699,7 @@ impl Streamable for ReceivedToken {
         }
     }
 }
+impl_display!(ReceivedToken);
 
 // 3.6.7
 // path            =   angle-addr / ([CFWS] "<" [CFWS] ">" [CFWS])
@@ -1690,6 +1744,7 @@ impl Streamable for Path {
         }
     }
 }
+impl_display!(Path);
 
 // 3.6.8
 // ftext           =   %d33-57 /          ; Printable US-ASCII
@@ -1698,6 +1753,7 @@ impl Streamable for Path {
 #[inline]
 pub fn is_ftext(c: u8) -> bool { (c>=33 && c<=57) || (c>=59 && c<=126) }
 def_cclass!(FText, is_ftext);
+impl_display!(FText);
 
 // 3.6.8
 // field-name      =   1*ftext
@@ -1718,3 +1774,4 @@ impl Streamable for FieldName {
         self.0.stream(w)
     }
 }
+impl_display!(FieldName);

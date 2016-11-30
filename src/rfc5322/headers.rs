@@ -261,6 +261,12 @@ impl<'a> TryFrom<&'a [u8]> for Bcc {
         Ok(Bcc::AddressList(out))
     }
 }
+impl<'a> TryFrom<&'a str> for Bcc {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<Bcc, ParseError> {
+        TryFrom::try_from(input.as_bytes())
+    }
+}
 impl<'a> TryFrom<AddressList> for Bcc {
     type Err = ParseError;
     fn try_from(input: AddressList) -> Result<Bcc, ParseError> {
@@ -341,6 +347,12 @@ impl<'a> TryFrom<&'a [u8]> for InReplyTo {
         }
     }
 }
+impl<'a> TryFrom<&'a str> for InReplyTo {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<InReplyTo, ParseError> {
+        TryFrom::try_from(input.as_bytes())
+    }
+}
 impl<'a> TryFrom<Vec<MsgId>> for InReplyTo {
     type Err = ParseError;
     fn try_from(input: Vec<MsgId>) -> Result<InReplyTo, ParseError> {
@@ -394,6 +406,12 @@ impl<'a> TryFrom<&'a [u8]> for References {
         } else {
             Ok(References(msgids))
         }
+    }
+}
+impl<'a> TryFrom<&'a str> for References {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<References, ParseError> {
+        TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<Vec<MsgId>> for References {
@@ -505,6 +523,12 @@ impl<'a> TryFrom<&'a [u8]> for Keywords {
         } else {
             Ok(Keywords(msgids))
         }
+    }
+}
+impl<'a> TryFrom<&'a str> for Keywords {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<Keywords, ParseError> {
+        TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<Vec<Phrase>> for Keywords {
@@ -694,6 +718,12 @@ impl<'a> TryFrom<&'a [u8]> for ResentBcc {
         Ok(ResentBcc::AddressList(out))
     }
 }
+impl<'a> TryFrom<&'a str> for ResentBcc {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<ResentBcc, ParseError> {
+        TryFrom::try_from(input.as_bytes())
+    }
+}
 impl<'a> TryFrom<AddressList> for ResentBcc {
     type Err = ParseError;
     fn try_from(input: AddressList) -> Result<ResentBcc, ParseError> {
@@ -804,6 +834,12 @@ impl<'a> TryFrom<&'a [u8]> for Received {
         } else {
             Ok(out)
         }
+    }
+}
+impl<'a> TryFrom<&'a str> for Received {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<Received, ParseError> {
+        TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<(ReceivedTokens, DateTime)> for Received {

@@ -194,6 +194,11 @@ impl Email {
         }
         None
     }
+    pub fn clear_sender(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::Sender(_) = *field { false } else { true }
+        });
+    }
 
     pub fn set_reply_to<R>(&mut self, reply_to: R) -> Result<(), ParseError>
         where ReplyTo: TryFrom<R, Err=ParseError>
@@ -215,6 +220,11 @@ impl Email {
             }
         }
         None
+    }
+    pub fn clear_reply_to(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::ReplyTo(_) = *field { false } else { true }
+        });
     }
 
     pub fn set_to<T>(&mut self, to: T) -> Result<(), ParseError>
@@ -238,6 +248,11 @@ impl Email {
         }
         None
     }
+    pub fn clear_to(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::To(_) = *field { false } else { true }
+        });
+    }
 
     pub fn set_cc<C>(&mut self, cc: C) -> Result<(), ParseError>
         where Cc: TryFrom<C, Err=ParseError>
@@ -259,6 +274,11 @@ impl Email {
             }
         }
         None
+    }
+    pub fn clear_cc(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::Cc(_) = *field { false } else { true }
+        });
     }
 
     pub fn set_bcc<B>(&mut self, bcc: B) -> Result<(), ParseError>
@@ -282,6 +302,11 @@ impl Email {
         }
         None
     }
+    pub fn clear_bcc(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::Bcc(_) = *field { false } else { true }
+        });
+    }
 
     pub fn set_message_id<M>(&mut self, message_id: M) -> Result<(), ParseError>
         where MessageId: TryFrom<M, Err=ParseError>
@@ -303,6 +328,11 @@ impl Email {
             }
         }
         None
+    }
+    pub fn clear_message_id(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::MessageId(_) = *field { false } else { true }
+        });
     }
 
     pub fn set_in_reply_to<I>(&mut self, in_reply_to: I) -> Result<(), ParseError>
@@ -326,6 +356,11 @@ impl Email {
         }
         None
     }
+    pub fn clear_in_reply_to(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::InReplyTo(_) = *field { false } else { true }
+        });
+    }
 
     pub fn set_references<R>(&mut self, references: R) -> Result<(), ParseError>
         where References: TryFrom<R, Err=ParseError>
@@ -347,6 +382,11 @@ impl Email {
             }
         }
         None
+    }
+    pub fn clear_references(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::References(_) = *field { false } else { true }
+        });
     }
 
     pub fn set_subject<S>(&mut self, subject: S) -> Result<(), ParseError>
@@ -370,6 +410,11 @@ impl Email {
         }
         None
     }
+    pub fn clear_subject(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::Subject(_) = *field { false } else { true }
+        });
+    }
 
     pub fn add_comments<C>(&mut self, comments: C) -> Result<(), ParseError>
         where Comments: TryFrom<C, Err=ParseError>
@@ -387,6 +432,11 @@ impl Email {
         }
         output
     }
+    pub fn clear_comments(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::Comments(_) = *field { false } else { true }
+        });
+    }
 
     pub fn add_keywords<K>(&mut self, keywords: K) -> Result<(), ParseError>
         where Keywords: TryFrom<K, Err=ParseError>
@@ -403,6 +453,11 @@ impl Email {
             }
         }
         output
+    }
+    pub fn clear_keywords(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::Keywords(_) = *field { false } else { true }
+        });
     }
 
     pub fn add_optional_field<O>(&mut self, optional_field: O) -> Result<(), ParseError>
@@ -440,6 +495,9 @@ impl Email {
     }
     pub fn get_body(&self) -> Option<Body> {
         self.message.body.clone()
+    }
+    pub fn clear_body(&mut self) {
+        self.message.body = None;
     }
 }
 

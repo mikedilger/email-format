@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `lib.rs`.">
+    <meta name="description" content="Source to the Rust file `src/lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
@@ -518,6 +518,64 @@
 <span id="474">474</span>
 <span id="475">475</span>
 <span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! This crate allows you to construct email messages in a way that assures that</span>
 <span class='doccomment'>//! they are compliant with relevant email standards (especially RFC 5322).  Invalid</span>
@@ -715,6 +773,11 @@
         }
         <span class='prelude-val'>None</span>
     }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_sender</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Sender</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_reply_to</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>reply_to</span>: <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
         <span class='kw'>where</span> <span class='ident'>ReplyTo</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -736,6 +799,11 @@
             }
         }
         <span class='prelude-val'>None</span>
+    }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_reply_to</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
     }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_to</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>to</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -759,6 +827,11 @@
         }
         <span class='prelude-val'>None</span>
     }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_to</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>To</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_cc</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>cc</span>: <span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
         <span class='kw'>where</span> <span class='ident'>Cc</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>C</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -780,6 +853,11 @@
             }
         }
         <span class='prelude-val'>None</span>
+    }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_cc</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Cc</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
     }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_bcc</span><span class='op'>&lt;</span><span class='ident'>B</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>bcc</span>: <span class='ident'>B</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -803,6 +881,11 @@
         }
         <span class='prelude-val'>None</span>
     }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_bcc</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Bcc</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_message_id</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>message_id</span>: <span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
         <span class='kw'>where</span> <span class='ident'>MessageId</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -824,6 +907,11 @@
             }
         }
         <span class='prelude-val'>None</span>
+    }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_message_id</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>MessageId</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
     }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_in_reply_to</span><span class='op'>&lt;</span><span class='ident'>I</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>in_reply_to</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -847,6 +935,11 @@
         }
         <span class='prelude-val'>None</span>
     }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_in_reply_to</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_references</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>references</span>: <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
         <span class='kw'>where</span> <span class='ident'>References</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -868,6 +961,11 @@
             }
         }
         <span class='prelude-val'>None</span>
+    }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_references</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>References</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
     }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_subject</span><span class='op'>&lt;</span><span class='ident'>S</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subject</span>: <span class='ident'>S</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -891,6 +989,11 @@
         }
         <span class='prelude-val'>None</span>
     }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_subject</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Subject</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_comments</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>comments</span>: <span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
         <span class='kw'>where</span> <span class='ident'>Comments</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>C</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -908,6 +1011,11 @@
         }
         <span class='ident'>output</span>
     }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_comments</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Comments</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_keywords</span><span class='op'>&lt;</span><span class='ident'>K</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>keywords</span>: <span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
         <span class='kw'>where</span> <span class='ident'>Keywords</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -924,6 +1032,11 @@
             }
         }
         <span class='ident'>output</span>
+    }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_keywords</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Keywords</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+        });
     }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_optional_field</span><span class='op'>&lt;</span><span class='ident'>O</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>optional_field</span>: <span class='ident'>O</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
@@ -961,6 +1074,9 @@
     }
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_body</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Body</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>body</span>.<span class='ident'>clone</span>()
+    }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_body</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>body</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
     }
 }
 
@@ -1052,11 +1168,9 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "email_format";
-        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    <script src="../../extra.js"></script>
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

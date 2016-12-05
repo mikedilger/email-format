@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `rfc5322/headers.rs`.">
+    <meta name="description" content="Source to the Rust file `src/rfc5322/headers.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>headers.rs.html -- source</title>
@@ -873,6 +873,94 @@
 <span id="829">829</span>
 <span id="830">830</span>
 <span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
 </pre><pre class='rust '>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Write</span>;
@@ -910,13 +998,17 @@
         <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span> {
             <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
             <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-                <span class='prelude-val'>Ok</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+                <span class='kw'>let</span> (<span class='ident'>out</span>,<span class='ident'>rem</span>) <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>));
+                <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
+                    <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()));
+                }
+                <span class='prelude-val'>Ok</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>(<span class='ident'>out</span>))
             }
         }
         <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span> {
             <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
             <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-                <span class='prelude-val'>Ok</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>()).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+                <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
             }
         }
         <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>from</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>to</span> {
@@ -953,6 +1045,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>DateTime</span>, <span class='ident'>OrigDate</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>OrigDate</span>);
 
 <span class='comment'>// 3.6.2</span>
 <span class='comment'>// from            =   &quot;From:&quot; mailbox-list CRLF</span>
@@ -978,6 +1071,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MailboxList</span>, <span class='ident'>From</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>From</span>);
 
 <span class='comment'>// 3.6.2</span>
 <span class='comment'>// sender          =   &quot;Sender:&quot; mailbox CRLF</span>
@@ -1003,6 +1097,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Mailbox</span>, <span class='ident'>Sender</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Sender</span>);
 
 <span class='comment'>// 3.6.2</span>
 <span class='comment'>// reply-to        =   &quot;Reply-To:&quot; address-list CRLF</span>
@@ -1028,6 +1123,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>ReplyTo</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ReplyTo</span>);
 
 <span class='comment'>// 3.6.3</span>
 <span class='comment'>// to              =   &quot;To:&quot; address-list CRLF</span>
@@ -1053,6 +1149,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>To</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>To</span>);
 
 <span class='comment'>// 3.6.3</span>
 <span class='comment'>// cc              =   &quot;Cc:&quot; address-list CRLF</span>
@@ -1078,6 +1175,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>Cc</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Cc</span>);
 
 <span class='comment'>// 3.6.3</span>
 <span class='comment'>// bcc             =   &quot;Bcc:&quot; [address-list / CFWS] CRLF</span>
@@ -1120,7 +1218,17 @@
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Bcc</span> {
     <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
     <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Bcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Bcc</span>::<span class='ident'>AddressList</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+        <span class='kw'>let</span> (<span class='ident'>out</span>,<span class='ident'>rem</span>) <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>));
+        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
+            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()));
+        }
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Bcc</span>::<span class='ident'>AddressList</span>(<span class='ident'>out</span>))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Bcc</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Bcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
     }
 }
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>AddressList</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Bcc</span> {
@@ -1129,6 +1237,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>Bcc</span>::<span class='ident'>AddressList</span>(<span class='ident'>input</span>))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Bcc</span>);
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// message-id      =   &quot;Message-ID:&quot; msg-id CRLF</span>
@@ -1154,6 +1263,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>MessageId</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>MessageId</span>);
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// in-reply-to     =   &quot;In-Reply-To:&quot; 1*msg-id CRLF</span>
@@ -1194,7 +1304,17 @@
         <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>rem</span>) {
             <span class='ident'>msgids</span>.<span class='ident'>push</span>(<span class='ident'>x</span>);
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>InReplyTo</span>(<span class='ident'>msgids</span>))
+        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
+            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()))
+        } <span class='kw'>else</span> {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>InReplyTo</span>(<span class='ident'>msgids</span>))
+        }
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>InReplyTo</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>InReplyTo</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
     }
 }
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>InReplyTo</span> {
@@ -1203,6 +1323,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>InReplyTo</span>(<span class='ident'>input</span>))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>InReplyTo</span>);
 
 
 <span class='comment'>// 3.6.4</span>
@@ -1244,7 +1365,17 @@
         <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>rem</span>) {
             <span class='ident'>msgids</span>.<span class='ident'>push</span>(<span class='ident'>x</span>);
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>References</span>(<span class='ident'>msgids</span>))
+        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
+            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()))
+        } <span class='kw'>else</span> {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>References</span>(<span class='ident'>msgids</span>))
+        }
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>References</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>References</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
     }
 }
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>MsgId</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>References</span> {
@@ -1253,6 +1384,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>References</span>(<span class='ident'>input</span>))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>References</span>);
 
 <span class='comment'>// 3.6.5</span>
 <span class='comment'>// subject         =   &quot;Subject:&quot; unstructured CRLF</span>
@@ -1278,6 +1410,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Unstructured</span>, <span class='ident'>Subject</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Subject</span>);
 
 <span class='comment'>// 3.6.5</span>
 <span class='comment'>// comments        =   &quot;Comments:&quot; unstructured CRLF</span>
@@ -1303,6 +1436,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Unstructured</span>, <span class='ident'>Comments</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Comments</span>);
 
 <span class='comment'>// 3.6.5</span>
 <span class='comment'>// keywords        =   &quot;Keywords:&quot; phrase *(&quot;,&quot; phrase) CRLF</span>
@@ -1348,7 +1482,17 @@
         <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Phrase</span>, <span class='ident'>rem</span>) {
             <span class='ident'>msgids</span>.<span class='ident'>push</span>(<span class='ident'>x</span>);
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Keywords</span>(<span class='ident'>msgids</span>))
+        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
+            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()))
+        } <span class='kw'>else</span> {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>Keywords</span>(<span class='ident'>msgids</span>))
+        }
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Keywords</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Keywords</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
     }
 }
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Phrase</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>Keywords</span> {
@@ -1357,6 +1501,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>Keywords</span>(<span class='ident'>input</span>))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Keywords</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-date     =   &quot;Resent-Date:&quot; date-time CRLF</span>
@@ -1383,6 +1528,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>DateTime</span>, <span class='ident'>ResentDate</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentDate</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-from     =   &quot;Resent-From:&quot; mailbox-list CRLF</span>
@@ -1408,6 +1554,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MailboxList</span>, <span class='ident'>ResentFrom</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentFrom</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-sender   =   &quot;Resent-Sender:&quot; mailbox CRLF</span>
@@ -1433,6 +1580,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Mailbox</span>, <span class='ident'>ResentSender</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentSender</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-to       =   &quot;Resent-To:&quot; address-list CRLF</span>
@@ -1458,6 +1606,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>ResentTo</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentTo</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-cc       =   &quot;Resent-Cc:&quot; address-list CRLF</span>
@@ -1483,6 +1632,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>, <span class='ident'>ResentCc</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentCc</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-bcc      =   &quot;Resent-Bcc:&quot; [address-list / CFWS] CRLF</span>
@@ -1525,7 +1675,17 @@
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ResentBcc</span> {
     <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
     <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>ResentBcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='ident'>ResentBcc</span>::<span class='ident'>AddressList</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>x</span>,_)<span class='op'>|</span> <span class='ident'>x</span>))))
+        <span class='kw'>let</span> (<span class='ident'>out</span>,<span class='ident'>rem</span>) <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>));
+        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
+            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()));
+        }
+        <span class='prelude-val'>Ok</span>(<span class='ident'>ResentBcc</span>::<span class='ident'>AddressList</span>(<span class='ident'>out</span>))
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ResentBcc</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>ResentBcc</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
     }
 }
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>AddressList</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ResentBcc</span> {
@@ -1534,6 +1694,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>ResentBcc</span>::<span class='ident'>AddressList</span>(<span class='ident'>input</span>))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentBcc</span>);
 
 <span class='comment'>// 3.6.6</span>
 <span class='comment'>// resent-msg-id   =   &quot;Resent-Message-ID:&quot; msg-id CRLF</span>
@@ -1559,6 +1720,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>, <span class='ident'>ResentMessageId</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentMessageId</span>);
 
 <span class='comment'>// 3.6.7</span>
 <span class='comment'>// received        =   &quot;Received:&quot; *received-token &quot;;&quot; date-time CRLF</span>
@@ -1630,7 +1792,18 @@
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>fudged_input</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='string'>&quot;Received:&quot;</span>.<span class='ident'>as_bytes</span>().<span class='ident'>to_owned</span>();
         <span class='ident'>fudged_input</span>.<span class='ident'>extend</span>(<span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>input</span>);
         <span class='ident'>fudged_input</span>.<span class='ident'>extend</span>(<span class='string'>&quot;\r\n&quot;</span>.<span class='ident'>as_bytes</span>());
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Received</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>)).<span class='number'>0</span>)
+        <span class='kw'>let</span> (<span class='ident'>out</span>,<span class='ident'>rem</span>) <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Received</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>));
+        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
+            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()));
+        } <span class='kw'>else</span> {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>out</span>)
+        }
+    }
+}
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Received</span> {
+    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
+    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Received</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
+        <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
     }
 }
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span>(<span class='ident'>ReceivedTokens</span>, <span class='ident'>DateTime</span>)<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Received</span> {
@@ -1641,6 +1814,7 @@
             <span class='ident'>date_time</span>: <span class='ident'>input</span>.<span class='number'>1</span> })
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Received</span>);
 
 <span class='comment'>// 3.6.7</span>
 <span class='comment'>// return          =   &quot;Return-Path:&quot; path CRLF</span>
@@ -1665,6 +1839,7 @@
     }
 }
 <span class='macro'>impl_try_from</span><span class='macro'>!</span>(<span class='ident'>Path</span>, <span class='ident'>Return</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Return</span>);
 
 <span class='comment'>// 3.6.8</span>
 <span class='comment'>// optional-field  =   field-name &quot;:&quot; unstructured CRLF</span>
@@ -1705,6 +1880,7 @@
             <span class='ident'>value</span>: <span class='ident'>input</span>.<span class='number'>1</span> })
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>OptionalField</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -1762,11 +1938,9 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "email_format";
-        window.playgroundUrl = "";
     </script>
     <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    <script src="../../../extra.js"></script>
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

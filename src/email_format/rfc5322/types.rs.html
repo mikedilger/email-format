@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `rfc5322/types.rs`.">
+    <meta name="description" content="Source to the Rust file `src/rfc5322/types.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>types.rs.html -- source</title>
@@ -1762,6 +1762,63 @@
 <span id="1718">1718</span>
 <span id="1719">1719</span>
 <span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
+<span id="1773">1773</span>
+<span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
 </pre><pre class='rust '>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Write</span>;
@@ -1781,27 +1838,32 @@
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_vchar</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { <span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>0x21</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>0x7E</span> }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>VChar</span>, <span class='ident'>is_vchar</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>VChar</span>);
 
 <span class='comment'>// RFC 5234, B.1  Core Rules  WSP            =  SP / HTAB ; white space</span>
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_wsp</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { <span class='ident'>c</span><span class='op'>==</span><span class='ident'>SP</span> <span class='op'>||</span> <span class='ident'>c</span><span class='op'>==</span><span class='ident'>HTAB</span> }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>WSP</span>, <span class='ident'>is_wsp</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>WSP</span>);
 
 <span class='comment'>// RFC 5234, B.1  Core Rules  CHAR           =  %x01-7F ; any 7-bit US-ASCII character,</span>
 <span class='comment'>//                                                      ;  excluding NUL</span>
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_ascii</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { <span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>1</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>127</span> }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>ASCII</span>, <span class='ident'>is_ascii</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ASCII</span>);
 
 <span class='comment'>// RFC 5234, B.1  Core Rules  DIGIT          =  %x30-39   ; 0-9</span>
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_digit</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { <span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>0x30</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>0x39</span> }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>Digit</span>, <span class='ident'>is_digit</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Digit</span>);
 
 <span class='comment'>// RFC 5234, B.1  Core Rules  ALPHA          = %x41-5A / %x61-7A   ; A-Z / a-z</span>
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_alpha</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>0x41</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>0x5A</span>) <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>0x61</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>0x7A</span>) }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>Alpha</span>, <span class='ident'>is_alpha</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Alpha</span>);
 
 <span class='comment'>// 3.2.1</span>
 <span class='comment'>// quoted-pair     =   (&quot;\&quot; (VCHAR / WSP)) / obs-qp</span>
@@ -1827,6 +1889,7 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='kw-2'>&amp;</span>[<span class='self'>self</span>.<span class='number'>0</span>])))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>QuotedPair</span>);
 
 <span class='comment'>// 3.2.2</span>
 <span class='comment'>// FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS</span>
@@ -1857,6 +1920,7 @@
         <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot; &quot;</span>))) <span class='comment'>// FIXME - fold?</span>
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>FWS</span>);
 
 <span class='comment'>// 3.2.2</span>
 <span class='comment'>// ctext           =   %d33-39 /          ; Printable US-ASCII</span>
@@ -1866,6 +1930,7 @@
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_ctext</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>33</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>39</span>) <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>42</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>91</span>) <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>93</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>126</span>) }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>CText</span>, <span class='ident'>is_ctext</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>CText</span>);
 
 <span class='comment'>// 3.2.2</span>
 <span class='comment'>// ccontent        =   ctext / quoted-pair / comment</span>
@@ -1900,6 +1965,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>CContent</span>);
 
 <span class='comment'>// 3.2.2</span>
 <span class='comment'>// comment         =   &quot;(&quot; *([FWS] ccontent) [FWS] &quot;)&quot;</span>
@@ -1944,6 +2010,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Comment</span>);
 
 <span class='comment'>// 3.2.2</span>
 <span class='comment'>// CFWS            =   (1*([FWS] comment) [FWS]) / FWS</span>
@@ -1988,6 +2055,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>CFWS</span>);
 
 <span class='comment'>// 3.2.3</span>
 <span class='comment'>// atext           =   ALPHA / DIGIT /    ; Printable US-ASCII</span>
@@ -2011,6 +2079,7 @@
         <span class='op'>||</span> <span class='ident'>c</span><span class='op'>==</span><span class='string'>b&#39;|&#39;</span> <span class='op'>||</span> <span class='ident'>c</span><span class='op'>==</span><span class='string'>b&#39;}&#39;</span>  <span class='op'>||</span> <span class='ident'>c</span><span class='op'>==</span><span class='string'>b&#39;~&#39;</span>
 }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>AText</span>, <span class='ident'>is_atext</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>AText</span>);
 
 <span class='comment'>// 3.2.3</span>
 <span class='comment'>// atom            =   [CFWS] 1*atext [CFWS]</span>
@@ -2049,6 +2118,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Atom</span>);
 
 <span class='comment'>// 3.2.3</span>
 <span class='comment'>// dot-atom-text   =   1*atext *(&quot;.&quot; 1*atext)</span>
@@ -2088,6 +2158,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DotAtomText</span>);
 
 <span class='comment'>// 3.2.3</span>
 <span class='comment'>// dot-atom        =   [CFWS] dot-atom-text [CFWS]</span>
@@ -2127,6 +2198,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DotAtom</span>);
 
 <span class='comment'>// 3.2.3 (we don&#39;t need to parse this one, it is not used.  could be used as a tokenization</span>
 <span class='comment'>//        point in lexical analysis)</span>
@@ -2146,6 +2218,7 @@
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_qtext</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { <span class='ident'>c</span><span class='op'>==</span><span class='number'>33</span> <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>35</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>91</span>) <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>93</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>126</span>) }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>QText</span>, <span class='ident'>is_qtext</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>QText</span>);
 
 <span class='comment'>// 3.2.4</span>
 <span class='comment'>// qcontent        =   qtext / quoted-pair</span>
@@ -2176,6 +2249,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>QContent</span>);
 
 <span class='comment'>// 3.2.4</span>
 <span class='comment'>// quoted-string   =   [CFWS]</span>
@@ -2237,6 +2311,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>QuotedString</span>);
 
 <span class='comment'>// 3.2.5</span>
 <span class='comment'>// word            =   atom / quoted-string</span>
@@ -2267,6 +2342,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Word</span>);
 
 <span class='comment'>// 3.2.5</span>
 <span class='comment'>// phrase          =   1*word / obs-phrase</span>
@@ -2296,6 +2372,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Phrase</span>);
 
 <span class='comment'>// 3.2.5</span>
 <span class='comment'>// unstructured    = (*([FWS] VCHAR) *WSP) / obs-unstruct</span>
@@ -2349,6 +2426,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Unstructured</span>);
 
 <span class='comment'>// 3.4.1</span>
 <span class='comment'>// local-part      =   dot-atom / quoted-string / obs-local-part</span>
@@ -2379,6 +2457,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>LocalPart</span>);
 
 <span class='comment'>// 3.4.1</span>
 <span class='comment'>// dtext           =   %d33-90 /          ; Printable US-ASCII</span>
@@ -2387,6 +2466,7 @@
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_dtext</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>33</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>90</span>) <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>94</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>126</span>) }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>DText</span>, <span class='ident'>is_dtext</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DText</span>);
 
 <span class='comment'>// 3.4.1</span>
 <span class='comment'>// domain-literal  =   [CFWS] &quot;[&quot; *([FWS] dtext) [FWS] &quot;]&quot; [CFWS]</span>
@@ -2442,6 +2522,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DomainLiteral</span>);
 
 <span class='comment'>// 3.4.1</span>
 <span class='comment'>// domain          =   dot-atom / domain-literal / obs-domain</span>
@@ -2472,6 +2553,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Domain</span>);
 
 <span class='comment'>// 3.4.1</span>
 <span class='comment'>// addr-spec       =   local-part &quot;@&quot; domain</span>
@@ -2503,6 +2585,8 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>domain</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>AddrSpec</span>);
+
 <span class='comment'>// 3.4</span>
 <span class='comment'>// angle-addr      =   [CFWS] &quot;&lt;&quot; addr-spec &quot;&gt;&quot; [CFWS] /</span>
 <span class='comment'>//                     obs-angle-addr</span>
@@ -2545,6 +2629,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>AngleAddr</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// display-name    =   phrase</span>
@@ -2560,6 +2645,7 @@
         <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DisplayName</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// name-addr       =   [display-name] angle-addr</span>
@@ -2592,6 +2678,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>NameAddr</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// mailbox         =   name-addr / addr-spec</span>
@@ -2622,6 +2709,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Mailbox</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// mailbox-list    =   (mailbox *(&quot;,&quot; mailbox)) / obs-mbox-list</span>
@@ -2663,6 +2751,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>MailboxList</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// group-list      =   mailbox-list / CFWS / obs-group-list</span>
@@ -2693,6 +2782,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>GroupList</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// group           =   display-name &quot;:&quot; [group-list] &quot;;&quot; [CFWS]</span>
@@ -2735,6 +2825,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Group</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// address         =   mailbox / group</span>
@@ -2765,6 +2856,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Address</span>);
 
 <span class='comment'>// 3.4</span>
 <span class='comment'>// address-list    =   (address *(&quot;,&quot; address)) / obs-addr-list</span>
@@ -2806,6 +2898,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>AddressList</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// zone            =   (FWS ( &quot;+&quot; / &quot;-&quot; ) 4DIGIT) / obs-zone</span>
@@ -2846,6 +2939,7 @@
         <span class='prelude-val'>Ok</span>(<span class='number'>6</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Zone</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// second          =   2DIGIT / obs-second</span>
@@ -2866,6 +2960,7 @@
         <span class='prelude-val'>Ok</span>(<span class='number'>2</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Second</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// minute          =   2DIGIT / obs-minute</span>
@@ -2886,6 +2981,7 @@
         <span class='prelude-val'>Ok</span>(<span class='number'>2</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Minute</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// hour          =   2DIGIT / obs-hour</span>
@@ -2906,6 +3002,7 @@
         <span class='prelude-val'>Ok</span>(<span class='number'>2</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Hour</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// time-of-day     =   hour &quot;:&quot; minute [ &quot;:&quot; second ]</span>
@@ -2955,6 +3052,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>TimeOfDay</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// time            =   time-of-day zone</span>
@@ -2984,6 +3082,7 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>zone</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Time</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// year            =   (FWS 4*DIGIT FWS) / obs-year</span>
@@ -3015,6 +3114,7 @@
         <span class='prelude-val'>Ok</span>(<span class='number'>6</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Year</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// month           =   &quot;Jan&quot; / &quot;Feb&quot; / &quot;Mar&quot; / &quot;Apr&quot; /</span>
@@ -3062,6 +3162,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Month</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// day             =   ([FWS] 1*2DIGIT FWS) / obs-day</span>
@@ -3090,6 +3191,7 @@
         <span class='prelude-val'>Ok</span>(<span class='number'>4</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Day</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// date            =   day month year</span>
@@ -3124,6 +3226,7 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>year</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Date</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// day-name        =   &quot;Mon&quot; / &quot;Tue&quot; / &quot;Wed&quot; / &quot;Thu&quot; /</span>
@@ -3160,6 +3263,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DayName</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// day-of-week     =   ([FWS] day-name) / obs-day-of-week</span>
@@ -3193,6 +3297,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DayOfWeek</span>);
 
 <span class='comment'>// 3.3</span>
 <span class='comment'>// date-time       =   [ day-of-week &quot;,&quot; ] date time [CFWS]</span>
@@ -3245,6 +3350,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>DateTime</span>);
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// no-fold-literal =   &quot;[&quot; *dtext &quot;]&quot;</span>
@@ -3269,6 +3375,7 @@
            <span class='op'>+</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;]&quot;</span>)))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>NoFoldLiteral</span>);
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// id-right        =   dot-atom-text / no-fold-literal / obs-id-right</span>
@@ -3299,6 +3406,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>IdRight</span>);
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// id-left         =   dot-atom-text / obs-id-left</span>
@@ -3319,6 +3427,7 @@
         <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)))
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>IdLeft</span>);
 
 <span class='comment'>// 3.6.4</span>
 <span class='comment'>// msg-id          =   [CFWS] &quot;&lt;&quot; id-left &quot;@&quot; id-right &quot;&gt;&quot; [CFWS]</span>
@@ -3371,6 +3480,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>MsgId</span>);
 
 <span class='comment'>// 3.6.7</span>
 <span class='comment'>// received-token  =   word / angle-addr / addr-spec / domain</span>
@@ -3411,6 +3521,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ReceivedToken</span>);
 
 <span class='comment'>// 3.6.7</span>
 <span class='comment'>// path            =   angle-addr / ([CFWS] &quot;&lt;&quot; [CFWS] &quot;&gt;&quot; [CFWS])</span>
@@ -3455,6 +3566,7 @@
         }
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Path</span>);
 
 <span class='comment'>// 3.6.8</span>
 <span class='comment'>// ftext           =   %d33-57 /          ; Printable US-ASCII</span>
@@ -3463,6 +3575,7 @@
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_ftext</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> { (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>33</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>57</span>) <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>59</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>126</span>) }
 <span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>FText</span>, <span class='ident'>is_ftext</span>);
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>FText</span>);
 
 <span class='comment'>// 3.6.8</span>
 <span class='comment'>// field-name      =   1*ftext</span>
@@ -3483,6 +3596,7 @@
         <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)
     }
 }
+<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>FieldName</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -3540,11 +3654,9 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "email_format";
-        window.playgroundUrl = "";
     </script>
     <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    <script src="../../../extra.js"></script>
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

@@ -916,4 +916,27 @@ impl<'a> TryFrom<(FieldName, Unstructured)> for OptionalField {
             value: input.1 })
     }
 }
+impl<'a,'b> TryFrom<(&'a [u8], &'b [u8])> for OptionalField {
+    type Err = ParseError;
+    fn try_from(input: (&'a [u8], &'b [u8])) -> Result<OptionalField, ParseError> {
+        let (name,rem) = try!(FieldName::parse(input.0));
+        if rem.len() > 0 {
+            return Err(ParseError::TrailingInput(input.0.len() - rem.len()));
+        }
+        let (value,rem) = try!(Unstructured::parse(input.1));
+        if rem.len() > 0 {
+            return Err(ParseError::TrailingInput(input.1.len() - rem.len()));
+        }
+        Ok(OptionalField {
+            name: name,
+            value: value,
+        })
+    }
+}
+impl<'a,'b> TryFrom<(&'a str, &'b str)> for OptionalField {
+    type Err = ParseError;
+    fn try_from(input: (&'a str, &'b str)) -> Result<OptionalField, ParseError> {
+        TryFrom::try_from((input.0.as_bytes(), input.1.as_bytes()))
+    }
+}
 impl_display!(OptionalField);

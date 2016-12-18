@@ -9,5 +9,10 @@ documentation = "https://mikedilger.github.io/email-format"
 license = "MIT OR Apache-2.0"
 keywords = [ "email", "rfc5322" ]
 
+[features]
+default = [ ]
+
 [dependencies]
 buf-read-ext = "0.2"
+time = { version = "0.1", optional = true }
+chrono = { version = "0.2", optional = true }

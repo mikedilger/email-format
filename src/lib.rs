@@ -68,6 +68,11 @@
 
 extern crate buf_read_ext;
 
+#[cfg(feature="time")]
+extern crate time;
+#[cfg(feature="chrono")]
+extern crate chrono;
+
 #[cfg(test)]
 mod tests;
 

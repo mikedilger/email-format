@@ -12,6 +12,7 @@ pub enum ParseError {
     InvalidBodyChar(u8),
     LineTooLong(usize),
     TrailingInput(usize),
+    InternalError,
 }
 
 impl fmt::Display for ParseError {
@@ -64,20 +65,15 @@ impl StdError for ParseError {
             ParseError::InvalidBodyChar(_) => "Invalid Body Character",
             ParseError::LineTooLong(_) => "Line too long",
             ParseError::TrailingInput(_) => "Trailing input",
+            ParseError::InternalError => "Internal error",
         }
     }
 
     fn cause(&self) -> Option<&StdError>
     {
         match *self {
-            ParseError::Eof => None,
-            ParseError::NotFound => None,
-            ParseError::Expected(_) => None,
-            ParseError::ExpectedType(_) => None,
             ParseError::Io(ref e) => Some(e),
-            ParseError::InvalidBodyChar(_) => None,
-            ParseError::LineTooLong(_) => None,
-            ParseError::TrailingInput(_) => None,
+            _ => None,
         }
     }
 }

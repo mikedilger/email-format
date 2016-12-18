@@ -81,6 +81,35 @@ impl Streamable for OrigDate {
     }
 }
 impl_try_from!(DateTime, OrigDate);
+#[cfg(feature="time")]
+impl<'a> TryFrom<&'a ::time::Tm> for OrigDate {
+    type Err = ParseError;
+    fn try_from(input: &'a ::time::Tm) -> Result<OrigDate, ParseError> {
+        let s = match input.strftime("%a, %d %b %Y %T %z") {
+            Ok(s) => format!("{}",s),
+            Err(_) => return Err(ParseError::InternalError),
+        };
+        TryFrom::try_from(s.as_bytes())
+    }
+}
+#[cfg(feature="chrono")]
+impl<'a> TryFrom<&'a ::chrono::NaiveDateTime> for OrigDate {
+    type Err = ParseError;
+    fn try_from(input: &'a ::chrono::NaiveDateTime) -> Result<OrigDate, ParseError> {
+        let s = input.format("%a, %d %b %Y %T %z").to_string();
+        TryFrom::try_from(s.as_bytes())
+    }
+}
+#[cfg(feature="chrono")]
+impl<'a, Tz: ::chrono::TimeZone> TryFrom<&'a ::chrono::DateTime<Tz>> for OrigDate
+    where Tz::Offset: ::std::fmt::Display
+{
+    type Err = ParseError;
+    fn try_from(input: &'a ::chrono::DateTime<Tz>) -> Result<OrigDate, ParseError> {
+        let s = input.format("%a, %d %b %Y %T %z").to_string();
+        TryFrom::try_from(s.as_bytes())
+    }
+}
 impl_display!(OrigDate);
 
 // 3.6.2

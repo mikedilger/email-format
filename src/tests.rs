@@ -19,10 +19,10 @@ fn test_alpha() {
     assert_eq!(rem, b"123");
 
     let err = Alpha::parse(b"").err().unwrap();
-    assert_match!(err, ParseError::Eof);
+    assert_match!(err, ParseError::Eof("Alpha"));
 
     let err = Alpha::parse(b"123").err().unwrap();
-    assert_match!(err, ParseError::NotFound);
+    assert_match!(err, ParseError::NotFound("Alpha"));
 
     let mut output: Vec<u8> = Vec::new();
     assert_eq!(alpha.stream(&mut output).unwrap(), 8);
@@ -34,9 +34,9 @@ fn test_parse_quoted_pair() {
     use rfc5322::types::QuotedPair;
 
     let err = QuotedPair::parse(b"not").err().unwrap();
-    assert_match!(err, ParseError::NotFound);
+    assert_match!(err, ParseError::NotFound("Quoted Pair"));
     let err = QuotedPair::parse(b"\\").err().unwrap();
-    assert_match!(err, ParseError::NotFound);
+    assert_match!(err, ParseError::NotFound("Quoted Pair"));
     let (token, rem) = QuotedPair::parse(b"\\n").unwrap();
     assert_eq!(token, QuotedPair(b'n'));
     assert_eq!(rem, b"");
@@ -60,9 +60,9 @@ fn test_fws() {
     assert_eq!(token, FWS);
     assert_eq!(rem, b"\r ");
     let err = FWS::parse(b"\n ").err().unwrap();
-    assert_match!(err, ParseError::NotFound);
+    assert_match!(err, ParseError::NotFound("Folding White Space"));
     let err = FWS::parse(b"\r\n").err().unwrap();
-    assert_match!(err, ParseError::NotFound);
+    assert_match!(err, ParseError::NotFound("Folding White Space"));
     let (token, rem) = FWS::parse(b"\r\n\tx").unwrap();
     assert_eq!(token, FWS);
     assert_eq!(rem, b"x");

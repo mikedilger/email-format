@@ -514,7 +514,7 @@ impl Parsable for Email {
                 message: message
             }, rem))
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Email"))
         }
     }
 }

@@ -50,15 +50,15 @@ pub struct QuotedPair(pub u8);
 impl Parsable for QuotedPair {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut pos: usize = 0;
-        if pos >= input.len() { return Err(ParseError::Eof); }
-        if pos + 1 >= input.len() { return Err(ParseError::NotFound); }
-        if input[pos]!=b'\\' { return Err(ParseError::NotFound); }
+        if pos >= input.len() { return Err(ParseError::Eof("Quoted Pair")); }
+        if pos + 1 >= input.len() { return Err(ParseError::NotFound("Quoted Pair")); }
+        if input[pos]!=b'\\' { return Err(ParseError::NotFound("Quoted Pair")); }
         if is_vchar(input[pos + 1]) || is_wsp(input[pos + 1]) {
             pos += 2;
             let qp = QuotedPair(input[pos - 1]);
             return Ok((qp, &input[pos..]));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Quoted Pair"))
     }
 }
 impl Streamable for QuotedPair {
@@ -77,7 +77,7 @@ pub struct FWS;
 impl Parsable for FWS {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut rem = input;
-        if rem.len() == 0 { return Err(ParseError::Eof); }
+        if rem.len() == 0 { return Err(ParseError::Eof("Folding White Space")); }
         while rem.len() > 0 {
             if is_wsp(rem[0]) {
                 rem = &rem[1..];
@@ -89,7 +89,7 @@ impl Parsable for FWS {
                 break;
             }
         }
-        if rem.len() == input.len() { Err(ParseError::NotFound) }
+        if rem.len() == input.len() { Err(ParseError::NotFound("Folding White Space")) }
         else { Ok((FWS, rem)) }
     }
 }
@@ -130,7 +130,7 @@ impl Parsable for CContent {
             Ok((CContent::Comment(c), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("CContent"))
         }
     }
 }
@@ -155,7 +155,7 @@ pub struct Comment {
 impl Parsable for Comment {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut rem: &[u8] = input;
-        if rem.len() == 0 { return Err(ParseError::Eof); }
+        if rem.len() == 0 { return Err(ParseError::Eof("Comment")); }
         req!(rem, b"(", input);
         let mut ccontent: Vec<(bool, CContent)> = Vec::new();
         let mut ws: bool = false;
@@ -199,7 +199,7 @@ pub struct CFWS {
 }
 impl Parsable for CFWS {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Comment Folding White Space")); }
         let mut comments: Vec<(bool, Comment)> = Vec::new();
         let mut rem = input;
         let mut ws: bool = false;
@@ -218,7 +218,7 @@ impl Parsable for CFWS {
                 trailing_ws: ws,
             }, rem))
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Comment Folding White Space"))
         }
     }
 }
@@ -269,7 +269,7 @@ pub struct Atom {
 }
 impl Parsable for Atom {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len()==0 { return Err(ParseError::Eof); }
+        if input.len()==0 { return Err(ParseError::Eof("Atom")); }
         let mut rem = input;
         let pre_cfws = parse!(CFWS, rem);
         if let Ok(atext) = parse!(AText, rem) {
@@ -280,7 +280,7 @@ impl Parsable for Atom {
                 post_cfws: post_cfws.ok(),
             }, rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Atom"))
     }
 }
 impl Streamable for Atom {
@@ -349,7 +349,7 @@ pub struct DotAtom {
 impl Parsable for DotAtom {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut rem = input;
-        if rem.len() == 0 { return Err(ParseError::Eof); }
+        if rem.len() == 0 { return Err(ParseError::Eof("DotAtom")); }
         let pre_cfws = parse!(CFWS, rem);
         if let Ok(dat) = parse!(DotAtomText, rem) {
             let post_cfws = parse!(CFWS, rem);
@@ -359,7 +359,7 @@ impl Parsable for DotAtom {
                 post_cfws: post_cfws.ok(),
             }, rem))
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("DotAtom"))
         }
     }
 }
@@ -407,7 +407,7 @@ pub enum QContent {
 }
 impl Parsable for QContent {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("QContent")); }
         if let Ok((x, rem)) = QText::parse(input) {
             Ok((QContent::QText(x), rem))
         }
@@ -415,7 +415,7 @@ impl Parsable for QContent {
             Ok((QContent::QuotedPair(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("QContent"))
         }
     }
 }
@@ -442,7 +442,7 @@ pub struct QuotedString {
 }
 impl Parsable for QuotedString {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("QuotedString")); }
         let mut rem = input;
         let pre_cfws = parse!(CFWS, rem);
         req!(rem, b"\"", input);
@@ -500,7 +500,7 @@ pub enum Word {
 }
 impl Parsable for Word {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Word")); }
         if let Ok((x, rem)) = Atom::parse(input) {
             Ok((Word::Atom(x), rem))
         }
@@ -508,7 +508,7 @@ impl Parsable for Word {
             Ok((Word::QuotedString(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Word"))
         }
     }
 }
@@ -528,14 +528,14 @@ impl_display!(Word);
 pub struct Phrase(pub Vec<Word>);
 impl Parsable for Phrase {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Phrase")); }
         let mut rem = input;
         let mut output: Vec<Word> = Vec::new();
         while let Ok(word) = parse!(Word, rem) {
             output.push(word);
         }
         if output.len() == 0 {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Phrase"))
         } else {
             Ok((Phrase(output), rem))
         }
@@ -562,7 +562,7 @@ pub struct Unstructured {
 }
 impl Parsable for Unstructured {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Unstructured")); }
         let mut rem = input;
         let mut output: Vec<VChar> = Vec::new();
         let t = parse!(FWS, rem);
@@ -579,7 +579,7 @@ impl Parsable for Unstructured {
             }
             break;
         }
-        if output.len() == 0 { return Err(ParseError::NotFound); }
+        if output.len() == 0 { return Err(ParseError::NotFound("Unstructured")); }
         let t = parse!(WSP, rem);
         Ok((Unstructured {
             leading_ws: leading_ws,
@@ -615,7 +615,7 @@ pub enum LocalPart {
 }
 impl Parsable for LocalPart {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("LocalPart")); }
         if let Ok((x, rem)) = DotAtom::parse(input) {
             Ok((LocalPart::DotAtom(x), rem))
         }
@@ -623,7 +623,7 @@ impl Parsable for LocalPart {
             Ok((LocalPart::QuotedString(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("LocalPart"))
         }
     }
 }
@@ -657,7 +657,7 @@ pub struct DomainLiteral {
 }
 impl Parsable for DomainLiteral {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("DomainLiteral")); }
         let mut rem = input;
         let mut dtext: Vec<(bool, DText)> = Vec::new();
         let pre_cfws = parse!(CFWS, rem);
@@ -711,7 +711,7 @@ pub enum Domain {
 }
 impl Parsable for Domain {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Domain")); }
         if let Ok((x, rem)) = DotAtom::parse(input) {
             Ok((Domain::DotAtom(x), rem))
         }
@@ -719,7 +719,7 @@ impl Parsable for Domain {
             Ok((Domain::DomainLiteral(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Domain"))
         }
     }
 }
@@ -742,7 +742,7 @@ pub struct AddrSpec {
 }
 impl Parsable for AddrSpec {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("AddrSpec")); }
         if let Ok((lp, rem)) = LocalPart::parse(input) {
             if rem.len() > 0 && rem[0]==b'@' {
                 if let Ok((d, rem)) = Domain::parse(&rem[1..]) {
@@ -753,7 +753,7 @@ impl Parsable for AddrSpec {
                 }
             }
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("AddrSpec"))
     }
 }
 impl Streamable for AddrSpec {
@@ -776,7 +776,7 @@ pub struct AngleAddr{
 }
 impl Parsable for AngleAddr {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("AngleAddr")); }
         let mut rem = input;
         let pre_cfws = parse!(CFWS, rem);
         req!(rem, b"<", input);
@@ -789,7 +789,7 @@ impl Parsable for AngleAddr {
                 post_cfws: post_cfws.ok(),
             }, rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("AngleAddr"))
     }
 }
 impl Streamable for AngleAddr {
@@ -834,7 +834,7 @@ pub struct NameAddr {
 }
 impl Parsable for NameAddr {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("NameAddr")); }
         let mut rem = input;
         let maybe_dn = parse!(DisplayName, rem);
         if let Ok(aa) = parse!(AngleAddr, rem) {
@@ -843,7 +843,7 @@ impl Parsable for NameAddr {
                 angle_addr: aa,
             }, rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("NameAddr"))
     }
 }
 impl Streamable for NameAddr {
@@ -867,7 +867,7 @@ pub enum Mailbox {
 }
 impl Parsable for Mailbox {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Mailbox")); }
         if let Ok((x, rem)) = NameAddr::parse(input) {
             Ok((Mailbox::NameAddr(x), rem))
         }
@@ -875,7 +875,7 @@ impl Parsable for Mailbox {
             Ok((Mailbox::AddrSpec(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Mailbox"))
         }
     }
 }
@@ -895,7 +895,7 @@ impl_display!(Mailbox);
 pub struct MailboxList(pub Vec<Mailbox>);
 impl Parsable for MailboxList {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Mailbox List")); }
         let mut rem = input;
         let mut output: Vec<Mailbox> = Vec::new();
         let mut savedrem = rem;
@@ -909,7 +909,7 @@ impl Parsable for MailboxList {
         }
         rem = savedrem;
         if output.len() == 0 {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("MailboxList"))
         } else {
             Ok((MailboxList(output), rem))
         }
@@ -940,7 +940,7 @@ pub enum GroupList {
 }
 impl Parsable for GroupList {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Group List")); }
         if let Ok((x, rem)) = MailboxList::parse(input) {
             Ok((GroupList::MailboxList(x), rem))
         }
@@ -948,7 +948,7 @@ impl Parsable for GroupList {
             Ok((GroupList::CFWS(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("GroupList"))
         }
     }
 }
@@ -972,7 +972,7 @@ pub struct Group {
 }
 impl Parsable for Group {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Group")); }
         let mut rem = input;
         if let Ok(dn) = parse!(DisplayName, rem) {
             req!(rem, b":", input);
@@ -985,7 +985,7 @@ impl Parsable for Group {
                 cfws: cfws.ok(),
             }, rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Group"))
     }
 }
 impl Streamable for Group {
@@ -1014,7 +1014,7 @@ pub enum Address {
 }
 impl Parsable for Address {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Address")); }
         if let Ok((x, rem)) = Mailbox::parse(input) {
             Ok((Address::Mailbox(x), rem))
         }
@@ -1022,7 +1022,7 @@ impl Parsable for Address {
             Ok((Address::Group(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Address"))
         }
     }
 }
@@ -1042,7 +1042,7 @@ impl_display!(Address);
 pub struct AddressList(pub Vec<Address>);
 impl Parsable for AddressList {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Address List")); }
         let mut rem = input;
         let mut output: Vec<Address> = Vec::new();
         let mut savedrem = rem;
@@ -1056,7 +1056,7 @@ impl Parsable for AddressList {
         }
         rem = savedrem;
         if output.len() == 0 {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("AddressList"))
         } else {
             Ok((AddressList(output), rem))
         }
@@ -1084,18 +1084,18 @@ impl_display!(AddressList);
 pub struct Zone(pub i32);
 impl Parsable for Zone {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Zone")); }
         let mut rem = input;
         let fws = parse!(FWS, rem);
-        if fws.is_err() { return Err(ParseError::NotFound); }
-        if rem.len() < 5 { return Err(ParseError::NotFound); }
+        if fws.is_err() { return Err(ParseError::NotFound("Zone")); }
+        if rem.len() < 5 { return Err(ParseError::NotFound("Zone")); }
         let sign: i32 = match rem[0] {
             b'+' => 1,
             b'-' => -1,
-            _ => return Err(ParseError::NotFound),
+            _ => return Err(ParseError::NotFound("Zone")),
         };
         if !is_digit(rem[1]) || !is_digit(rem[2]) || !is_digit(rem[3]) || !is_digit(rem[4]) {
-            return Err(ParseError::NotFound);
+            return Err(ParseError::NotFound("Zone"));
         }
         let v: i32 = (1000 * ((rem[1]-48) as i32)
                       + 100 * ((rem[2]-48) as i32)
@@ -1125,9 +1125,11 @@ impl_display!(Zone);
 pub struct Second(pub u8);
 impl Parsable for Second {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
-        if input.len() < 2 { return Err(ParseError::NotFound); }
-        if !is_digit(input[0]) || !is_digit(input[1]) { return Err(ParseError::NotFound); }
+        if input.len() == 0 { return Err(ParseError::Eof("Second")); }
+        if input.len() < 2 { return Err(ParseError::NotFound("Second")); }
+        if !is_digit(input[0]) || !is_digit(input[1]) {
+            return Err(ParseError::NotFound("Second"));
+        }
         let v: u8 = (10 * (input[0]-48)) + (input[1]-48);
         Ok((Second(v), &input[2..]))
     }
@@ -1146,9 +1148,11 @@ impl_display!(Second);
 pub struct Minute(pub u8);
 impl Parsable for Minute {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
-        if input.len() < 2 { return Err(ParseError::NotFound); }
-        if !is_digit(input[0]) || !is_digit(input[1]) { return Err(ParseError::NotFound); }
+        if input.len() == 0 { return Err(ParseError::Eof("Minute")); }
+        if input.len() < 2 { return Err(ParseError::NotFound("Minute")); }
+        if !is_digit(input[0]) || !is_digit(input[1]) {
+            return Err(ParseError::NotFound("Minute"));
+        }
         let v: u8 = (10 * (input[0]-48)) + (input[1]-48);
         Ok((Minute(v), &input[2..]))
     }
@@ -1167,9 +1171,11 @@ impl_display!(Minute);
 pub struct Hour(pub u8);
 impl Parsable for Hour {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
-        if input.len() < 2 { return Err(ParseError::NotFound); }
-        if !is_digit(input[0]) || !is_digit(input[1]) { return Err(ParseError::NotFound); }
+        if input.len() == 0 { return Err(ParseError::Eof("Hour")); }
+        if input.len() < 2 { return Err(ParseError::NotFound("Hour")); }
+        if !is_digit(input[0]) || !is_digit(input[1]) {
+            return Err(ParseError::NotFound("Hour"));
+        }
         let v: u8 = (10 * (input[0]-48)) + (input[1]-48);
         Ok((Hour(v), &input[2..]))
     }
@@ -1192,7 +1198,7 @@ pub struct TimeOfDay {
 }
 impl Parsable for TimeOfDay {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("TimeOfDay")); }
         let mut rem = input;
         if let Ok(hour) = parse!(Hour, rem) {
             req!(rem, b":", input);
@@ -1215,7 +1221,7 @@ impl Parsable for TimeOfDay {
                 }, saved));
             }
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("TimeOfDay"))
     }
 }
 impl Streamable for TimeOfDay {
@@ -1241,7 +1247,7 @@ pub struct Time {
 }
 impl Parsable for Time {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Time")); }
         let mut rem = input;
         if let Ok(tod) = parse!(TimeOfDay, rem) {
             if let Ok(zone) = parse!(Zone, rem) {
@@ -1251,7 +1257,7 @@ impl Parsable for Time {
                 }, rem));
             }
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Time"))
     }
 }
 impl Streamable for Time {
@@ -1268,13 +1274,13 @@ impl_display!(Time);
 pub struct Year(pub u32);
 impl Parsable for Year {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Year")); }
         let mut rem = input;
         let fws = parse!(FWS, rem);
-        if fws.is_err() { return Err(ParseError::NotFound); }
-        if rem.len() < 5 { return Err(ParseError::NotFound); }
+        if fws.is_err() { return Err(ParseError::NotFound("Year")); }
+        if rem.len() < 5 { return Err(ParseError::NotFound("Year")); }
         if !is_digit(rem[0]) || !is_digit(rem[1]) || !is_digit(rem[2]) || !is_digit(rem[3]) {
-            return Err(ParseError::NotFound);
+            return Err(ParseError::NotFound("Year"));
         }
         let v: u32 = 1000 * ((rem[0]-48) as u32)
                       + 100 * ((rem[1]-48) as u32)
@@ -1282,7 +1288,7 @@ impl Parsable for Year {
                       + ((rem[3]-48) as u32);
         rem = &rem[4..];
         let fws = parse!(FWS, rem);
-        if fws.is_err() { return Err(ParseError::NotFound); }
+        if fws.is_err() { return Err(ParseError::NotFound("Year")); }
         Ok((Year(v), rem))
     }
 }
@@ -1302,8 +1308,8 @@ impl_display!(Year);
 pub struct Month(pub u8);
 impl Parsable for Month {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
-        if input.len() < 3 { return Err(ParseError::NotFound); }
+        if input.len() == 0 { return Err(ParseError::Eof("Month")); }
+        if input.len() < 3 { return Err(ParseError::NotFound("Month")); }
         let three = &input[0..3].to_ascii_lowercase();
         let rem = &input[3..];
         if three==b"jan" { Ok((Month(1), rem)) }
@@ -1318,7 +1324,7 @@ impl Parsable for Month {
         else if three==b"oct" { Ok((Month(10), rem)) }
         else if three==b"nov" { Ok((Month(11), rem)) }
         else if three==b"dec" { Ok((Month(12), rem)) }
-        else { Err(ParseError::NotFound) }
+        else { Err(ParseError::NotFound("Month")) }
     }
 }
 impl Streamable for Month {
@@ -1348,18 +1354,18 @@ impl_display!(Month);
 pub struct Day(pub u8);
 impl Parsable for Day {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Day")); }
         let mut rem = input;
         let _ = parse!(FWS, rem);
-        if rem.len() < 3 { return Err(ParseError::NotFound); }
+        if rem.len() < 3 { return Err(ParseError::NotFound("Day")); }
         if !is_digit(rem[0]) || !is_digit(rem[1]) {
-            return Err(ParseError::NotFound);
+            return Err(ParseError::NotFound("Day"));
         }
         let v: u8 = 10 * ((rem[0]-48))
                       + ((rem[1]-48));
         rem = &rem[2..];
         let fws = parse!(FWS, rem);
-        if fws.is_err() { return Err(ParseError::NotFound); }
+        if fws.is_err() { return Err(ParseError::NotFound("Day")); }
         Ok((Day(v), rem))
     }
 }
@@ -1381,7 +1387,7 @@ pub struct Date {
 }
 impl Parsable for Date {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Date")); }
         let mut rem = input;
         if let Ok(day) = parse!(Day, rem) {
             if let Ok(month) = parse!(Month, rem) {
@@ -1394,7 +1400,7 @@ impl Parsable for Date {
                 }
             }
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Date"))
     }
 }
 impl Streamable for Date {
@@ -1413,8 +1419,8 @@ impl_display!(Date);
 pub struct DayName(pub u8);
 impl Parsable for DayName {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
-        if input.len() < 3 { return Err(ParseError::NotFound); }
+        if input.len() == 0 { return Err(ParseError::Eof("DayName")); }
+        if input.len() < 3 { return Err(ParseError::NotFound("DayName")); }
         let three = &input[0..3].to_ascii_lowercase();
         let rem = &input[3..];
         if three==b"sun" { Ok((DayName(1), rem)) }
@@ -1424,7 +1430,7 @@ impl Parsable for DayName {
         else if three==b"thu" { Ok((DayName(5), rem)) }
         else if three==b"fri" { Ok((DayName(6), rem)) }
         else if three==b"sat" { Ok((DayName(7), rem)) }
-        else { Err(ParseError::NotFound) }
+        else { Err(ParseError::NotFound("DayName")) }
     }
 }
 impl Streamable for DayName {
@@ -1452,7 +1458,7 @@ pub struct DayOfWeek {
 }
 impl Parsable for DayOfWeek {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("DayOfWeek")); }
         let mut rem = input;
         let pre_fws = parse!(FWS, rem);
         if let Ok(dn) = parse!(DayName, rem) {
@@ -1461,7 +1467,7 @@ impl Parsable for DayOfWeek {
                 day_name: dn,
             }, rem))
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("DayOfWeek"))
         }
     }
 }
@@ -1488,7 +1494,7 @@ pub struct DateTime {
 }
 impl Parsable for DateTime {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("DateTime")); }
         let mut rem = input;
         let mut day_of_week: Option<DayOfWeek> = None;
         if let Ok(dow) = parse!(DayOfWeek, rem) {
@@ -1510,7 +1516,7 @@ impl Parsable for DateTime {
                 }, rem));
             }
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("DateTime"))
     }
 }
 impl Streamable for DateTime {
@@ -1536,14 +1542,14 @@ impl_display!(DateTime);
 pub struct NoFoldLiteral(pub DText);
 impl Parsable for NoFoldLiteral {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("No-Fold Literal")); }
         let mut rem = input;
         req!(rem, b"[", input);
         if let Ok(dtext) = parse!(DText, rem) {
             req!(rem, b"]", input);
             return Ok((NoFoldLiteral(dtext), rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("No-Fold Literal"))
     }
 }
 impl Streamable for NoFoldLiteral {
@@ -1564,7 +1570,7 @@ pub enum IdRight {
 }
 impl Parsable for IdRight {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Id-right")); }
         if let Ok((x, rem)) = DotAtomText::parse(input) {
             Ok((IdRight::DotAtomText(x), rem))
         }
@@ -1572,7 +1578,7 @@ impl Parsable for IdRight {
             Ok((IdRight::NoFoldLiteral(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Id-right"))
         }
     }
 }
@@ -1592,12 +1598,12 @@ impl_display!(IdRight);
 pub struct IdLeft(pub DotAtomText);
 impl Parsable for IdLeft {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Id-left")); }
         let mut rem = input;
         if let Ok(dat) = parse!(DotAtomText, rem) {
             return Ok((IdLeft(dat), rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Id-left"))
     }
 }
 impl Streamable for IdLeft {
@@ -1618,7 +1624,7 @@ pub struct MsgId {
 }
 impl Parsable for MsgId {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("MsgId")); }
         let mut rem = input;
         let pre_cfws = parse!(CFWS, rem);
         req!(rem, b"<", input);
@@ -1671,7 +1677,7 @@ pub enum ReceivedToken {
 }
 impl Parsable for ReceivedToken {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
-        if input.len() == 0 { return Err(ParseError::Eof); }
+        if input.len() == 0 { return Err(ParseError::Eof("Received Token")); }
         if let Ok((x, rem)) = Word::parse(input) {
             Ok((ReceivedToken::Word(x), rem))
         }
@@ -1685,7 +1691,7 @@ impl Parsable for ReceivedToken {
             Ok((ReceivedToken::Domain(x), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Received Token"))
         }
     }
 }
@@ -1765,7 +1771,7 @@ impl Parsable for FieldName {
         if let Ok(ftext) = parse!(FText, rem) {
             Ok((FieldName(ftext), rem))
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Field Name"))
         }
     }
 }

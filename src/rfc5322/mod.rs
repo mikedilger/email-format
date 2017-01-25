@@ -19,8 +19,8 @@ macro_rules! def_cclass {
                     Ok( ($typ(output), &input[pos..]) )
                 }
                 else {
-                    if pos >= input.len() { Err( ParseError::Eof ) }
-                    else { Err( ParseError::NotFound ) }
+                    if pos >= input.len() { Err( ParseError::Eof("$typ") ) }
+                    else { Err( ParseError::NotFound("$typ") ) }
                 }
             }
         }
@@ -46,7 +46,7 @@ macro_rules! req {
     ($rem:ident, $bytes:expr, $input:ident) => {
         let len: usize = $bytes.len();
         if $rem.len() < len {
-            return Err(ParseError::Eof);
+            return Err(ParseError::Eof("$bytes"));
         }
         if &$rem[0..len] != $bytes {
             return Err(ParseError::Expected($bytes.to_vec()));
@@ -114,7 +114,7 @@ impl Parsable for Trace {
         while let Ok(r) = parse!(Received, rem) {
             received.push(r);
         }
-        if received.len() < 1 { return Err(ParseError::NotFound); }
+        if received.len() < 1 { return Err(ParseError::NotFound("Trace")); }
         Ok((Trace {
             return_path: maybe_return,
             received: received,
@@ -169,7 +169,7 @@ impl Parsable for ResentField {
         if let Ok(x) = parse!(ResentMessageId, rem) {
             return Ok((ResentField::MessageId(x), rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Resent-Field"))
     }
 }
 impl Streamable for ResentField {
@@ -251,7 +251,7 @@ impl Parsable for Field {
         if let Ok(x) = parse!(OptionalField, rem) {
             return Ok((Field::OptionalField(x), rem));
         }
-        Err(ParseError::NotFound)
+        Err(ParseError::NotFound("Field"))
     }
 }
 impl Streamable for Field {
@@ -300,7 +300,7 @@ impl Parsable for ResentTraceBlock {
                 }, rem))
             }
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Resent Trace Block"))
         }
     }
 }
@@ -340,7 +340,7 @@ impl Parsable for OptTraceBlock {
                 }, rem))
             }
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Opt Trace Block"))
         }
     }
 }
@@ -373,7 +373,7 @@ impl Parsable for TraceBlock {
             Ok((TraceBlock::Opt(block), rem))
         }
         else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Trace Block"))
         }
     }
 }
@@ -502,7 +502,7 @@ impl<'a> TryFrom<&'a [u8]> for Body {
     fn try_from(input: &'a [u8]) -> Result<Body, ParseError> {
         let (out,rem) = try!(Body::parse(input));
         if rem.len() > 0 {
-            Err(ParseError::TrailingInput(input.len() - rem.len()))
+            Err(ParseError::TrailingInput("Body", input.len() - rem.len()))
         } else {
             Ok(out)
         }
@@ -540,7 +540,7 @@ impl Parsable for Message {
                 body: Some(b),
             }, rem))
         } else {
-            Err(ParseError::NotFound)
+            Err(ParseError::NotFound("Message"))
         }
     }
 }

@@ -107,8 +107,8 @@ fn main() {
 ## Plans (not yet implemented)
 
 * Support for email headers defined in other RFCs:
-** Support for RFC 6854 (updated From and Sender syntax)
-** Support for all headers registered at IANA (http://www.iana.org/assignments/message-headers/message-headers.xhtml)
+  * Support for RFC 6854 (updated From and Sender syntax)
+  * Support for all headers registered at IANA (http://www.iana.org/assignments/message-headers/message-headers.xhtml)
 * Support for MIME (RFC 2045, RFC 4021, RFC 2231, RFC 6352)
 * Support for streaming of MIME parts from disk.
 * More ergonomic function signatures

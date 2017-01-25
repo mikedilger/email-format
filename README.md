@@ -40,6 +40,9 @@ You can use the [mime_multipart](https://github.com/mikedilger/mime-multipart) c
 to help construct a MIME email, along with [hyper](https://github.com/hyperium/hyper)
 which helps with header definitions.
 
+BUG/FIXME: The following example currently fails because we aren't encoding the parts.
+We need to look into content-transfer-encoding.
+
 ```rust
 extern crate email_format;
 extern crate mime_multipart;

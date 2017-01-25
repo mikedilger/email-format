@@ -30,7 +30,7 @@ impl fmt::Display for ParseError {
                                                       self.description(), t),
             ParseError::Io(ref e) => write!(f, "{}: {}",
                                             self.description(), e),
-            ParseError::InvalidBodyChar(ref c) => write!(f, "{}: {}",
+            ParseError::InvalidBodyChar(ref c) => write!(f, "{}: {} is not 7-bit ASCII",
                                                          self.description(), c),
             ParseError::LineTooLong(ref l) => write!(f, "Line {} is too long", l),
             ParseError::TrailingInput(ref field, ref c) => write!(

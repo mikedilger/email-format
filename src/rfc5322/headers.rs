@@ -67,11 +67,12 @@ impl Parsable for OrigDate {
         if input.len() == 0 { return Err(ParseError::Eof("Date")); }
         let mut rem = input;
         req_name!(rem, "date:");
-        if let Ok(dt) = parse!(DateTime, rem) {
-            req_crlf!(rem);
-            Ok((OrigDate(dt), rem))
-        } else {
-            Err(ParseError::NotFound("Date"))
+        match parse!(DateTime, rem) {
+            Ok(dt) => {
+                req_crlf!(rem);
+                Ok((OrigDate(dt), rem))
+            },
+            Err(e) => Err(ParseError::Parse("Date", Box::new(e)))
         }
     }
 }
@@ -123,11 +124,13 @@ impl Parsable for From {
         if input.len() == 0 { return Err(ParseError::Eof("From")); }
         let mut rem = input;
         req_name!(rem, "from:");
-        if let Ok(mbl) = parse!(MailboxList, rem) {
-            req_crlf!(rem);
-            return Ok((From(mbl), rem));
+        match parse!(MailboxList, rem) {
+            Ok(mbl) => {
+                req_crlf!(rem);
+                return Ok((From(mbl), rem));
+            },
+            Err(e) => Err(ParseError::Parse("From", Box::new(e)))
         }
-        Err(ParseError::NotFound("From"))
     }
 }
 impl Streamable for From {
@@ -149,11 +152,13 @@ impl Parsable for Sender {
         if input.len() == 0 { return Err(ParseError::Eof("Sender")); }
         let mut rem = input;
         req_name!(rem, "sender:");
-        if let Ok(mb) = parse!(Mailbox, rem) {
-            req_crlf!(rem);
-            return Ok((Sender(mb), rem));
+        match parse!(Mailbox, rem) {
+            Ok(mb) => {
+                req_crlf!(rem);
+                return Ok((Sender(mb), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Sender", Box::new(e)))
         }
-        Err(ParseError::NotFound("Sender"))
     }
 }
 impl Streamable for Sender {
@@ -175,11 +180,13 @@ impl Parsable for ReplyTo {
         if input.len() == 0 { return Err(ParseError::Eof("Reply-To")); }
         let mut rem = input;
         req_name!(rem, "reply-to:");
-        if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem);
-            return Ok((ReplyTo(x), rem));
+        match parse!(AddressList, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((ReplyTo(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Reply-To", Box::new(e)))
         }
-        Err(ParseError::NotFound("Reply-To"))
     }
 }
 impl Streamable for ReplyTo {
@@ -201,11 +208,13 @@ impl Parsable for To {
         if input.len() == 0 { return Err(ParseError::Eof("To")); }
         let mut rem = input;
         req_name!(rem, "to:");
-        if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem);
-            return Ok((To(x), rem));
+        match parse!(AddressList, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((To(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("To", Box::new(e))),
         }
-        Err(ParseError::NotFound("To"))
     }
 }
 impl Streamable for To {
@@ -227,11 +236,13 @@ impl Parsable for Cc {
         if input.len() == 0 { return Err(ParseError::Eof("Cc")); }
         let mut rem = input;
         req_name!(rem, "cc:");
-        if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem);
-            return Ok((Cc(x), rem));
+        match parse!(AddressList, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((Cc(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Cc", Box::new(e))),
         }
-        Err(ParseError::NotFound("Cc"))
     }
 }
 impl Streamable for Cc {
@@ -315,11 +326,13 @@ impl Parsable for MessageId {
         if input.len() == 0 { return Err(ParseError::Eof("MessageId")); }
         let mut rem = input;
         req_name!(rem, "message-id:");
-        if let Ok(x) = parse!(MsgId, rem) {
-            req_crlf!(rem);
-            return Ok((MessageId(x), rem));
+        match parse!(MsgId, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((MessageId(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Message-Id", Box::new(e))),
         }
-        Err(ParseError::NotFound("Message-Id"))
     }
 }
 impl Streamable for MessageId {
@@ -342,11 +355,15 @@ impl Parsable for InReplyTo {
         let mut rem = input;
         let mut contents: Vec<MsgId> = Vec::new();
         req_name!(rem, "in-reply-to:");
-        while let Ok(x) = parse!(MsgId, rem) {
-            contents.push(x);
+        let err;
+        loop {
+            match parse!(MsgId, rem) {
+                Ok(x) => contents.push(x),
+                Err(e) => { err = e; break; }
+            }
         }
         if contents.len() == 0 {
-            return Err(ParseError::NotFound("In-Reply-To"));
+            return Err(ParseError::Parse("In-Reply-To", Box::new(err)));
         }
         req_crlf!(rem);
         Ok((InReplyTo(contents), rem))
@@ -392,7 +409,6 @@ impl<'a> TryFrom<Vec<MsgId>> for InReplyTo {
 }
 impl_display!(InReplyTo);
 
-
 // 3.6.4
 // references      =   "References:" 1*msg-id CRLF
 #[derive(Debug, Clone, PartialEq)]
@@ -403,11 +419,15 @@ impl Parsable for References {
         let mut rem = input;
         let mut contents: Vec<MsgId> = Vec::new();
         req_name!(rem, "references:");
-        while let Ok(x) = parse!(MsgId, rem) {
-            contents.push(x);
+        let err;
+        loop {
+            match parse!(MsgId, rem) {
+                Ok(x) => contents.push(x),
+                Err(e) => { err = e; break }
+            }
         }
         if contents.len() == 0 {
-            return Err(ParseError::NotFound("References"));
+            return Err(ParseError::Parse("References", Box::new(err)));
         }
         req_crlf!(rem);
         Ok((References(contents), rem))
@@ -462,11 +482,13 @@ impl Parsable for Subject {
         if input.len() == 0 { return Err(ParseError::Eof("Subject")); }
         let mut rem = input;
         req_name!(rem, "subject:");
-        if let Ok(x) = parse!(Unstructured, rem) {
-            req_crlf!(rem);
-            return Ok((Subject(x), rem));
+        match parse!(Unstructured, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((Subject(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Subject", Box::new(e))),
         }
-        Err(ParseError::NotFound("Subject"))
     }
 }
 impl Streamable for Subject {
@@ -488,11 +510,13 @@ impl Parsable for Comments {
         if input.len() == 0 { return Err(ParseError::Eof("Comments")); }
         let mut rem = input;
         req_name!(rem, "comments:");
-        if let Ok(x) = parse!(Unstructured, rem) {
-            req_crlf!(rem);
-            return Ok((Comments(x), rem));
+        match parse!(Unstructured, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((Comments(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Comments", Box::new(e))),
         }
-        Err(ParseError::NotFound("Comments"))
     }
 }
 impl Streamable for Comments {
@@ -515,11 +539,15 @@ impl Parsable for Keywords {
         let mut rem = input;
         req_name!(rem, "keywords:");
         let mut output: Vec<Phrase> = Vec::new();
-        while let Ok(x) = parse!(Phrase, rem) {
-            output.push(x);
+        let err;
+        loop {
+            match parse!(Phrase, rem) {
+                Ok(x) => output.push(x),
+                Err(e) => { err = e; break; }
+            }
         }
         if output.len()==0 {
-            return Err(ParseError::NotFound("Keywords"));
+            return Err(ParseError::Parse("Keywords", Box::new(err)));
         }
         req_crlf!(rem);
         Ok((Keywords(output), rem))
@@ -579,11 +607,12 @@ impl Parsable for ResentDate {
         if input.len() == 0 { return Err(ParseError::Eof("Resent-Date")); }
         let mut rem = input;
         req_name!(rem, "resent-date:");
-        if let Ok(dt) = parse!(DateTime, rem) {
-            req_crlf!(rem);
-            Ok((ResentDate(dt), rem))
-        } else {
-            Err(ParseError::NotFound("Resent-Date"))
+        match parse!(DateTime, rem) {
+            Ok(dt) => {
+                req_crlf!(rem);
+                Ok((ResentDate(dt), rem))
+            },
+            Err(e) => Err(ParseError::Parse("Resent-Date", Box::new(e)))
         }
     }
 }
@@ -606,11 +635,13 @@ impl Parsable for ResentFrom {
         if input.len() == 0 { return Err(ParseError::Eof("Resent-From")); }
         let mut rem = input;
         req_name!(rem, "resent-from:");
-        if let Ok(mbl) = parse!(MailboxList, rem) {
-            req_crlf!(rem);
-            return Ok((ResentFrom(mbl), rem));
+        match parse!(MailboxList, rem) {
+            Ok(mbl) => {
+                req_crlf!(rem);
+                return Ok((ResentFrom(mbl), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Resent-From", Box::new(e))),
         }
-        Err(ParseError::NotFound("Resent-From"))
     }
 }
 impl Streamable for ResentFrom {
@@ -632,11 +663,13 @@ impl Parsable for ResentSender {
         if input.len() == 0 { return Err(ParseError::Eof("Resent-Sender")); }
         let mut rem = input;
         req_name!(rem, "resent-sender:");
-        if let Ok(mb) = parse!(Mailbox, rem) {
-            req_crlf!(rem);
-            return Ok((ResentSender(mb), rem));
+        match parse!(Mailbox, rem) {
+            Ok(mb) => {
+                req_crlf!(rem);
+                return Ok((ResentSender(mb), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Resent-Sender", Box::new(e))),
         }
-        Err(ParseError::NotFound("Resent-Sender"))
     }
 }
 impl Streamable for ResentSender {
@@ -658,11 +691,13 @@ impl Parsable for ResentTo {
         if input.len() == 0 { return Err(ParseError::Eof("Resent-To")); }
         let mut rem = input;
         req_name!(rem, "resent-to:");
-        if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem);
-            return Ok((ResentTo(x), rem));
+        match parse!(AddressList, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((ResentTo(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Resent-To", Box::new(e))),
         }
-        Err(ParseError::NotFound("Resent-To"))
     }
 }
 impl Streamable for ResentTo {
@@ -684,11 +719,13 @@ impl Parsable for ResentCc {
         if input.len() == 0 { return Err(ParseError::Eof("Resent-Cc")); }
         let mut rem = input;
         req_name!(rem, "resent-cc:");
-        if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem);
-            return Ok((ResentCc(x), rem));
+        match parse!(AddressList, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((ResentCc(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Resent-Cc", Box::new(e)))
         }
-        Err(ParseError::NotFound("Resent-Cc"))
     }
 }
 impl Streamable for ResentCc {
@@ -772,11 +809,13 @@ impl Parsable for ResentMessageId {
         if input.len() == 0 { return Err(ParseError::Eof("Resent-Message-ID")); }
         let mut rem = input;
         req_name!(rem, "resent-message-id:");
-        if let Ok(x) = parse!(MsgId, rem) {
-            req_crlf!(rem);
-            return Ok((ResentMessageId(x), rem));
+        match parse!(MsgId, rem) {
+            Ok(x) => {
+                req_crlf!(rem);
+                return Ok((ResentMessageId(x), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Resent-Message-Id", Box::new(e))),
         }
-        Err(ParseError::NotFound("Resent-Message-Id"))
     }
 }
 impl Streamable for ResentMessageId {
@@ -810,27 +849,33 @@ impl Parsable for Received {
         let mut rem = input;
         req_name!(rem, "received:");
         let mut tokens: Vec<ReceivedToken> = Vec::new();
-        while let Ok(r) = parse!(ReceivedToken, rem) {
-            tokens.push(r);
+        let err;
+        loop {
+            match parse!(ReceivedToken, rem) {
+                Ok(r) => tokens.push(r),
+                Err(e) => { err = e; break; }
+            }
         }
         let received_tokens = if tokens.len()==0 {
             if let Ok(cfws) = parse!(CFWS, rem) {
                 ReceivedTokens::Comment(cfws)
             } else {
-                return Err(ParseError::NotFound("Received"));
+                return Err(ParseError::Parse("Received", Box::new(err)));
             }
         } else {
             ReceivedTokens::Tokens(tokens)
         };
         req!(rem, b";", input);
-        if let Ok(dt) = parse!(DateTime, rem) {
-            req_crlf!(rem);
-            return Ok((Received {
-                received_tokens: received_tokens,
-                date_time: dt
-            }, rem));
+        match parse!(DateTime, rem) {
+            Ok(dt) => {
+                req_crlf!(rem);
+                return Ok((Received {
+                    received_tokens: received_tokens,
+                    date_time: dt
+                }, rem));
+            },
+            Err(e) => Err(ParseError::Parse("Received", Box::new(e))),
         }
-        Err(ParseError::NotFound("Received"))
     }
 }
 impl Streamable for Received {
@@ -891,11 +936,13 @@ impl Parsable for Return {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut rem = input;
         req_name!(rem, "return-path:");
-        if let Ok(path) = parse!(Path, rem) {
-            req_crlf!(rem);
-            return Ok((Return(path), rem));
+        match parse!(Path, rem) {
+            Ok(path) => {
+                req_crlf!(rem);
+                return Ok((Return(path), rem));
+            },
+            Err(e) => Err(ParseError::Parse("Return-Path", Box::new(e))),
         }
-        Err(ParseError::NotFound("Return-Path"))
     }
 }
 impl Streamable for Return {
@@ -918,17 +965,23 @@ pub struct OptionalField {
 impl Parsable for OptionalField {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut rem = input;
-        if let Ok(name) = parse!(FieldName, rem) {
-            req!(rem, b":", input);
-            if let Ok(value) = parse!(Unstructured, rem) {
-                req_crlf!(rem);
-                return Ok((OptionalField {
-                    name: name,
-                    value: value,
-                }, rem));
-            }
+
+        match parse!(FieldName, rem) {
+            Ok(name) => {
+                req!(rem, b":", input);
+                match parse!(Unstructured, rem) {
+                    Ok(value) => {
+                        req_crlf!(rem);
+                        return Ok((OptionalField {
+                            name: name,
+                            value: value,
+                        }, rem));
+                    },
+                    Err(e) => Err(ParseError::Parse("Optional Field", Box::new(e))),
+                }
+            },
+            Err(e) => Err(ParseError::Parse("Optional Field", Box::new(e))),
         }
-        Err(ParseError::NotFound("Optional Field"))
     }
 }
 impl Streamable for OptionalField {

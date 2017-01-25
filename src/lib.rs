@@ -509,12 +509,9 @@ impl Email {
 impl Parsable for Email {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut rem = input;
-        if let Ok(message) = Message::parse(rem).map(|(value, r)| { rem = r; value }) {
-            Ok((Email {
-                message: message
-            }, rem))
-        } else {
-            Err(ParseError::NotFound("Email"))
+        match Message::parse(rem).map(|(value, r)| { rem = r; value }) {
+            Ok(message) => Ok((Email { message: message}, rem)),
+            Err(e) => Err(ParseError::Parse("Email", Box::new(e)))
         }
     }
 }

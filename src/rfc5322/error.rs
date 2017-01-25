@@ -13,6 +13,7 @@ pub enum ParseError {
     LineTooLong(usize),
     TrailingInput(&'static str, usize),
     InternalError,
+    Parse(&'static str, Box<ParseError>),
 }
 
 impl fmt::Display for ParseError {
@@ -34,6 +35,8 @@ impl fmt::Display for ParseError {
             ParseError::LineTooLong(ref l) => write!(f, "Line {} is too long", l),
             ParseError::TrailingInput(ref field, ref c) => write!(
                 f, "Trailing input at byte {} in {}", c, field),
+            ParseError::Parse(ref field, ref inner) => write!(
+                f, "{} {}: {}", self.description(), field, inner),
             _ => write!(f, "{}", self.description()),
         }
     }
@@ -59,6 +62,7 @@ impl StdError for ParseError {
             ParseError::LineTooLong(_) => "Line too long",
             ParseError::TrailingInput(_,_) => "Trailing input",
             ParseError::InternalError => "Internal error",
+            ParseError::Parse(_,_) => "Unable to parse",
         }
     }
 
@@ -66,6 +70,7 @@ impl StdError for ParseError {
     {
         match *self {
             ParseError::Io(ref e) => Some(e),
+            ParseError::Parse(_, ref e) => Some(e),
             _ => None,
         }
     }

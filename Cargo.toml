@@ -16,3 +16,7 @@ default = [ ]
 buf-read-ext = "0.2"
 time = { version = "0.1", optional = true }
 chrono = { version = "0.2", optional = true }
+
+[dev-dependencies]
+hyper = "0.9"
+mime_multipart = "0.3"

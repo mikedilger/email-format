@@ -8,7 +8,7 @@ use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId,
                    Unstructured, Phrase, ReceivedToken, Path, FieldName};
 
 macro_rules! req_name {
-    ($rem:ident, $str:expr, $input:ident) => {
+    ($rem:ident, $str:expr) => {
         let len: usize = $str.len();
         if $rem.len() < len || &(&$rem[0..len]).to_ascii_lowercase()!=$str {
             return Err(ParseError::NotFound);
@@ -18,7 +18,7 @@ macro_rules! req_name {
 }
 
 macro_rules! req_crlf {
-    ($rem:ident, $input:ident) => {
+    ($rem:ident) => {
         if $rem.len() < 2 {
             return Err(ParseError::NotFound);
         }
@@ -64,9 +64,9 @@ impl Parsable for OrigDate {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"date:", input);
+        req_name!(rem, b"date:");
         if let Ok(dt) = parse!(DateTime, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             Ok((OrigDate(dt), rem))
         } else {
             Err(ParseError::NotFound)
@@ -120,9 +120,9 @@ impl Parsable for From {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"from:", input);
+        req_name!(rem, b"from:");
         if let Ok(mbl) = parse!(MailboxList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((From(mbl), rem));
         }
         Err(ParseError::NotFound)
@@ -146,9 +146,9 @@ impl Parsable for Sender {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"sender:", input);
+        req_name!(rem, b"sender:");
         if let Ok(mb) = parse!(Mailbox, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Sender(mb), rem));
         }
         Err(ParseError::NotFound)
@@ -172,9 +172,9 @@ impl Parsable for ReplyTo {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"reply-to:", input);
+        req_name!(rem, b"reply-to:");
         if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ReplyTo(x), rem));
         }
         Err(ParseError::NotFound)
@@ -198,9 +198,9 @@ impl Parsable for To {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"to:", input);
+        req_name!(rem, b"to:");
         if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((To(x), rem));
         }
         Err(ParseError::NotFound)
@@ -224,9 +224,9 @@ impl Parsable for Cc {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"cc:", input);
+        req_name!(rem, b"cc:");
         if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Cc(x), rem));
         }
         Err(ParseError::NotFound)
@@ -254,16 +254,16 @@ impl Parsable for Bcc {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"bcc:", input);
+        req_name!(rem, b"bcc:");
         if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Bcc::AddressList(x), rem));
         }
         if let Ok(x) = parse!(CFWS, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Bcc::CFWS(x), rem));
         }
-        req_crlf!(rem, input);
+        req_crlf!(rem);
         return Ok((Bcc::Empty, rem));
     }
 }
@@ -312,9 +312,9 @@ impl Parsable for MessageId {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"message-id:", input);
+        req_name!(rem, b"message-id:");
         if let Ok(x) = parse!(MsgId, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((MessageId(x), rem));
         }
         Err(ParseError::NotFound)
@@ -339,14 +339,14 @@ impl Parsable for InReplyTo {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
         let mut contents: Vec<MsgId> = Vec::new();
-        req_name!(rem, b"in-reply-to:", input);
+        req_name!(rem, b"in-reply-to:");
         while let Ok(x) = parse!(MsgId, rem) {
             contents.push(x);
         }
         if contents.len() == 0 {
             return Err(ParseError::NotFound);
         }
-        req_crlf!(rem, input);
+        req_crlf!(rem);
         Ok((InReplyTo(contents), rem))
     }
 }
@@ -400,14 +400,14 @@ impl Parsable for References {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
         let mut contents: Vec<MsgId> = Vec::new();
-        req_name!(rem, b"references:", input);
+        req_name!(rem, b"references:");
         while let Ok(x) = parse!(MsgId, rem) {
             contents.push(x);
         }
         if contents.len() == 0 {
             return Err(ParseError::NotFound);
         }
-        req_crlf!(rem, input);
+        req_crlf!(rem);
         Ok((References(contents), rem))
     }
 }
@@ -459,9 +459,9 @@ impl Parsable for Subject {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"subject:", input);
+        req_name!(rem, b"subject:");
         if let Ok(x) = parse!(Unstructured, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Subject(x), rem));
         }
         Err(ParseError::NotFound)
@@ -485,9 +485,9 @@ impl Parsable for Comments {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"comments:", input);
+        req_name!(rem, b"comments:");
         if let Ok(x) = parse!(Unstructured, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Comments(x), rem));
         }
         Err(ParseError::NotFound)
@@ -511,7 +511,7 @@ impl Parsable for Keywords {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"keywords:", input);
+        req_name!(rem, b"keywords:");
         let mut output: Vec<Phrase> = Vec::new();
         while let Ok(x) = parse!(Phrase, rem) {
             output.push(x);
@@ -519,7 +519,7 @@ impl Parsable for Keywords {
         if output.len()==0 {
             return Err(ParseError::NotFound);
         }
-        req_crlf!(rem, input);
+        req_crlf!(rem);
         Ok((Keywords(output), rem))
     }
 }
@@ -576,9 +576,9 @@ impl Parsable for ResentDate {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"resent-date:", input);
+        req_name!(rem, b"resent-date:");
         if let Ok(dt) = parse!(DateTime, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             Ok((ResentDate(dt), rem))
         } else {
             Err(ParseError::NotFound)
@@ -603,9 +603,9 @@ impl Parsable for ResentFrom {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"resent-from:", input);
+        req_name!(rem, b"resent-from:");
         if let Ok(mbl) = parse!(MailboxList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ResentFrom(mbl), rem));
         }
         Err(ParseError::NotFound)
@@ -629,9 +629,9 @@ impl Parsable for ResentSender {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"resent-sender:", input);
+        req_name!(rem, b"resent-sender:");
         if let Ok(mb) = parse!(Mailbox, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ResentSender(mb), rem));
         }
         Err(ParseError::NotFound)
@@ -655,9 +655,9 @@ impl Parsable for ResentTo {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"resent-to:", input);
+        req_name!(rem, b"resent-to:");
         if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ResentTo(x), rem));
         }
         Err(ParseError::NotFound)
@@ -681,9 +681,9 @@ impl Parsable for ResentCc {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"resent-cc:", input);
+        req_name!(rem, b"resent-cc:");
         if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ResentCc(x), rem));
         }
         Err(ParseError::NotFound)
@@ -711,16 +711,16 @@ impl Parsable for ResentBcc {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"resent-bcc:", input);
+        req_name!(rem, b"resent-bcc:");
         if let Ok(x) = parse!(AddressList, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ResentBcc::AddressList(x), rem));
         }
         if let Ok(x) = parse!(CFWS, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ResentBcc::CFWS(x), rem));
         }
-        req_crlf!(rem, input);
+        req_crlf!(rem);
         return Ok((ResentBcc::Empty, rem));
     }
 }
@@ -769,9 +769,9 @@ impl Parsable for ResentMessageId {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"resent-message-id:", input);
+        req_name!(rem, b"resent-message-id:");
         if let Ok(x) = parse!(MsgId, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((ResentMessageId(x), rem));
         }
         Err(ParseError::NotFound)
@@ -806,7 +806,7 @@ impl Parsable for Received {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof); }
         let mut rem = input;
-        req_name!(rem, b"received:", input);
+        req_name!(rem, b"received:");
         let mut tokens: Vec<ReceivedToken> = Vec::new();
         while let Ok(r) = parse!(ReceivedToken, rem) {
             tokens.push(r);
@@ -822,7 +822,7 @@ impl Parsable for Received {
         };
         req!(rem, b";", input);
         if let Ok(dt) = parse!(DateTime, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Received {
                 received_tokens: received_tokens,
                 date_time: dt
@@ -888,9 +888,9 @@ pub struct Return(pub Path);
 impl Parsable for Return {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         let mut rem = input;
-        req_name!(rem, b"return-path:", input);
+        req_name!(rem, b"return-path:");
         if let Ok(path) = parse!(Path, rem) {
-            req_crlf!(rem, input);
+            req_crlf!(rem);
             return Ok((Return(path), rem));
         }
         Err(ParseError::NotFound)
@@ -919,7 +919,7 @@ impl Parsable for OptionalField {
         if let Ok(name) = parse!(FieldName, rem) {
             req!(rem, b":", input);
             if let Ok(value) = parse!(Unstructured, rem) {
-                req_crlf!(rem, input);
+                req_crlf!(rem);
                 return Ok((OptionalField {
                     name: name,
                     value: value,

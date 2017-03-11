@@ -57,7 +57,7 @@ fn main() {
 * Support for streaming of MIME parts from disk.
 * More ergonomic function signatures
 * Less copying of data
-* Implementation of `email` crate's `SendableEmail`, and so it works with the `lettre` crate (will be inefficient due to the way SendableEmail is defined).
+* Implementation of `SendableEmail` so that it works with the `lettre` crate.
 
 ## History
 

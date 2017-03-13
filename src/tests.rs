@@ -587,7 +587,7 @@ Simple.".to_vec();
                                 VChar(b"test".to_vec())],
                     trailing_ws: false,
                 })),
-                Field::From(From(MailboxList(vec![Mailbox::AddrSpec(AddrSpec {
+                Field::From(From::Mailboxes(MailboxList(vec![Mailbox::AddrSpec(AddrSpec {
                     local_part: LocalPart::DotAtom(DotAtom {
                         pre_cfws: Some(CFWS {
                             comments: vec![],

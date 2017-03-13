@@ -4,7 +4,7 @@ use std::io::Error as IoError;
 use std::ascii::AsciiExt;
 use ::TryFrom;
 use super::{Parsable, ParseError, Streamable};
-use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId,
+use super::types::{DateTime, MailboxList, Mailbox, Address, AddressList, CFWS, MsgId,
                    Unstructured, Phrase, ReceivedToken, Path, FieldName};
 
 macro_rules! req_name {
@@ -117,18 +117,27 @@ impl_display!(OrigDate);
 
 // 3.6.2
 // from            =   "From:" mailbox-list CRLF
+// modified by rfc6854:
+// from            =   "From:" (mailbox-list / address-list) CRLF
 #[derive(Debug, Clone, PartialEq)]
-pub struct From(pub MailboxList);
+pub enum From {
+    Mailboxes(MailboxList),
+    Addresses(AddressList)
+}
 impl Parsable for From {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof("From")); }
         let mut rem = input;
         req_name!(rem, "from:");
+        if let Ok(al) = parse!(AddressList, rem) {
+            req_crlf!(rem);
+            return Ok((From::Addresses(al), rem));
+        }
         match parse!(MailboxList, rem) {
             Ok(mbl) => {
                 req_crlf!(rem);
-                return Ok((From(mbl), rem));
-            },
+                return Ok((From::Mailboxes(mbl), rem));
+            }
             Err(e) => Err(ParseError::Parse("From", Box::new(e)))
         }
     }
@@ -136,26 +145,75 @@ impl Parsable for From {
 impl Streamable for From {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         Ok(try!(w.write(b"From:"))
-           + try!(self.0.stream(w))
+           + match *self {
+               From::Mailboxes(ref mbl) => try!(mbl.stream(w)),
+               From::Addresses(ref al) => try!(al.stream(w)),
+           }
            + try!(w.write(b"\r\n")))
     }
 }
-impl_try_from!(MailboxList, From);
+impl<'a> TryFrom<&'a [u8]> for From {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<From, ParseError> {
+        if let Ok((al,rem)) = AddressList::parse(input) {
+            if rem.len() > 0 {
+                return Err(ParseError::TrailingInput("From", input.len() - rem.len()));
+            }
+            return Ok(From::Addresses(al))
+        }
+        match MailboxList::parse(input) {
+            Ok((mbl,rem)) => {
+                if rem.len() > 0 {
+                    return Err(ParseError::TrailingInput("From", input.len() - rem.len()));
+                }
+                return Ok(From::Mailboxes(mbl))
+            }
+            Err(e) => Err(ParseError::Parse("From", Box::new(e)))
+        }
+    }
+}
+impl<'a> TryFrom<&'a str> for From {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<From, ParseError> {
+        TryFrom::try_from(input.as_bytes())
+    }
+}
+impl<'a> TryFrom<MailboxList> for From {
+    type Err = ParseError;
+    fn try_from(input: MailboxList) -> Result<From, ParseError> {
+        Ok(From::Mailboxes(input))
+    }
+}
+impl<'a> TryFrom<AddressList> for From {
+    type Err = ParseError;
+    fn try_from(input: AddressList) -> Result<From, ParseError> {
+        Ok(From::Addresses(input))
+    }
+}
 impl_display!(From);
 
 // 3.6.2
 // sender          =   "Sender:" mailbox CRLF
+// modified by rfc6854:
+// sender          =   "Sender:" (mailbox / address) CRLF
 #[derive(Debug, Clone, PartialEq)]
-pub struct Sender(pub Mailbox);
+pub enum Sender {
+    Address(Address),
+    Mailbox(Mailbox),
+}
 impl Parsable for Sender {
     fn parse(input: &[u8]) -> Result<(Self, &[u8]), ParseError> {
         if input.len() == 0 { return Err(ParseError::Eof("Sender")); }
         let mut rem = input;
         req_name!(rem, "sender:");
+        if let Ok(a) = parse!(Address, rem) {
+            req_crlf!(rem);
+            return Ok((Sender::Address(a), rem));
+        }
         match parse!(Mailbox, rem) {
             Ok(mb) => {
                 req_crlf!(rem);
-                return Ok((Sender(mb), rem));
+                return Ok((Sender::Mailbox(mb), rem));
             },
             Err(e) => Err(ParseError::Parse("Sender", Box::new(e)))
         }
@@ -164,11 +222,51 @@ impl Parsable for Sender {
 impl Streamable for Sender {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         Ok(try!(w.write(b"Sender:"))
-           + try!(self.0.stream(w))
+           + match *self {
+               Sender::Address(ref a) => try!(a.stream(w)),
+               Sender::Mailbox(ref m) => try!(m.stream(w)),
+           }
            + try!(w.write(b"\r\n")))
     }
 }
-impl_try_from!(Mailbox, Sender);
+impl<'a> TryFrom<&'a [u8]> for Sender {
+    type Err = ParseError;
+    fn try_from(input: &'a [u8]) -> Result<Sender, ParseError> {
+        if let Ok((al,rem)) = Address::parse(input) {
+            if rem.len() > 0 {
+                return Err(ParseError::TrailingInput("Sender", input.len() - rem.len()));
+            }
+            return Ok(Sender::Address(al))
+        }
+        match Mailbox::parse(input) {
+            Ok((mbl,rem)) => {
+                if rem.len() > 0 {
+                    return Err(ParseError::TrailingInput("Sender", input.len() - rem.len()));
+                }
+                return Ok(Sender::Mailbox(mbl))
+            }
+            Err(e) => Err(ParseError::Parse("Sender", Box::new(e)))
+        }
+    }
+}
+impl<'a> TryFrom<&'a str> for Sender {
+    type Err = ParseError;
+    fn try_from(input: &'a str) -> Result<Sender, ParseError> {
+        TryFrom::try_from(input.as_bytes())
+    }
+}
+impl<'a> TryFrom<Mailbox> for Sender {
+    type Err = ParseError;
+    fn try_from(input: Mailbox) -> Result<Sender, ParseError> {
+        Ok(Sender::Mailbox(input))
+    }
+}
+impl<'a> TryFrom<Address> for Sender {
+    type Err = ParseError;
+    fn try_from(input: Address) -> Result<Sender, ParseError> {
+        Ok(Sender::Address(input))
+    }
+}
 impl_display!(Sender);
 
 // 3.6.2

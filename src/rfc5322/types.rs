@@ -1358,12 +1358,17 @@ impl Parsable for Day {
         let mut rem = input;
         let _ = parse!(FWS, rem);
         if rem.len() < 3 { return Err(ParseError::NotFound("Day")); }
-        if !is_digit(rem[0]) || !is_digit(rem[1]) {
+        if !is_digit(rem[0]) || (!is_digit(rem[1]) && !is_wsp(rem[1])) {
             return Err(ParseError::NotFound("Day"));
         }
-        let v: u8 = 10 * ((rem[0]-48))
-                      + ((rem[1]-48));
-        rem = &rem[2..];
+        let mut v: u8 = rem[0] - 48;
+        let mut num_consumed = 1;
+        // the day field may be 1 or 2 digits
+        if is_digit(rem[1]) {
+            v = 10 * v + rem[1] - 48;
+            num_consumed += 1;
+        }
+        rem = &rem[num_consumed..];
         let fws = parse!(FWS, rem);
         if fws.is_err() { return Err(ParseError::NotFound("Day")); }
         Ok((Day(v), rem))

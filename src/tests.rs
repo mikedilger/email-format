@@ -454,6 +454,11 @@ fn test_date_time() {
     let (t, rem) = DateTime::parse(input.as_slice()).unwrap();
     assert_eq!(rem, b"");
 
+    // like previous case, but check that 1-digit dates are parseable too
+    let input = b"suN, 1 DEC 2000 12:12:12 -1300 (or thereabouts) \r\n ".to_vec();
+    let (_, rem) = DateTime::parse(input.as_slice()).unwrap();
+    assert_eq!(rem, b"");
+
     let mut output: Vec<u8> = Vec::new();
     assert_eq!(t.stream(&mut output).unwrap(), 49);
     assert_eq!(output, b"Sun, 01 Dec 2000 12:12:12 -1300 (or thereabouts) ".to_vec());

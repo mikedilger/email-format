@@ -498,7 +498,7 @@ impl Streamable for Body {
     }
 }
 impl<'a> TryFrom<&'a [u8]> for Body {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Body, ParseError> {
         let (out,rem) = try!(Body::parse(input));
         if rem.len() > 0 {
@@ -509,7 +509,7 @@ impl<'a> TryFrom<&'a [u8]> for Body {
     }
 }
 impl<'a> TryFrom<&'a str> for Body {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a str) -> Result<Body, ParseError> {
         TryFrom::try_from(input.as_bytes())
     }

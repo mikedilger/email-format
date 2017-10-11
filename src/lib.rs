@@ -99,17 +99,17 @@ use rfc5322::headers::{From, OrigDate, Sender, ReplyTo, To, Cc, Bcc, MessageId,
 /// can still use our crate.  In the future, the std trait should be used.
 pub trait TryFrom<T>: Sized {
     /// The type returned in the event of a conversion error.
-    type Err;
+    type Error;
 
     /// Performs the conversion.
-    fn try_from(T) -> Result<Self, Self::Err>;
+    fn try_from(T) -> Result<Self, Self::Error>;
 }
 
 // We implement TryFrom from T to T with our ParseError for crate ergonomics
 // (Rust won't let it be implemented with an unconstrained error type)
 impl<T> TryFrom<T> for T {
-    type Err = ::rfc5322::error::ParseError;
-    fn try_from(input: T) -> Result<T, Self::Err> {
+    type Error = ::rfc5322::error::ParseError;
+    fn try_from(input: T) -> Result<T, Self::Error> {
         Ok(input)
     }
 }
@@ -121,7 +121,7 @@ pub struct Email {
 
 impl Email {
     pub fn new<F,D>(from: F, date: D) -> Result<Email, ParseError>
-        where From: TryFrom<F, Err=ParseError>, OrigDate: TryFrom<D, Err=ParseError>
+        where From: TryFrom<F, Error=ParseError>, OrigDate: TryFrom<D, Error=ParseError>
     {
         Ok(Email {
             message: Message {
@@ -137,7 +137,7 @@ impl Email {
     }
 
     pub fn set_date<D>(&mut self, date: D) -> Result<(), ParseError>
-        where OrigDate: TryFrom<D, Err=ParseError>
+        where OrigDate: TryFrom<D, Error=ParseError>
     {
         let value: OrigDate = try!(TryFrom::try_from(date));
         for field in self.message.fields.fields.iter_mut() {
@@ -158,7 +158,7 @@ impl Email {
     }
 
     pub fn set_from<F>(&mut self, from: F) -> Result<(), ParseError>
-        where From: TryFrom<F, Err=ParseError>
+        where From: TryFrom<F, Error=ParseError>
     {
         let value: From = try!(TryFrom::try_from(from));
         for field in self.message.fields.fields.iter_mut() {
@@ -179,7 +179,7 @@ impl Email {
     }
 
     pub fn set_sender<S>(&mut self, sender: S) -> Result<(), ParseError>
-        where Sender: TryFrom<S, Err=ParseError>
+        where Sender: TryFrom<S, Error=ParseError>
     {
         let value: Sender = try!(TryFrom::try_from(sender));
         for field in self.message.fields.fields.iter_mut() {
@@ -206,7 +206,7 @@ impl Email {
     }
 
     pub fn set_reply_to<R>(&mut self, reply_to: R) -> Result<(), ParseError>
-        where ReplyTo: TryFrom<R, Err=ParseError>
+        where ReplyTo: TryFrom<R, Error=ParseError>
     {
         let value: ReplyTo = try!(TryFrom::try_from(reply_to));
         for field in self.message.fields.fields.iter_mut() {
@@ -233,7 +233,7 @@ impl Email {
     }
 
     pub fn set_to<T>(&mut self, to: T) -> Result<(), ParseError>
-        where To: TryFrom<T, Err=ParseError>
+        where To: TryFrom<T, Error=ParseError>
     {
         let value: To = try!(TryFrom::try_from(to));
         for field in self.message.fields.fields.iter_mut() {
@@ -260,7 +260,7 @@ impl Email {
     }
 
     pub fn set_cc<C>(&mut self, cc: C) -> Result<(), ParseError>
-        where Cc: TryFrom<C, Err=ParseError>
+        where Cc: TryFrom<C, Error=ParseError>
     {
         let value: Cc = try!(TryFrom::try_from(cc));
         for field in self.message.fields.fields.iter_mut() {
@@ -287,7 +287,7 @@ impl Email {
     }
 
     pub fn set_bcc<B>(&mut self, bcc: B) -> Result<(), ParseError>
-        where Bcc: TryFrom<B, Err=ParseError>
+        where Bcc: TryFrom<B, Error=ParseError>
     {
         let value: Bcc = try!(TryFrom::try_from(bcc));
         for field in self.message.fields.fields.iter_mut() {
@@ -314,7 +314,7 @@ impl Email {
     }
 
     pub fn set_message_id<M>(&mut self, message_id: M) -> Result<(), ParseError>
-        where MessageId: TryFrom<M, Err=ParseError>
+        where MessageId: TryFrom<M, Error=ParseError>
     {
         let value: MessageId = try!(TryFrom::try_from(message_id));
         for field in self.message.fields.fields.iter_mut() {
@@ -341,7 +341,7 @@ impl Email {
     }
 
     pub fn set_in_reply_to<I>(&mut self, in_reply_to: I) -> Result<(), ParseError>
-        where InReplyTo: TryFrom<I, Err=ParseError>
+        where InReplyTo: TryFrom<I, Error=ParseError>
     {
         let value: InReplyTo = try!(TryFrom::try_from(in_reply_to));
         for field in self.message.fields.fields.iter_mut() {
@@ -368,7 +368,7 @@ impl Email {
     }
 
     pub fn set_references<R>(&mut self, references: R) -> Result<(), ParseError>
-        where References: TryFrom<R, Err=ParseError>
+        where References: TryFrom<R, Error=ParseError>
     {
         let value: References = try!(TryFrom::try_from(references));
         for field in self.message.fields.fields.iter_mut() {
@@ -395,7 +395,7 @@ impl Email {
     }
 
     pub fn set_subject<S>(&mut self, subject: S) -> Result<(), ParseError>
-        where Subject: TryFrom<S, Err=ParseError>
+        where Subject: TryFrom<S, Error=ParseError>
     {
         let value: Subject = try!(TryFrom::try_from(subject));
         for field in self.message.fields.fields.iter_mut() {
@@ -422,7 +422,7 @@ impl Email {
     }
 
     pub fn add_comments<C>(&mut self, comments: C) -> Result<(), ParseError>
-        where Comments: TryFrom<C, Err=ParseError>
+        where Comments: TryFrom<C, Error=ParseError>
     {
         let value: Comments = try!(TryFrom::try_from(comments));
         self.message.fields.fields.push(Field::Comments(value));
@@ -444,7 +444,7 @@ impl Email {
     }
 
     pub fn add_keywords<K>(&mut self, keywords: K) -> Result<(), ParseError>
-        where Keywords: TryFrom<K, Err=ParseError>
+        where Keywords: TryFrom<K, Error=ParseError>
     {
         let value: Keywords = try!(TryFrom::try_from(keywords));
         self.message.fields.fields.push(Field::Keywords(value));
@@ -466,7 +466,7 @@ impl Email {
     }
 
     pub fn add_optional_field<O>(&mut self, optional_field: O) -> Result<(), ParseError>
-        where OptionalField: TryFrom<O, Err=ParseError>
+        where OptionalField: TryFrom<O, Error=ParseError>
     {
         let value: OptionalField = try!(TryFrom::try_from(optional_field));
         self.message.fields.fields.push(Field::OptionalField(value));
@@ -492,7 +492,7 @@ impl Email {
     // TBD: resent-msg-id
 
     pub fn set_body<B>(&mut self, body: B) -> Result<(), ParseError>
-        where Body: TryFrom<B, Err=ParseError>
+        where Body: TryFrom<B, Error=ParseError>
     {
         let value: Body = try!(TryFrom::try_from(body));
         self.message.body = Some(value);

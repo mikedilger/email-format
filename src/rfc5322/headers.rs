@@ -34,7 +34,7 @@ macro_rules! req_crlf {
 macro_rules! impl_try_from {
     ($from:ident, $to:ident) => {
         impl<'a> TryFrom<&'a [u8]> for $to {
-            type Err = ParseError;
+            type Error = ParseError;
             fn try_from(input: &'a [u8]) -> Result<$to, ParseError> {
                 let (out,rem) = try!($from::parse(input));
                 if rem.len() > 0 {
@@ -44,13 +44,13 @@ macro_rules! impl_try_from {
             }
         }
         impl<'a> TryFrom<&'a str> for $to {
-            type Err = ParseError;
+            type Error = ParseError;
             fn try_from(input: &'a str) -> Result<$to, ParseError> {
                 TryFrom::try_from(input.as_bytes())
             }
         }
         impl<'a> TryFrom<$from> for $to {
-            type Err = ParseError;
+            type Error = ParseError;
             fn try_from(input: $from) -> Result<$to, ParseError> {
                 Ok($to(input))
             }
@@ -86,7 +86,7 @@ impl Streamable for OrigDate {
 impl_try_from!(DateTime, OrigDate);
 #[cfg(feature="time")]
 impl<'a> TryFrom<&'a ::time::Tm> for OrigDate {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a ::time::Tm) -> Result<OrigDate, ParseError> {
         let s = match input.strftime("%a, %d %b %Y %T %z") {
             Ok(s) => format!("{}",s),
@@ -97,7 +97,7 @@ impl<'a> TryFrom<&'a ::time::Tm> for OrigDate {
 }
 #[cfg(feature="chrono")]
 impl<'a> TryFrom<&'a ::chrono::NaiveDateTime> for OrigDate {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a ::chrono::NaiveDateTime) -> Result<OrigDate, ParseError> {
         let s = input.format("%a, %d %b %Y %T %z").to_string();
         TryFrom::try_from(s.as_bytes())
@@ -107,7 +107,7 @@ impl<'a> TryFrom<&'a ::chrono::NaiveDateTime> for OrigDate {
 impl<'a, Tz: ::chrono::TimeZone> TryFrom<&'a ::chrono::DateTime<Tz>> for OrigDate
     where Tz::Offset: ::std::fmt::Display
 {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a ::chrono::DateTime<Tz>) -> Result<OrigDate, ParseError> {
         let s = input.format("%a, %d %b %Y %T %z").to_string();
         TryFrom::try_from(s.as_bytes())
@@ -294,7 +294,7 @@ impl Streamable for Bcc {
     }
 }
 impl<'a> TryFrom<&'a [u8]> for Bcc {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Bcc, ParseError> {
         let (out,rem) = try!(AddressList::parse(input));
         if rem.len() > 0 {
@@ -304,13 +304,13 @@ impl<'a> TryFrom<&'a [u8]> for Bcc {
     }
 }
 impl<'a> TryFrom<&'a str> for Bcc {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a str) -> Result<Bcc, ParseError> {
         TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<AddressList> for Bcc {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: AddressList) -> Result<Bcc, ParseError> {
         Ok(Bcc::AddressList(input))
     }
@@ -381,7 +381,7 @@ impl Streamable for InReplyTo {
     }
 }
 impl<'a> TryFrom<&'a [u8]> for InReplyTo {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<InReplyTo, ParseError> {
         let mut msgids: Vec<MsgId> = Vec::new();
         let mut rem = input;
@@ -396,13 +396,13 @@ impl<'a> TryFrom<&'a [u8]> for InReplyTo {
     }
 }
 impl<'a> TryFrom<&'a str> for InReplyTo {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a str) -> Result<InReplyTo, ParseError> {
         TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<Vec<MsgId>> for InReplyTo {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: Vec<MsgId>) -> Result<InReplyTo, ParseError> {
         Ok(InReplyTo(input))
     }
@@ -445,7 +445,7 @@ impl Streamable for References {
     }
 }
 impl<'a> TryFrom<&'a [u8]> for References {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<References, ParseError> {
         let mut msgids: Vec<MsgId> = Vec::new();
         let mut rem = input;
@@ -460,13 +460,13 @@ impl<'a> TryFrom<&'a [u8]> for References {
     }
 }
 impl<'a> TryFrom<&'a str> for References {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a str) -> Result<References, ParseError> {
         TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<Vec<MsgId>> for References {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: Vec<MsgId>) -> Result<References, ParseError> {
         Ok(References(input))
     }
@@ -570,7 +570,7 @@ impl Streamable for Keywords {
     }
 }
 impl<'a> TryFrom<&'a [u8]> for Keywords {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Keywords, ParseError> {
         let mut msgids: Vec<Phrase> = Vec::new();
         let mut rem = input;
@@ -585,13 +585,13 @@ impl<'a> TryFrom<&'a [u8]> for Keywords {
     }
 }
 impl<'a> TryFrom<&'a str> for Keywords {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a str) -> Result<Keywords, ParseError> {
         TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<Vec<Phrase>> for Keywords {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: Vec<Phrase>) -> Result<Keywords, ParseError> {
         Ok(Keywords(input))
     }
@@ -777,7 +777,7 @@ impl Streamable for ResentBcc {
     }
 }
 impl<'a> TryFrom<&'a [u8]> for ResentBcc {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<ResentBcc, ParseError> {
         let (out,rem) = try!(AddressList::parse(input));
         if rem.len() > 0 {
@@ -787,13 +787,13 @@ impl<'a> TryFrom<&'a [u8]> for ResentBcc {
     }
 }
 impl<'a> TryFrom<&'a str> for ResentBcc {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a str) -> Result<ResentBcc, ParseError> {
         TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<AddressList> for ResentBcc {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: AddressList) -> Result<ResentBcc, ParseError> {
         Ok(ResentBcc::AddressList(input))
     }
@@ -899,7 +899,7 @@ impl Streamable for Received {
     }
 }
 impl<'a> TryFrom<&'a [u8]> for Received {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Received, ParseError> {
         let mut fudged_input: Vec<u8> = "Received:".as_bytes().to_owned();
         fudged_input.extend(&*input);
@@ -913,13 +913,13 @@ impl<'a> TryFrom<&'a [u8]> for Received {
     }
 }
 impl<'a> TryFrom<&'a str> for Received {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: &'a str) -> Result<Received, ParseError> {
         TryFrom::try_from(input.as_bytes())
     }
 }
 impl<'a> TryFrom<(ReceivedTokens, DateTime)> for Received {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: (ReceivedTokens, DateTime)) -> Result<Received, ParseError> {
         Ok(Received {
             received_tokens: input.0,
@@ -993,7 +993,7 @@ impl Streamable for OptionalField {
     }
 }
 impl<'a> TryFrom<(FieldName, Unstructured)> for OptionalField {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: (FieldName, Unstructured)) -> Result<OptionalField, ParseError> {
         Ok(OptionalField {
             name: input.0,
@@ -1001,7 +1001,7 @@ impl<'a> TryFrom<(FieldName, Unstructured)> for OptionalField {
     }
 }
 impl<'a,'b> TryFrom<(&'a [u8], &'b [u8])> for OptionalField {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: (&'a [u8], &'b [u8])) -> Result<OptionalField, ParseError> {
         let (name,rem) = try!(FieldName::parse(input.0));
         if rem.len() > 0 {
@@ -1018,7 +1018,7 @@ impl<'a,'b> TryFrom<(&'a [u8], &'b [u8])> for OptionalField {
     }
 }
 impl<'a,'b> TryFrom<(&'a str, &'b str)> for OptionalField {
-    type Err = ParseError;
+    type Error = ParseError;
     fn try_from(input: (&'a str, &'b str)) -> Result<OptionalField, ParseError> {
         TryFrom::try_from((input.0.as_bytes(), input.1.as_bytes()))
     }

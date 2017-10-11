@@ -120,6 +120,8 @@ pub struct Email {
 }
 
 impl Email {
+    /// Create a new email structure.  The `From` address and `Date` fields are
+    /// required in all valid emails, thus you must pass these in.
     pub fn new<F,D>(from: F, date: D) -> Result<Email, ParseError>
         where From: TryFrom<F, Error=ParseError>, OrigDate: TryFrom<D, Error=ParseError>
     {
@@ -136,6 +138,7 @@ impl Email {
         })
     }
 
+    /// Replace the `Date` field in the email
     pub fn set_date<D>(&mut self, date: D) -> Result<(), ParseError>
         where OrigDate: TryFrom<D, Error=ParseError>
     {
@@ -148,6 +151,7 @@ impl Email {
         }
         unreachable!()
     }
+    /// Fetch the `Date` field from the email
     pub fn get_date(&self) -> OrigDate {
         for field in self.message.fields.fields.iter() {
             if let Field::OrigDate(ref d) = *field {
@@ -157,6 +161,7 @@ impl Email {
         unreachable!()
     }
 
+    /// Replace the `From` field in the email
     pub fn set_from<F>(&mut self, from: F) -> Result<(), ParseError>
         where From: TryFrom<F, Error=ParseError>
     {
@@ -169,6 +174,7 @@ impl Email {
         }
         unreachable!()
     }
+    /// Fetch the `From` field from the email
     pub fn get_from(&self) -> From {
         for field in self.message.fields.fields.iter() {
             if let Field::From(ref f) = *field {
@@ -178,6 +184,7 @@ impl Email {
         unreachable!()
     }
 
+    /// Set or replace the `Sender` field in the email
     pub fn set_sender<S>(&mut self, sender: S) -> Result<(), ParseError>
         where Sender: TryFrom<S, Error=ParseError>
     {
@@ -191,6 +198,7 @@ impl Email {
         self.message.fields.fields.push(Field::Sender(value));
         Ok(())
     }
+    /// Fetch the `Sender` field from the email
     pub fn get_sender(&self) -> Option<Sender> {
         for field in self.message.fields.fields.iter() {
             if let Field::Sender(ref s) = *field {
@@ -199,12 +207,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `Sender` field from the email
     pub fn clear_sender(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::Sender(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `Reply-To` field in the email
     pub fn set_reply_to<R>(&mut self, reply_to: R) -> Result<(), ParseError>
         where ReplyTo: TryFrom<R, Error=ParseError>
     {
@@ -218,6 +228,7 @@ impl Email {
         self.message.fields.fields.push(Field::ReplyTo(value));
         Ok(())
     }
+    /// Fetch the `Reply-To` field from the email
     pub fn get_reply_to(&self) -> Option<ReplyTo> {
         for field in self.message.fields.fields.iter() {
             if let Field::ReplyTo(ref rt) = *field {
@@ -226,12 +237,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `Reply-To` field from the email
     pub fn clear_reply_to(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::ReplyTo(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `To` field in the email
     pub fn set_to<T>(&mut self, to: T) -> Result<(), ParseError>
         where To: TryFrom<T, Error=ParseError>
     {
@@ -245,6 +258,7 @@ impl Email {
         self.message.fields.fields.push(Field::To(value));
         Ok(())
     }
+    /// Fetch the `To` field from the email
     pub fn get_to(&self) -> Option<To> {
         for field in self.message.fields.fields.iter() {
             if let Field::To(ref t) = *field {
@@ -253,12 +267,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `To` field from the email
     pub fn clear_to(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::To(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `Cc` field in the email
     pub fn set_cc<C>(&mut self, cc: C) -> Result<(), ParseError>
         where Cc: TryFrom<C, Error=ParseError>
     {
@@ -272,6 +288,7 @@ impl Email {
         self.message.fields.fields.push(Field::Cc(value));
         Ok(())
     }
+    /// Fetch the `Cc` field from the email
     pub fn get_cc(&self) -> Option<Cc> {
         for field in self.message.fields.fields.iter() {
             if let Field::Cc(ref cc) = *field {
@@ -280,12 +297,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `Cc` field from the email
     pub fn clear_cc(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::Cc(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `Bcc` field in the email
     pub fn set_bcc<B>(&mut self, bcc: B) -> Result<(), ParseError>
         where Bcc: TryFrom<B, Error=ParseError>
     {
@@ -299,6 +318,7 @@ impl Email {
         self.message.fields.fields.push(Field::Bcc(value));
         Ok(())
     }
+    /// Fetch the `Bcc` field from the email
     pub fn get_bcc(&self) -> Option<Bcc> {
         for field in self.message.fields.fields.iter() {
             if let Field::Bcc(ref b) = *field {
@@ -307,12 +327,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `Bcc` field from the email
     pub fn clear_bcc(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::Bcc(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `Message-ID` field in the email
     pub fn set_message_id<M>(&mut self, message_id: M) -> Result<(), ParseError>
         where MessageId: TryFrom<M, Error=ParseError>
     {
@@ -326,6 +348,7 @@ impl Email {
         self.message.fields.fields.push(Field::MessageId(value));
         Ok(())
     }
+    /// Fetch the `Message-ID` field from the email
     pub fn get_message_id(&self) -> Option<MessageId> {
         for field in self.message.fields.fields.iter() {
             if let Field::MessageId(ref m) = *field {
@@ -334,12 +357,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `Message-ID` field from the email
     pub fn clear_message_id(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::MessageId(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `In-Reply-To` field in the email
     pub fn set_in_reply_to<I>(&mut self, in_reply_to: I) -> Result<(), ParseError>
         where InReplyTo: TryFrom<I, Error=ParseError>
     {
@@ -353,6 +378,7 @@ impl Email {
         self.message.fields.fields.push(Field::InReplyTo(value));
         Ok(())
     }
+    /// Fetch the `In-Reply-To` field from the email
     pub fn get_in_reply_to(&self) -> Option<InReplyTo> {
         for field in self.message.fields.fields.iter() {
             if let Field::InReplyTo(ref x) = *field {
@@ -361,12 +387,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `In-Reply-To` field from the email
     pub fn clear_in_reply_to(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::InReplyTo(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `References` field in the email
     pub fn set_references<R>(&mut self, references: R) -> Result<(), ParseError>
         where References: TryFrom<R, Error=ParseError>
     {
@@ -380,6 +408,7 @@ impl Email {
         self.message.fields.fields.push(Field::References(value));
         Ok(())
     }
+    /// Fetch the `References` field from the email
     pub fn get_references(&self) -> Option<References> {
         for field in self.message.fields.fields.iter() {
             if let Field::References(ref x) = *field {
@@ -388,12 +417,14 @@ impl Email {
         }
         None
     }
+    /// Remove the `References` field from the email
     pub fn clear_references(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::References(_) = *field { false } else { true }
         });
     }
 
+    /// Set or replace the `Subject` field in the email
     pub fn set_subject<S>(&mut self, subject: S) -> Result<(), ParseError>
         where Subject: TryFrom<S, Error=ParseError>
     {
@@ -407,6 +438,7 @@ impl Email {
         self.message.fields.fields.push(Field::Subject(value));
         Ok(())
     }
+    /// Fetch the `Subject` field from the email
     pub fn get_subject(&self) -> Option<Subject> {
         for field in self.message.fields.fields.iter() {
             if let Field::Subject(ref x) = *field {
@@ -415,12 +447,15 @@ impl Email {
         }
         None
     }
+    /// Remove the `Subject` field from the email
     pub fn clear_subject(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::Subject(_) = *field { false } else { true }
         });
     }
 
+    /// Add a `Comments` field in the email. This may be in addition to
+    /// existing `Comments` fields.
     pub fn add_comments<C>(&mut self, comments: C) -> Result<(), ParseError>
         where Comments: TryFrom<C, Error=ParseError>
     {
@@ -428,6 +463,7 @@ impl Email {
         self.message.fields.fields.push(Field::Comments(value));
         Ok(())
     }
+    /// Fetch all `Comments` fields from the email
     pub fn get_comments(&self) -> Vec<Comments> {
         let mut output: Vec<Comments> = Vec::new();
         for field in self.message.fields.fields.iter() {
@@ -437,12 +473,15 @@ impl Email {
         }
         output
     }
+    /// Remove all `Comments` fields from the email
     pub fn clear_comments(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::Comments(_) = *field { false } else { true }
         });
     }
 
+    /// Add a `Keywords` field in the email. This may be in addition to existing
+    /// `Keywords` fields.
     pub fn add_keywords<K>(&mut self, keywords: K) -> Result<(), ParseError>
         where Keywords: TryFrom<K, Error=ParseError>
     {
@@ -450,6 +489,7 @@ impl Email {
         self.message.fields.fields.push(Field::Keywords(value));
         Ok(())
     }
+    /// Fetch all `Keywords` fields from the email
     pub fn get_keywords(&self) -> Vec<Keywords> {
         let mut output: Vec<Keywords> = Vec::new();
         for field in self.message.fields.fields.iter() {
@@ -459,12 +499,15 @@ impl Email {
         }
         output
     }
+    /// Remove all `Keywords` fields from the email
     pub fn clear_keywords(&mut self) {
         self.message.fields.fields.retain(|field| {
             if let Field::Keywords(_) = *field { false } else { true }
         });
     }
 
+    /// Add an optional field to the email. This may be in addition to existing
+    /// optional fields.
     pub fn add_optional_field<O>(&mut self, optional_field: O) -> Result<(), ParseError>
         where OptionalField: TryFrom<O, Error=ParseError>
     {
@@ -472,6 +515,7 @@ impl Email {
         self.message.fields.fields.push(Field::OptionalField(value));
         Ok(())
     }
+    /// Fetch all optional fields from the email
     pub fn get_optional_fields(&self) -> Vec<OptionalField> {
         let mut output: Vec<OptionalField> = Vec::new();
         for field in self.message.fields.fields.iter() {
@@ -482,6 +526,8 @@ impl Email {
         output
     }
 
+    // TBD clear_optional_field
+
     // TBD: trace
     // TBD: resent-date
     // TBD: resent-from
@@ -491,6 +537,7 @@ impl Email {
     // TBD: resent-bcc
     // TBD: resent-msg-id
 
+    /// Set or replace the `Body` in the email
     pub fn set_body<B>(&mut self, body: B) -> Result<(), ParseError>
         where Body: TryFrom<B, Error=ParseError>
     {
@@ -498,9 +545,11 @@ impl Email {
         self.message.body = Some(value);
         Ok(())
     }
+    /// Fetch the `Body` from the email
     pub fn get_body(&self) -> Option<Body> {
         self.message.body.clone()
     }
+    /// Remove the `Body` from the email, leaving an empty body
     pub fn clear_body(&mut self) {
         self.message.body = None;
     }

@@ -525,8 +525,16 @@ impl Email {
         }
         output
     }
-
-    // TBD clear_optional_field
+    /// Clear all optional fields from the email
+    pub fn clear_optional_fields(&mut self) {
+        self.message.fields.fields.retain(|field| {
+            if let Field::OptionalField(_) = *field {
+                false
+            } else {
+                true
+            }
+        })
+    }
 
     // TBD: trace
     // TBD: resent-date

@@ -758,3 +758,37 @@ fn test_trailing_input() {
 
     let _: Sender = TryFrom::try_from("mike@optcomp.nz[.xyz]").unwrap();
 }
+
+#[test]
+fn test_optional_fields() {
+    use ::Email;
+    use ::rfc5322::{Parsable, Streamable};
+
+    let input = "Date: Wed, 05 Jan 2015 15:13:05 +1300\r\n\
+                 From: myself@mydomain.com\r\n\
+                 Sender: from_myself@mydomain.com\r\n\
+                 My-Crazy-Field: this is my field\r\n\
+                 Subject: Hello Friend\r\n\
+                 \r\n\
+                 Good to hear from you.\r\n\
+                 I wish you the best.\r\n\
+                 \r\n\
+                 Your Friend".as_bytes();
+
+    let (mut email, remainder) = Email::parse(&input).unwrap();
+    assert_eq!(remainder.len(), 0);
+
+    assert_eq!(email.get_optional_fields().len(), 1);
+
+    let mut output: Vec<u8> = Vec::new();
+    email.stream(&mut output).unwrap();
+
+    assert_eq!(input, &*output);
+
+    email.add_optional_field(("Another-Crazy-Field", "has other content")).unwrap();
+
+    assert_eq!(email.get_optional_fields().len(), 2);
+
+    email.clear_optional_fields();
+    assert_eq!(email.get_optional_fields().len(), 0);
+}

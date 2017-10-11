@@ -561,6 +561,25 @@ impl Email {
     pub fn clear_body(&mut self) {
         self.message.body = None;
     }
+
+    /// Stream the email into a byte vector and return that
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut output: Vec<u8> = Vec::new();
+        let _ = self.stream(&mut output); // no IoError ought to occur.
+        output
+    }
+
+    /// Stream the email into a byte vector, convert to a String, and
+    /// return that
+    pub fn as_string(&self) -> String {
+        let mut vec: Vec<u8> = Vec::new();
+        let _ = self.stream(&mut vec); // no IoError ought to occur.
+        unsafe {
+            // rfc5322 formatted emails fall within utf8, so this should not be
+            // able to fail
+            String::from_utf8_unchecked(vec)
+        }
+    }
 }
 
 impl Parsable for Email {
@@ -581,13 +600,11 @@ impl Streamable for Email {
 
 impl fmt::Display for Email {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        let mut output: Vec<u8> = Vec::new();
-        if let Err(_) = self.stream(&mut output) {
-            return Err(fmt::Error);
-        }
+        let bytes = self.as_bytes();
         unsafe {
-            // rfc5322 formatted emails fall within utf8
-            write!(f, "{}", ::std::str::from_utf8_unchecked(&*output))
+            // rfc5322 formatted emails fall within utf8, so this should not be
+            // able to fail
+            write!(f, "{}", ::std::str::from_utf8_unchecked(&*bytes))
         }
     }
 }

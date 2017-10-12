@@ -96,14 +96,6 @@ impl<'a> TryFrom<&'a ::time::Tm> for OrigDate {
     }
 }
 #[cfg(feature="chrono")]
-impl<'a> TryFrom<&'a ::chrono::NaiveDateTime> for OrigDate {
-    type Error = ParseError;
-    fn try_from(input: &'a ::chrono::NaiveDateTime) -> Result<OrigDate, ParseError> {
-        let s = input.format("%a, %d %b %Y %T %z").to_string();
-        TryFrom::try_from(s.as_bytes())
-    }
-}
-#[cfg(feature="chrono")]
 impl<'a, Tz: ::chrono::TimeZone> TryFrom<&'a ::chrono::DateTime<Tz>> for OrigDate
     where Tz::Offset: ::std::fmt::Display
 {

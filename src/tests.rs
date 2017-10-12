@@ -446,6 +446,29 @@ fn test_date() {
     assert_eq!(output, b" 22 Sep 2016 ".to_vec());
 }
 
+#[cfg(feature="chrono")]
+#[test]
+fn test_date_from_chrono()
+{
+    use TryFrom;
+    use rfc5322::headers::OrigDate;
+    use chrono::{TimeZone, Local};
+
+    let input = Local.ymd(2014, 11, 28).and_hms(12, 0, 9);
+    let _: OrigDate = TryFrom::try_from(&input).unwrap();
+}
+
+#[cfg(feature="time")]
+#[test]
+fn test_date_from_time()
+{
+    use TryFrom;
+    use rfc5322::headers::OrigDate;
+
+    let input = ::time::now();
+    let _: OrigDate = TryFrom::try_from(&input).unwrap();
+}
+
 #[test]
 fn test_date_time() {
     use rfc5322::types::DateTime;

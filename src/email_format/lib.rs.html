@@ -9,6 +9,7 @@
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
     
@@ -16,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -42,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -576,538 +577,822 @@
 <span id="532">532</span>
 <span id="533">533</span>
 <span id="534">534</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! This crate allows you to construct email messages in a way that assures that</span>
-<span class='doccomment'>//! they are compliant with relevant email standards (especially RFC 5322).  Invalid</span>
-<span class='doccomment'>//! data submitted will return a ParseError.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! The main structure to work with is `Email`. It has many functions to set or add</span>
-<span class='doccomment'>//! headers and to set the body. All of these will accept an `&amp;str` or `&amp;[u8]` argument</span>
-<span class='doccomment'>//! and attempt to parse it. These setters return a `Result&lt;(), ParseError&gt;` as the parse</span>
-<span class='doccomment'>//! may fail.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! ```</span>
-<span class='doccomment'>//! extern crate email_format;</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! use email_format::Email;</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! fn main() {</span>
-<span class='doccomment'>//!   let mut email = Email::new(</span>
-<span class='doccomment'>//!       &quot;myself@mydomain.com&quot;,  // &quot;From:&quot;</span>
-<span class='doccomment'>//!       &quot;Wed, 05 Jan 2015 15:13:05 +1300&quot; // &quot;Date:&quot;</span>
-<span class='doccomment'>//!   ).unwrap();</span>
-<span class='doccomment'>//!   email.set_sender(&quot;from_myself@mydomain.com&quot;).unwrap();</span>
-<span class='doccomment'>//!   email.set_reply_to(&quot;My Mailer &lt;no-reply@mydomain.com&gt;&quot;).unwrap();</span>
-<span class='doccomment'>//!   email.set_to(&quot;You &lt;you@yourdomain.com&gt;&quot;).unwrap();</span>
-<span class='doccomment'>//!   email.set_cc(&quot;Our Friend &lt;friend@frienddomain.com&gt;&quot;).unwrap();</span>
-<span class='doccomment'>//!   email.set_message_id(&quot;&lt;id/20161128115731.29084.maelstrom@mydomain.com&gt;&quot;).unwrap();</span>
-<span class='doccomment'>//!   email.set_subject(&quot;Hello Friend&quot;).unwrap();</span>
-<span class='doccomment'>//!   email.set_body(&quot;Good to hear from you.\r\n\</span>
-<span class='doccomment'>//!                   I wish you the best.\r\n\</span>
-<span class='doccomment'>//!                   \r\n\</span>
-<span class='doccomment'>//!                   Your Friend&quot;).unwrap();</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//!   println!(&quot;{}&quot;, email);</span>
-<span class='doccomment'>//! }</span>
-<span class='doccomment'>//! ```</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! This outputs:</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! ```text</span>
-<span class='doccomment'>//! Date:Wed, 05 Jan 2015 15:13:05 +1300</span>
-<span class='doccomment'>//! From:myself@mydomain.com</span>
-<span class='doccomment'>//! Sender:from_myself@mydomain.com</span>
-<span class='doccomment'>//! Reply-To:My Mailer &lt;no-reply@mydomain.com&gt;</span>
-<span class='doccomment'>//! To:You &lt;you@yourdomain.com&gt;</span>
-<span class='doccomment'>//! Cc:Our Friend &lt;friend@frienddomain.com&gt;</span>
-<span class='doccomment'>//! Message-ID:&lt;id/20161128115731.29084.maelstrom@mydomain.com&gt;</span>
-<span class='doccomment'>//! Subject:Hello Friend</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! Good to hear from you.</span>
-<span class='doccomment'>//! I wish you the best.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! Your Friend</span>
-<span class='doccomment'>//! ```</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! On the other hand, the following will fail because the sender email address is invalid:</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! ```rust,should_panic</span>
-<span class='doccomment'>//! extern crate email_format;</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! use email_format::Email;</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! fn main() {</span>
-<span class='doccomment'>//!   let mut email = Email::new(</span>
-<span class='doccomment'>//!       &quot;myself@mydomain.com&quot;,  // &quot;From:&quot;</span>
-<span class='doccomment'>//!       &quot;Wed, 05 Jan 2015 15:13:05 +1300&quot; // &quot;Date:&quot;</span>
-<span class='doccomment'>//!   ).unwrap();</span>
-<span class='doccomment'>//!   email.set_sender(&quot;from_myself@(mydomain.com)&quot;).unwrap();</span>
-<span class='doccomment'>//! }</span>
-<span class='doccomment'>//! ```</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! # email-format</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate allows you to construct email messages in a way that assures that</span>
+<span class="doccomment">//! they are compliant with relevant email standards (especially RFC 5322). Invalid</span>
+<span class="doccomment">//! data submitted will return a ParseError.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The main structure to work with is `Email`. It has many functions to set or add</span>
+<span class="doccomment">//! headers and to set the body. All of these will accept an `&amp;str` or `&amp;[u8]` argument</span>
+<span class="doccomment">//! and attempt to parse it. These setters return a `Result&lt;(), ParseError&gt;` as the</span>
+<span class="doccomment">//! parse may fail.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Composition</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! You can compose an email like this:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use email_format::Email;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let mut email = Email::new(</span>
+<span class="doccomment">//!     &quot;myself@mydomain.com&quot;,  // &quot;From:&quot;</span>
+<span class="doccomment">//!     &quot;Wed, 5 Jan 2015 15:13:05 +1300&quot; // &quot;Date:&quot;</span>
+<span class="doccomment">//! ).unwrap();</span>
+<span class="doccomment">//! email.set_sender(&quot;from_myself@mydomain.com&quot;).unwrap();</span>
+<span class="doccomment">//! email.set_reply_to(&quot;My Mailer &lt;no-reply@mydomain.com&gt;&quot;).unwrap();</span>
+<span class="doccomment">//! email.set_to(&quot;You &lt;you@yourdomain.com&gt;&quot;).unwrap();</span>
+<span class="doccomment">//! email.set_cc(&quot;Our Friend &lt;friend@frienddomain.com&gt;&quot;).unwrap();</span>
+<span class="doccomment">//! email.set_message_id(&quot;&lt;id/20161128115731.29084.maelstrom@mydomain.com&gt;&quot;).unwrap();</span>
+<span class="doccomment">//! email.set_subject(&quot;Hello Friend&quot;).unwrap();</span>
+<span class="doccomment">//! email.set_body(&quot;Good to hear from you.\r\n\</span>
+<span class="doccomment">//!                 I wish you the best.\r\n\</span>
+<span class="doccomment">//!                 \r\n\</span>
+<span class="doccomment">//!                 Your Friend&quot;).unwrap();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! println!(&quot;{}&quot;, email);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This outputs:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```text</span>
+<span class="doccomment">//! Date:Wed, 5 Jan 2015 15:13:05 +1300</span>
+<span class="doccomment">//! From:myself@mydomain.com</span>
+<span class="doccomment">//! Sender:from_myself@mydomain.com</span>
+<span class="doccomment">//! Reply-To:My Mailer &lt;no-reply@mydomain.com&gt;</span>
+<span class="doccomment">//! To:You &lt;you@yourdomain.com&gt;</span>
+<span class="doccomment">//! Cc:Our Friend &lt;friend@frienddomain.com&gt;</span>
+<span class="doccomment">//! Message-ID:&lt;id/20161128115731.29084.maelstrom@mydomain.com&gt;</span>
+<span class="doccomment">//! Subject:Hello Friend</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Good to hear from you.</span>
+<span class="doccomment">//! I wish you the best.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Your Friend</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Parsing</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The following code will parse the input bytes (or panic if the parse</span>
+<span class="doccomment">//! failed), and leave any trailing bytes in the remainder, which should</span>
+<span class="doccomment">//! be checked to verify it is empty.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use email_format::Email;</span>
+<span class="doccomment">//! use email_format::rfc5322::Parsable;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let input = &quot;Date: Wed, 5 Jan 2015 15:13:05 +1300\r\n\</span>
+<span class="doccomment">//!              From: myself@mydomain.com\r\n\</span>
+<span class="doccomment">//!              Sender: from_myself@mydomain.com\r\n\</span>
+<span class="doccomment">//!              My-Crazy-Field: this is my field\r\n\</span>
+<span class="doccomment">//!              Subject: Hello Friend\r\n\</span>
+<span class="doccomment">//!              \r\n\</span>
+<span class="doccomment">//!              Good to hear from you.\r\n\</span>
+<span class="doccomment">//!              I wish you the best.\r\n\</span>
+<span class="doccomment">//!              \r\n\</span>
+<span class="doccomment">//!              Your Friend&quot;.as_bytes();</span>
+<span class="doccomment">//!  let (mut email, remainder) = Email::parse(&amp;input).unwrap();</span>
+<span class="doccomment">//!  assert_eq!(remainder.len(), 0);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Usage with lettre and/or mailstrom</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If compiled with the `lettre` feature, you can generate a `SimpleSendableEmail`</span>
+<span class="doccomment">//! like this, and then use the `lettre` crate (or `mailstrom`) to send it.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```ignore</span>
+<span class="doccomment">//! let simple_sendable_email = email.as_simple_sendable_email().unwrap();</span>
+<span class="doccomment">//! ```</span>
 
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>buf_read_ext</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">buf_read_ext</span>;
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>tests</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;time&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">time</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;chrono&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">chrono</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;lettre&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">lettre</span>;
 
-<span class='doccomment'>/// This module contains nitty-gritty details about parsing, storage, and streaming</span>
-<span class='doccomment'>/// an `Email`.</span>
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>rfc5322</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Write</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Error</span> <span class='kw'>as</span> <span class='ident'>IoError</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
+<span class="doccomment">/// This module contains nitty-gritty details about parsing, storage, and streaming</span>
+<span class="doccomment">/// an `Email`.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">rfc5322</span>;
 
-<span class='kw'>use</span> <span class='ident'>rfc5322</span>::{<span class='ident'>Message</span>, <span class='ident'>Fields</span>, <span class='ident'>Field</span>};
-<span class='kw'>use</span> <span class='ident'>rfc5322</span>::{<span class='ident'>Parsable</span>, <span class='ident'>Streamable</span>};
-<span class='kw'>use</span> <span class='ident'>rfc5322</span>::<span class='ident'>error</span>::<span class='ident'>ParseError</span>;
-<span class='kw'>use</span> <span class='ident'>rfc5322</span>::<span class='ident'>Body</span>;
-<span class='kw'>use</span> <span class='ident'>rfc5322</span>::<span class='ident'>headers</span>::{<span class='ident'>From</span>, <span class='ident'>OrigDate</span>, <span class='ident'>Sender</span>, <span class='ident'>ReplyTo</span>, <span class='ident'>To</span>, <span class='ident'>Cc</span>, <span class='ident'>Bcc</span>, <span class='ident'>MessageId</span>,
-                           <span class='ident'>InReplyTo</span>, <span class='ident'>References</span>, <span class='ident'>Subject</span>, <span class='ident'>Comments</span>, <span class='ident'>Keywords</span>,
-                           <span class='ident'>OptionalField</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">IoError</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
-<span class='doccomment'>/// Attempt to construct `Self` via a conversion (borrowed from rust `std`)</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// This TryFrom trait is defined in the rust std library but is behind a</span>
-<span class='doccomment'>/// feature gate.  We place it here so that people using stable compilers</span>
-<span class='doccomment'>/// can still use our crate.  In the future, the std trait should be used.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>: <span class='ident'>Sized</span> {
-    <span class='doccomment'>/// The type returned in the event of a conversion error.</span>
-    <span class='kw'>type</span> <span class='prelude-val'>Err</span>;
+<span class="kw">use</span> <span class="ident">rfc5322</span>::{<span class="ident">Message</span>, <span class="ident">Fields</span>, <span class="ident">Field</span>};
+<span class="kw">use</span> <span class="ident">rfc5322</span>::{<span class="ident">Parsable</span>, <span class="ident">Streamable</span>};
+<span class="kw">use</span> <span class="ident">rfc5322</span>::<span class="ident">error</span>::<span class="ident">ParseError</span>;
+<span class="kw">use</span> <span class="ident">rfc5322</span>::<span class="ident">Body</span>;
+<span class="kw">use</span> <span class="ident">rfc5322</span>::<span class="ident">headers</span>::{<span class="ident">From</span>, <span class="ident">OrigDate</span>, <span class="ident">Sender</span>, <span class="ident">ReplyTo</span>, <span class="ident">To</span>, <span class="ident">Cc</span>, <span class="ident">Bcc</span>, <span class="ident">MessageId</span>,
+                           <span class="ident">InReplyTo</span>, <span class="ident">References</span>, <span class="ident">Subject</span>, <span class="ident">Comments</span>, <span class="ident">Keywords</span>,
+                           <span class="ident">OptionalField</span>};
 
-    <span class='doccomment'>/// Performs the conversion.</span>
-    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='self'>Self</span>, <span class='self'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span>;
+<span class="doccomment">/// Attempt to construct `Self` via a conversion (borrowed from rust `std`)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This TryFrom trait is defined in the rust std library but is behind a</span>
+<span class="doccomment">/// feature gate.  We place it here so that people using stable compilers</span>
+<span class="doccomment">/// can still use our crate.  In the future, the std trait should be used.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="ident">Sized</span> {
+    <span class="doccomment">/// The type returned in the event of a conversion error.</span>
+    <span class="kw">type</span> <span class="ident">Error</span>;
+
+    <span class="doccomment">/// Performs the conversion.</span>
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
 }
 
-<span class='comment'>// We implement TryFrom from T to T with our ParseError for crate ergonomics</span>
-<span class='comment'>// (Rust won&#39;t let it be implemented with an unconstrained error type)</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>T</span> {
-    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>rfc5322</span>::<span class='ident'>error</span>::<span class='ident'>ParseError</span>;
-    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='self'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='ident'>input</span>)
+<span class="comment">// We implement TryFrom from T to T with our ParseError for crate ergonomics</span>
+<span class="comment">// (Rust won&#39;t let it be implemented with an unconstrained error type)</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ::<span class="ident">rfc5322</span>::<span class="ident">error</span>::<span class="ident">ParseError</span>;
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">input</span>)
     }
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Email</span> {
-    <span class='ident'>message</span>: <span class='ident'>Message</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Email</span> {
+    <span class="ident">message</span>: <span class="ident">Message</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>Email</span> {
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='ident'>F</span>,<span class='ident'>D</span><span class='op'>&gt;</span>(<span class='ident'>from</span>: <span class='ident'>F</span>, <span class='ident'>date</span>: <span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Email</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>From</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>F</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>, <span class='ident'>OrigDate</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+<span class="kw">impl</span> <span class="ident">Email</span> {
+    <span class="doccomment">/// Create a new email structure.  The `From` address and `Date` fields are</span>
+    <span class="doccomment">/// required in all valid emails, thus you must pass these in.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>,<span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">from</span>: <span class="ident">F</span>, <span class="ident">date</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Email</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">From</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>, <span class="ident">OrigDate</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Email</span> {
-            <span class='ident'>message</span>: <span class='ident'>Message</span> {
-                <span class='ident'>fields</span>: <span class='ident'>Fields</span> {
-                    <span class='ident'>trace_blocks</span>: <span class='macro'>vec</span><span class='macro'>!</span>[],
-                    <span class='ident'>fields</span>: <span class='macro'>vec</span><span class='macro'>!</span>[
-                        <span class='ident'>Field</span>::<span class='ident'>OrigDate</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>date</span>))),
-                        <span class='ident'>Field</span>::<span class='ident'>From</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>from</span>))) ],
+        <span class="prelude-val">Ok</span>(<span class="ident">Email</span> {
+            <span class="ident">message</span>: <span class="ident">Message</span> {
+                <span class="ident">fields</span>: <span class="ident">Fields</span> {
+                    <span class="ident">trace_blocks</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                    <span class="ident">fields</span>: <span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="ident">Field</span>::<span class="ident">OrigDate</span>(<span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">date</span>))),
+                        <span class="ident">Field</span>::<span class="ident">From</span>(<span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">from</span>))) ],
                 },
-                <span class='ident'>body</span>: <span class='prelude-val'>None</span>,
+                <span class="ident">body</span>: <span class="prelude-val">None</span>,
             }
         })
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_date</span><span class='op'>&lt;</span><span class='ident'>D</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>date</span>: <span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>OrigDate</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Replace the `Date` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_date</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">date</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">OrigDate</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>OrigDate</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>date</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>OrigDate</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>OrigDate</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(())
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">OrigDate</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">date</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">OrigDate</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">OrigDate</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(())
             }
         }
-        <span class='macro'>unreachable</span><span class='macro'>!</span>()
+        <span class="macro">unreachable</span><span class="macro">!</span>()
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_date</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>OrigDate</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>OrigDate</span>(<span class='kw-2'>ref</span> <span class='ident'>d</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='ident'>d</span>.<span class='ident'>clone</span>();
+    <span class="doccomment">/// Fetch the `Date` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_date</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">OrigDate</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">OrigDate</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="ident">d</span>.<span class="ident">clone</span>();
             }
         }
-        <span class='macro'>unreachable</span><span class='macro'>!</span>()
+        <span class="macro">unreachable</span><span class="macro">!</span>()
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_from</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>from</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>From</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>F</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Replace the `From` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_from</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">from</span>: <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">From</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>From</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>from</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>From</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>From</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">From</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">from</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">From</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">From</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='macro'>unreachable</span><span class='macro'>!</span>()
+        <span class="macro">unreachable</span><span class="macro">!</span>()
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_from</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>From</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>From</span>(<span class='kw-2'>ref</span> <span class='ident'>f</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='ident'>f</span>.<span class='ident'>clone</span>()
+    <span class="doccomment">/// Fetch the `From` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">From</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">From</span>(<span class="kw-2">ref</span> <span class="ident">f</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="ident">f</span>.<span class="ident">clone</span>()
             }
         }
-        <span class='macro'>unreachable</span><span class='macro'>!</span>()
+        <span class="macro">unreachable</span><span class="macro">!</span>()
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_sender</span><span class='op'>&lt;</span><span class='ident'>S</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>sender</span>: <span class='ident'>S</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>Sender</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>S</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `Sender` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_sender</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">sender</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Sender</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>Sender</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>sender</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Sender</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>Sender</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Sender</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">sender</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Sender</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">Sender</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>Sender</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">Sender</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_sender</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Sender</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Sender</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>.<span class='ident'>clone</span>());
+    <span class="doccomment">/// Fetch the `Sender` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_sender</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Sender</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>.<span class="ident">clone</span>());
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_sender</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Sender</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `Sender` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_sender</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Sender</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_reply_to</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>reply_to</span>: <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>ReplyTo</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `Reply-To` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_reply_to</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">reply_to</span>: <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">ReplyTo</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>ReplyTo</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>reply_to</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">ReplyTo</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">reply_to</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">ReplyTo</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">ReplyTo</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">ReplyTo</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_reply_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>ReplyTo</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(<span class='kw-2'>ref</span> <span class='ident'>rt</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>rt</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `Reply-To` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_reply_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ReplyTo</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">ReplyTo</span>(<span class="kw-2">ref</span> <span class="ident">rt</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">rt</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_reply_to</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `Reply-To` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_reply_to</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">ReplyTo</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_to</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>to</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>To</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `To` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_to</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">to</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">To</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>To</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>to</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>To</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>To</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">To</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">to</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">To</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">To</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>To</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">To</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>To</span>(<span class='kw-2'>ref</span> <span class='ident'>t</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>t</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `To` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">To</span>(<span class="kw-2">ref</span> <span class="ident">t</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_to</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>To</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `To` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_to</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">To</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_cc</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>cc</span>: <span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>Cc</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>C</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `Cc` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cc</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cc</span>: <span class="ident">C</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Cc</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>Cc</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>cc</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Cc</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>Cc</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Cc</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">cc</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Cc</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">Cc</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>Cc</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">Cc</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_cc</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Cc</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Cc</span>(<span class='kw-2'>ref</span> <span class='ident'>cc</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>cc</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `Cc` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cc</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Cc</span>(<span class="kw-2">ref</span> <span class="ident">cc</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">cc</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_cc</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Cc</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `Cc` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_cc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Cc</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_bcc</span><span class='op'>&lt;</span><span class='ident'>B</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>bcc</span>: <span class='ident'>B</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>Bcc</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `Bcc` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_bcc</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bcc</span>: <span class="ident">B</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Bcc</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>Bcc</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>bcc</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Bcc</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>Bcc</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Bcc</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">bcc</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Bcc</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">Bcc</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>Bcc</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">Bcc</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_bcc</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Bcc</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Bcc</span>(<span class='kw-2'>ref</span> <span class='ident'>b</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>b</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `Bcc` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bcc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bcc</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Bcc</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_bcc</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Bcc</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `Bcc` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_bcc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Bcc</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_message_id</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>message_id</span>: <span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>MessageId</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `Message-ID` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_message_id</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message_id</span>: <span class="ident">M</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">MessageId</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">M</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>MessageId</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>message_id</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>MessageId</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>MessageId</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">MessageId</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">message_id</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">MessageId</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">MessageId</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>MessageId</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">MessageId</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_message_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>MessageId</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>MessageId</span>(<span class='kw-2'>ref</span> <span class='ident'>m</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>m</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `Message-ID` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MessageId</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">MessageId</span>(<span class="kw-2">ref</span> <span class="ident">m</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">m</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_message_id</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>MessageId</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `Message-ID` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_message_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">MessageId</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_in_reply_to</span><span class='op'>&lt;</span><span class='ident'>I</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>in_reply_to</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>InReplyTo</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>I</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `In-Reply-To` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_in_reply_to</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">in_reply_to</span>: <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">InReplyTo</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>InReplyTo</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>in_reply_to</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">InReplyTo</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">in_reply_to</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">InReplyTo</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">InReplyTo</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">InReplyTo</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_in_reply_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>InReplyTo</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>x</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `In-Reply-To` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_in_reply_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InReplyTo</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">InReplyTo</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_in_reply_to</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `In-Reply-To` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_in_reply_to</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">InReplyTo</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_references</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>references</span>: <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>References</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `References` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_references</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">references</span>: <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">References</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>References</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>references</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>References</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>References</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">References</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">references</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">References</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">References</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>References</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">References</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_references</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>References</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>References</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>x</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `References` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_references</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">References</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">References</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_references</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>References</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `References` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_references</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">References</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_subject</span><span class='op'>&lt;</span><span class='ident'>S</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>subject</span>: <span class='ident'>S</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>Subject</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>S</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `Subject` field in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_subject</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">subject</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Subject</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>Subject</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>subject</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter_mut</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Subject</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='op'>*</span><span class='ident'>field</span> <span class='op'>=</span> <span class='ident'>Field</span>::<span class='ident'>Subject</span>(<span class='ident'>value</span>);
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(());
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Subject</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">subject</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter_mut</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Subject</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw-2">*</span><span class="ident">field</span> <span class="op">=</span> <span class="ident">Field</span>::<span class="ident">Subject</span>(<span class="ident">value</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>Subject</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">Subject</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_subject</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Subject</span><span class='op'>&gt;</span> {
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Subject</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>x</span>.<span class='ident'>clone</span>())
+    <span class="doccomment">/// Fetch the `Subject` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_subject</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Subject</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Subject</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">clone</span>())
             }
         }
-        <span class='prelude-val'>None</span>
+        <span class="prelude-val">None</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_subject</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Subject</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove the `Subject` field from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_subject</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Subject</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_comments</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>comments</span>: <span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>Comments</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>C</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Add a `Comments` field in the email. This may be in addition to</span>
+    <span class="doccomment">/// existing `Comments` fields.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_comments</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">comments</span>: <span class="ident">C</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Comments</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>Comments</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>comments</span>));
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>Comments</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Comments</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">comments</span>));
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">Comments</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_comments</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Comments</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Comments</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Comments</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='ident'>output</span>.<span class='ident'>push</span>(<span class='ident'>x</span>.<span class='ident'>clone</span>());
+    <span class="doccomment">/// Fetch all `Comments` fields from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_comments</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Comments</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Comments</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Comments</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">clone</span>());
             }
         }
-        <span class='ident'>output</span>
+        <span class="ident">output</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_comments</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Comments</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove all `Comments` fields from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_comments</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Comments</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_keywords</span><span class='op'>&lt;</span><span class='ident'>K</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>keywords</span>: <span class='ident'>K</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>Keywords</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>K</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Add a `Keywords` field in the email. This may be in addition to existing</span>
+    <span class="doccomment">/// `Keywords` fields.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_keywords</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">keywords</span>: <span class="ident">K</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Keywords</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>Keywords</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>keywords</span>));
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>Keywords</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Keywords</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">keywords</span>));
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">Keywords</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_keywords</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Keywords</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Keywords</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Keywords</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='ident'>output</span>.<span class='ident'>push</span>(<span class='ident'>x</span>.<span class='ident'>clone</span>());
+    <span class="doccomment">/// Fetch all `Keywords` fields from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_keywords</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Keywords</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Keywords</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Keywords</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">clone</span>());
             }
         }
-        <span class='ident'>output</span>
+        <span class="ident">output</span>
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_keywords</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='ident'>field</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>Keywords</span>(_) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> { <span class='bool-val'>false</span> } <span class='kw'>else</span> { <span class='bool-val'>true</span> }
+    <span class="doccomment">/// Remove all `Keywords` fields from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_keywords</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">Keywords</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> { <span class="bool-val">false</span> } <span class="kw">else</span> { <span class="bool-val">true</span> }
         });
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_optional_field</span><span class='op'>&lt;</span><span class='ident'>O</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>optional_field</span>: <span class='ident'>O</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>OptionalField</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>O</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Add an optional field to the email. This may be in addition to existing</span>
+    <span class="doccomment">/// optional fields.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_optional_field</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">optional_field</span>: <span class="ident">O</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">OptionalField</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>OptionalField</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>optional_field</span>));
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>Field</span>::<span class='ident'>OptionalField</span>(<span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(())
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">OptionalField</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">optional_field</span>));
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span>::<span class="ident">OptionalField</span>(<span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_optional_fields</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>OptionalField</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>OptionalField</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>fields</span>.<span class='ident'>fields</span>.<span class='ident'>iter</span>() {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='ident'>Field</span>::<span class='ident'>OptionalField</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>field</span> {
-                <span class='ident'>output</span>.<span class='ident'>push</span>(<span class='ident'>x</span>.<span class='ident'>clone</span>());
+    <span class="doccomment">/// Fetch all optional fields from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_optional_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OptionalField</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OptionalField</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">OptionalField</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">clone</span>());
             }
         }
-        <span class='ident'>output</span>
+        <span class="ident">output</span>
+    }
+    <span class="doccomment">/// Clear all optional fields from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_optional_fields</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">fields</span>.<span class="ident">fields</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Field</span>::<span class="ident">OptionalField</span>(_) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">field</span> {
+                <span class="bool-val">false</span>
+            } <span class="kw">else</span> {
+                <span class="bool-val">true</span>
+            }
+        })
     }
 
-    <span class='comment'>// TBD: trace</span>
-    <span class='comment'>// TBD: resent-date</span>
-    <span class='comment'>// TBD: resent-from</span>
-    <span class='comment'>// TBD: resent-sender</span>
-    <span class='comment'>// TBD: resent-to</span>
-    <span class='comment'>// TBD: resent-cc</span>
-    <span class='comment'>// TBD: resent-bcc</span>
-    <span class='comment'>// TBD: resent-msg-id</span>
+    <span class="comment">// TBD: trace</span>
+    <span class="comment">// TBD: resent-date</span>
+    <span class="comment">// TBD: resent-from</span>
+    <span class="comment">// TBD: resent-sender</span>
+    <span class="comment">// TBD: resent-to</span>
+    <span class="comment">// TBD: resent-cc</span>
+    <span class="comment">// TBD: resent-bcc</span>
+    <span class="comment">// TBD: resent-msg-id</span>
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_body</span><span class='op'>&lt;</span><span class='ident'>B</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>body</span>: <span class='ident'>B</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ParseError</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>Body</span>: <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='prelude-val'>Err</span><span class='op'>=</span><span class='ident'>ParseError</span><span class='op'>&gt;</span>
+    <span class="doccomment">/// Set or replace the `Body` in the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">B</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ParseError</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Body</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">Error</span><span class="op">=</span><span class="ident">ParseError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>let</span> <span class='ident'>value</span>: <span class='ident'>Body</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>body</span>));
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>body</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>value</span>);
-        <span class='prelude-val'>Ok</span>(())
+        <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Body</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">body</span>));
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">body</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
+        <span class="prelude-val">Ok</span>(())
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_body</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Body</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>body</span>.<span class='ident'>clone</span>()
+    <span class="doccomment">/// Fetch the `Body` from the email</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">body</span>.<span class="ident">clone</span>()
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear_body</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>body</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
+    <span class="doccomment">/// Remove the `Body` from the email, leaving an empty body</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_body</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">body</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    }
+
+    <span class="doccomment">/// Stream the email into a byte vector and return that</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> _ <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>); <span class="comment">// no IoError ought to occur.</span>
+        <span class="ident">output</span>
+    }
+
+    <span class="doccomment">/// Stream the email into a byte vector, convert to a String, and</span>
+    <span class="doccomment">/// return that</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> _ <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">vec</span>); <span class="comment">// no IoError ought to occur.</span>
+        <span class="kw">unsafe</span> {
+            <span class="comment">// rfc5322 formatted emails fall within utf8, so this should not be</span>
+            <span class="comment">// able to fail</span>
+            <span class="ident">String</span>::<span class="ident">from_utf8_unchecked</span>(<span class="ident">vec</span>)
+        }
+    }
+
+    <span class="doccomment">/// Create a `lettre::SimpleSendableEmail` from this Email</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;lettre&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_simple_sendable_email</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>::<span class="ident">lettre</span>::<span class="ident">SimpleSendableEmail</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>
+    {
+        <span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">SimpleSendableEmail</span>, <span class="ident">EmailAddress</span>};
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recipients</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EmailAddress</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">to</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_to</span>() {
+            <span class="ident">recipients</span>.<span class="ident">extend</span>(
+                (<span class="ident">to</span>.<span class="number">0</span>).<span class="number">0</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">address</span><span class="op">|</span> <span class="ident">EmailAddress</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">address</span>))));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cc</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_cc</span>() {
+            <span class="ident">recipients</span>.<span class="ident">extend</span>(
+                (<span class="ident">cc</span>.<span class="number">0</span>).<span class="number">0</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">address</span><span class="op">|</span> <span class="ident">EmailAddress</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">address</span>))));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bcc</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bcc</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Bcc</span>::<span class="ident">AddressList</span>(<span class="ident">al</span>) <span class="op">=</span> <span class="ident">bcc</span> {
+                <span class="ident">recipients</span>.<span class="ident">extend</span>(
+                    <span class="ident">al</span>.<span class="number">0</span>.<span class="ident">iter</span>()
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">address</span><span class="op">|</span> <span class="ident">EmailAddress</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">address</span>))))
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(<span class="ident">SimpleSendableEmail</span>::<span class="ident">new</span>(
+            <span class="comment">// from_address:</span>
+            <span class="ident">EmailAddress</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">get_from</span>())),
+
+            <span class="comment">// to_addresses:</span>
+            <span class="ident">recipients</span>,
+
+            <span class="comment">// message_id:</span>
+            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_message_id</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">mid</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">mid</span>.<span class="number">0</span>),
+                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;email has no Message-ID&quot;</span>),
+            },
+
+            <span class="comment">// message:</span>
+            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
+        ))
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>Email</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>message</span>) <span class='op'>=</span> <span class='ident'>Message</span>::<span class='ident'>parse</span>(<span class='ident'>rem</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>value</span>, <span class='ident'>r</span>)<span class='op'>|</span> { <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>r</span>; <span class='ident'>value</span> }) {
-            <span class='prelude-val'>Ok</span>((<span class='ident'>Email</span> {
-                <span class='ident'>message</span>: <span class='ident'>message</span>
-            }, <span class='ident'>rem</span>))
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">Email</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">match</span> <span class="ident">Message</span>::<span class="ident">parse</span>(<span class="ident">rem</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">value</span>, <span class="ident">r</span>)<span class="op">|</span> { <span class="ident">rem</span> <span class="op">=</span> <span class="ident">r</span>; <span class="ident">value</span> }) {
+            <span class="prelude-val">Ok</span>(<span class="ident">message</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">Email</span> { <span class="ident">message</span>: <span class="ident">message</span>}, <span class="ident">rem</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">Parse</span>(<span class="string">&quot;Email&quot;</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">e</span>)))
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Email</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>message</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>)
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">Email</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">stream</span>(<span class="ident">w</span>)
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>Email</span> {
-    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>fmt</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Err</span>(_) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>stream</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>output</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>fmt</span>::<span class='ident'>Error</span>);
-        }
-        <span class='kw'>unsafe</span> {
-            <span class='comment'>// rfc5322 formatted emails fall within utf8</span>
-            <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{}&quot;</span>, ::<span class='ident'>std</span>::<span class='ident'>str</span>::<span class='ident'>from_utf8_unchecked</span>(<span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>output</span>))
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Email</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_bytes</span>();
+        <span class="kw">unsafe</span> {
+            <span class="comment">// rfc5322 formatted emails fall within utf8, so this should not be</span>
+            <span class="comment">// able to fail</span>
+            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, ::<span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">bytes</span>))
         }
     }
 }
@@ -1169,7 +1454,6 @@
         window.rootPath = "../../";
         window.currentCrate = "email_format";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 </body>

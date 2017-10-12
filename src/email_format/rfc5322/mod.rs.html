@@ -9,6 +9,7 @@
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
     
@@ -16,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -42,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -600,565 +601,565 @@
 <span id="556">556</span>
 <span id="557">557</span>
 <span id="558">558</span>
-</pre><pre class='rust '>
-<span class='comment'>// Format validated types representing lexical tokens defined in</span>
-<span class='comment'>// RFC 5322 (as well as some referred from RFC 5234)</span>
-<span class='comment'>// in order to support SMTP (RFC 5321)</span>
+</pre><pre class="rust ">
+<span class="comment">// Format validated types representing lexical tokens defined in</span>
+<span class="comment">// RFC 5322 (as well as some referred from RFC 5234)</span>
+<span class="comment">// in order to support SMTP (RFC 5321)</span>
 
-<span class='comment'>// Macro for defining sequences of characters within a character class</span>
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>def_cclass</span> {
-    ( <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>typ</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>test</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
-        <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-        <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>typ</span>(<span class='kw'>pub</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>);
-        <span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>typ</span> {
-            <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>pos</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-                <span class='kw'>while</span> <span class='ident'>pos</span> <span class='op'>&lt;</span> <span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>&amp;&amp;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>test</span>(<span class='ident'>input</span>[<span class='ident'>pos</span>]) {
-                    <span class='ident'>output</span>.<span class='ident'>push</span>(<span class='ident'>input</span>[<span class='ident'>pos</span>]);
-                    <span class='ident'>pos</span> <span class='op'>+=</span> <span class='number'>1</span>;
+<span class="comment">// Macro for defining sequences of characters within a character class</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">def_cclass</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>:<span class="ident">ident</span>) <span class="op">=&gt;</span> {
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>(<span class="kw">pub</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+        <span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
+            <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pos</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                <span class="kw">while</span> <span class="ident">pos</span> <span class="op">&lt;</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">test</span>(<span class="ident">input</span>[<span class="ident">pos</span>]) {
+                    <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">input</span>[<span class="ident">pos</span>]);
+                    <span class="ident">pos</span> <span class="op">+=</span> <span class="number">1</span>;
                 }
-                <span class='kw'>if</span> <span class='ident'>output</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
-                    <span class='prelude-val'>Ok</span>( (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>typ</span>(<span class='ident'>output</span>), <span class='kw-2'>&amp;</span><span class='ident'>input</span>[<span class='ident'>pos</span>..]) )
+                <span class="kw">if</span> <span class="ident">output</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+                    <span class="prelude-val">Ok</span>( (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span>(<span class="ident">output</span>), <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="ident">pos</span>..]) )
                 }
-                <span class='kw'>else</span> {
-                    <span class='kw'>if</span> <span class='ident'>pos</span> <span class='op'>&gt;=</span> <span class='ident'>input</span>.<span class='ident'>len</span>() { <span class='prelude-val'>Err</span>( <span class='ident'>ParseError</span>::<span class='ident'>Eof</span> ) }
-                    <span class='kw'>else</span> { <span class='prelude-val'>Err</span>( <span class='ident'>ParseError</span>::<span class='ident'>NotFound</span> ) }
+                <span class="kw">else</span> {
+                    <span class="kw">if</span> <span class="ident">pos</span> <span class="op">&gt;=</span> <span class="ident">input</span>.<span class="ident">len</span>() { <span class="prelude-val">Err</span>( <span class="ident">ParseError</span>::<span class="ident">Eof</span>(<span class="string">&quot;$typ&quot;</span>) ) }
+                    <span class="kw">else</span> { <span class="prelude-val">Err</span>( <span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;$typ&quot;</span>) ) }
                 }
             }
         }
-        <span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>typ</span> {
-            <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-                <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span>[..])))
+        <span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">typ</span> {
+            <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="macro">try</span><span class="macro">!</span>(<span class="ident">w</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..])))
             }
         }
     };
 }
 
-<span class='comment'>// Macro for assigning the returned remaining input of a parse function to an existing</span>
-<span class='comment'>// variable</span>
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>parse</span> {
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>pth</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
+<span class="comment">// Macro for assigning the returned remaining input of a parse function to an existing</span>
+<span class="comment">// variable</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">parse</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pth</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span>:<span class="ident">ident</span>) <span class="op">=&gt;</span> {
         {
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>pth</span>::<span class='ident'>parse</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>).<span class='ident'>map</span>(<span class='op'>|</span>(<span class='ident'>value</span>, <span class='ident'>r</span>)<span class='op'>|</span> { <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span> <span class='op'>=</span> <span class='ident'>r</span>; <span class='ident'>value</span> })
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pth</span>::<span class="ident">parse</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">value</span>, <span class="ident">r</span>)<span class="op">|</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span> <span class="op">=</span> <span class="ident">r</span>; <span class="ident">value</span> })
         }
     };
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>req</span> {
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>bytes</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>input</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>len</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>bytes</span>.<span class='ident'>len</span>();
-        <span class='kw'>if</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>.<span class='ident'>len</span>() <span class='op'>&lt;</span> <span class='ident'>len</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>Eof</span>);
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">req</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>:<span class="ident">ident</span>) <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">len</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>.<span class="ident">len</span>();
+        <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">len</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">Eof</span>(<span class="string">&quot;$bytes&quot;</span>));
         }
-        <span class='kw'>if</span> <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>[<span class='number'>0</span>..<span class='ident'>len</span>] <span class='op'>!=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>bytes</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>Expected</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>bytes</span>.<span class='ident'>to_vec</span>()));
+        <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span>[<span class="number">0</span>..<span class="ident">len</span>] <span class="op">!=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">Expected</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>.<span class="ident">to_vec</span>()));
         }
-        <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rem</span>[<span class='ident'>len</span>..];
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">rem</span>[<span class="ident">len</span>..];
     };
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_display</span> {
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span> {
-            <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Err</span>(_) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>stream</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>output</span>) {
-                    <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Error</span>);
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_display</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>) <span class="op">=&gt;</span> {
+        <span class="kw">impl</span> ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
+            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(_) <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span>);
                 }
-                <span class='kw'>unsafe</span> {
-                    <span class='comment'>// rfc5322 formatted emails fall within utf8</span>
-                    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{}&quot;</span>, ::<span class='ident'>std</span>::<span class='ident'>str</span>::<span class='ident'>from_utf8_unchecked</span>(<span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>output</span>))
+                <span class="kw">unsafe</span> {
+                    <span class="comment">// rfc5322 formatted emails fall within utf8</span>
+                    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, ::<span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">output</span>))
                 }
             }
         }
     }
 }
 
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>error</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>error</span>::<span class='ident'>ParseError</span>;
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>types</span>;
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>headers</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">error</span>::<span class="ident">ParseError</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">types</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">headers</span>;
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Write</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Error</span> <span class='kw'>as</span> <span class='ident'>IoError</span>;
-<span class='kw'>use</span> <span class='ident'>buf_read_ext</span>::<span class='ident'>BufReadExt</span>;
-<span class='kw'>use</span> ::<span class='ident'>TryFrom</span>;
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>headers</span>::{<span class='ident'>Return</span>, <span class='ident'>Received</span>};
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>headers</span>::{<span class='ident'>ResentDate</span>, <span class='ident'>ResentFrom</span>, <span class='ident'>ResentSender</span>, <span class='ident'>ResentTo</span>, <span class='ident'>ResentCc</span>, <span class='ident'>ResentBcc</span>,
-                    <span class='ident'>ResentMessageId</span>};
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>headers</span>::{<span class='ident'>OrigDate</span>, <span class='ident'>From</span>, <span class='ident'>Sender</span>, <span class='ident'>ReplyTo</span>, <span class='ident'>To</span>, <span class='ident'>Cc</span>, <span class='ident'>Bcc</span>, <span class='ident'>MessageId</span>, <span class='ident'>InReplyTo</span>,
-                    <span class='ident'>References</span>, <span class='ident'>Subject</span>, <span class='ident'>Comments</span>, <span class='ident'>Keywords</span>, <span class='ident'>OptionalField</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">IoError</span>;
+<span class="kw">use</span> <span class="ident">buf_read_ext</span>::<span class="ident">BufReadExt</span>;
+<span class="kw">use</span> ::<span class="ident">TryFrom</span>;
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">headers</span>::{<span class="ident">Return</span>, <span class="ident">Received</span>};
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">headers</span>::{<span class="ident">ResentDate</span>, <span class="ident">ResentFrom</span>, <span class="ident">ResentSender</span>, <span class="ident">ResentTo</span>, <span class="ident">ResentCc</span>, <span class="ident">ResentBcc</span>,
+                    <span class="ident">ResentMessageId</span>};
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">headers</span>::{<span class="ident">OrigDate</span>, <span class="ident">From</span>, <span class="ident">Sender</span>, <span class="ident">ReplyTo</span>, <span class="ident">To</span>, <span class="ident">Cc</span>, <span class="ident">Bcc</span>, <span class="ident">MessageId</span>, <span class="ident">InReplyTo</span>,
+                    <span class="ident">References</span>, <span class="ident">Subject</span>, <span class="ident">Comments</span>, <span class="ident">Keywords</span>, <span class="ident">OptionalField</span>};
 
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Parsable</span>: <span class='ident'>Sized</span> {
-    <span class='doccomment'>/// Parse the object off of the beginning of the `input`.  If found, returns Some object,</span>
-    <span class='doccomment'>/// and a slice containing the remainer of the input.</span>
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span>;
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Parsable</span>: <span class="ident">Sized</span> {
+    <span class="doccomment">/// Parse the object off of the beginning of the `input`.  If found, returns Some object,</span>
+    <span class="doccomment">/// and a slice containing the remainer of the input.</span>
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span>;
 }
 
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Streamable</span> {
-    <span class='doccomment'>/// Serializes and sends the content out to `w`, returning the number of bytes written.</span>
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span>;
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Streamable</span> {
+    <span class="doccomment">/// Serializes and sends the content out to `w`, returning the number of bytes written.</span>
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span>;
 }
 
-<span class='comment'>// 3.6.7</span>
-<span class='comment'>// trace           =   [return]</span>
-<span class='comment'>//                     1*received</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Trace</span> {
-    <span class='ident'>return_path</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Return</span><span class='op'>&gt;</span>,
-    <span class='ident'>received</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Received</span><span class='op'>&gt;</span>
+<span class="comment">// 3.6.7</span>
+<span class="comment">// trace           =   [return]</span>
+<span class="comment">//                     1*received</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Trace</span> {
+    <span class="ident">return_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Return</span><span class="op">&gt;</span>,
+    <span class="ident">received</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Received</span><span class="op">&gt;</span>
 }
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>Trace</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>let</span> <span class='ident'>maybe_return</span> <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Return</span>, <span class='ident'>rem</span>).<span class='ident'>ok</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>received</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Received</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>r</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Received</span>, <span class='ident'>rem</span>) {
-            <span class='ident'>received</span>.<span class='ident'>push</span>(<span class='ident'>r</span>);
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">Trace</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">let</span> <span class="ident">maybe_return</span> <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Return</span>, <span class="ident">rem</span>).<span class="ident">ok</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">received</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Received</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Received</span>, <span class="ident">rem</span>) {
+            <span class="ident">received</span>.<span class="ident">push</span>(<span class="ident">r</span>);
         }
-        <span class='kw'>if</span> <span class='ident'>received</span>.<span class='ident'>len</span>() <span class='op'>&lt;</span> <span class='number'>1</span> { <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>); }
-        <span class='prelude-val'>Ok</span>((<span class='ident'>Trace</span> {
-            <span class='ident'>return_path</span>: <span class='ident'>maybe_return</span>,
-            <span class='ident'>received</span>: <span class='ident'>received</span>,
-        }, <span class='ident'>rem</span>))
+        <span class="kw">if</span> <span class="ident">received</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">1</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;Trace&quot;</span>)); }
+        <span class="prelude-val">Ok</span>((<span class="ident">Trace</span> {
+            <span class="ident">return_path</span>: <span class="ident">maybe_return</span>,
+            <span class="ident">received</span>: <span class="ident">received</span>,
+        }, <span class="ident">rem</span>))
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Trace</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>rp</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>return_path</span> {
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>rp</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">Trace</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">return_path</span> {
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">rp</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
         }
-        <span class='kw'>for</span> <span class='ident'>r</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>received</span> {
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>r</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">received</span> {
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Trace</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">Trace</span>);
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ResentField</span> {
-    <span class='ident'>Date</span>(<span class='ident'>ResentDate</span>),
-    <span class='ident'>From</span>(<span class='ident'>ResentFrom</span>),
-    <span class='ident'>Sender</span>(<span class='ident'>ResentSender</span>),
-    <span class='ident'>To</span>(<span class='ident'>ResentTo</span>),
-    <span class='ident'>Cc</span>(<span class='ident'>ResentCc</span>),
-    <span class='ident'>Bcc</span>(<span class='ident'>ResentBcc</span>),
-    <span class='ident'>MessageId</span>(<span class='ident'>ResentMessageId</span>),
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ResentField</span> {
+    <span class="ident">Date</span>(<span class="ident">ResentDate</span>),
+    <span class="ident">From</span>(<span class="ident">ResentFrom</span>),
+    <span class="ident">Sender</span>(<span class="ident">ResentSender</span>),
+    <span class="ident">To</span>(<span class="ident">ResentTo</span>),
+    <span class="ident">Cc</span>(<span class="ident">ResentCc</span>),
+    <span class="ident">Bcc</span>(<span class="ident">ResentBcc</span>),
+    <span class="ident">MessageId</span>(<span class="ident">ResentMessageId</span>),
 }
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>ResentField</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentDate</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>ResentField</span>::<span class='ident'>Date</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">ResentField</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentDate</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">ResentField</span>::<span class="ident">Date</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentFrom</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>ResentField</span>::<span class='ident'>From</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentFrom</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">ResentField</span>::<span class="ident">From</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentSender</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>ResentField</span>::<span class='ident'>Sender</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentSender</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">ResentField</span>::<span class="ident">Sender</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentTo</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>ResentField</span>::<span class='ident'>To</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentTo</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">ResentField</span>::<span class="ident">To</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentCc</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>ResentField</span>::<span class='ident'>Cc</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentCc</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">ResentField</span>::<span class="ident">Cc</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentBcc</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>ResentField</span>::<span class='ident'>Bcc</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentBcc</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">ResentField</span>::<span class="ident">Bcc</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
         }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentMessageId</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>ResentField</span>::<span class='ident'>MessageId</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentMessageId</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">ResentField</span>::<span class="ident">MessageId</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
         }
-        <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;Resent-Field&quot;</span>))
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentField</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>ResentField</span>::<span class='ident'>Date</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>ResentField</span>::<span class='ident'>From</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>ResentField</span>::<span class='ident'>Sender</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>ResentField</span>::<span class='ident'>To</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>ResentField</span>::<span class='ident'>Cc</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>ResentField</span>::<span class='ident'>Bcc</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>ResentField</span>::<span class='ident'>MessageId</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-        }
-    }
-}
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentField</span>);
-
-<span class='comment'>// 3.6</span>
-<span class='comment'>// a sub part of the Fields definition</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Field</span> {
-    <span class='ident'>OrigDate</span>(<span class='ident'>OrigDate</span>),
-    <span class='ident'>From</span>(<span class='ident'>From</span>),
-    <span class='ident'>Sender</span>(<span class='ident'>Sender</span>),
-    <span class='ident'>ReplyTo</span>(<span class='ident'>ReplyTo</span>),
-    <span class='ident'>To</span>(<span class='ident'>To</span>),
-    <span class='ident'>Cc</span>(<span class='ident'>Cc</span>),
-    <span class='ident'>Bcc</span>(<span class='ident'>Bcc</span>),
-    <span class='ident'>MessageId</span>(<span class='ident'>MessageId</span>),
-    <span class='ident'>InReplyTo</span>(<span class='ident'>InReplyTo</span>),
-    <span class='ident'>References</span>(<span class='ident'>References</span>),
-    <span class='ident'>Subject</span>(<span class='ident'>Subject</span>),
-    <span class='ident'>Comments</span>(<span class='ident'>Comments</span>),
-    <span class='ident'>Keywords</span>(<span class='ident'>Keywords</span>),
-    <span class='ident'>OptionalField</span>(<span class='ident'>OptionalField</span>),
-}
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>Field</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>OrigDate</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>OrigDate</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>From</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>From</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Sender</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>Sender</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ReplyTo</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>To</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>To</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Cc</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>Cc</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Bcc</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>Bcc</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>MessageId</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>MessageId</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>InReplyTo</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>References</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>References</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Subject</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>Subject</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Comments</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>Comments</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Keywords</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>Keywords</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>OptionalField</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Field</span>::<span class='ident'>OptionalField</span>(<span class='ident'>x</span>), <span class='ident'>rem</span>));
-        }
-        <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
-    }
-}
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Field</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>Field</span>::<span class='ident'>OrigDate</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>From</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>Sender</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>ReplyTo</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>To</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>Cc</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>Bcc</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>MessageId</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>InReplyTo</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>References</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>Subject</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>Comments</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>Keywords</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>Field</span>::<span class='ident'>OptionalField</span>(<span class='kw-2'>ref</span> <span class='ident'>x</span>) <span class='op'>=&gt;</span> <span class='ident'>x</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">ResentField</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">ResentField</span>::<span class="ident">Date</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">ResentField</span>::<span class="ident">From</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">ResentField</span>::<span class="ident">Sender</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">ResentField</span>::<span class="ident">To</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">ResentField</span>::<span class="ident">Cc</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">ResentField</span>::<span class="ident">Bcc</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">ResentField</span>::<span class="ident">MessageId</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
         }
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Field</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">ResentField</span>);
 
-<span class='comment'>// 3.6</span>
-<span class='comment'>// a sub part of the Fields definition</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ResentTraceBlock</span> {
-    <span class='kw'>pub</span> <span class='ident'>trace</span>: <span class='ident'>Trace</span>,
-    <span class='kw'>pub</span> <span class='ident'>resent_fields</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>ResentField</span><span class='op'>&gt;</span>,
+<span class="comment">// 3.6</span>
+<span class="comment">// a sub part of the Fields definition</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Field</span> {
+    <span class="ident">OrigDate</span>(<span class="ident">OrigDate</span>),
+    <span class="ident">From</span>(<span class="ident">From</span>),
+    <span class="ident">Sender</span>(<span class="ident">Sender</span>),
+    <span class="ident">ReplyTo</span>(<span class="ident">ReplyTo</span>),
+    <span class="ident">To</span>(<span class="ident">To</span>),
+    <span class="ident">Cc</span>(<span class="ident">Cc</span>),
+    <span class="ident">Bcc</span>(<span class="ident">Bcc</span>),
+    <span class="ident">MessageId</span>(<span class="ident">MessageId</span>),
+    <span class="ident">InReplyTo</span>(<span class="ident">InReplyTo</span>),
+    <span class="ident">References</span>(<span class="ident">References</span>),
+    <span class="ident">Subject</span>(<span class="ident">Subject</span>),
+    <span class="ident">Comments</span>(<span class="ident">Comments</span>),
+    <span class="ident">Keywords</span>(<span class="ident">Keywords</span>),
+    <span class="ident">OptionalField</span>(<span class="ident">OptionalField</span>),
 }
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>ResentTraceBlock</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>t</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Trace</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>fields</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>ResentField</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-            <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>f</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentField</span>, <span class='ident'>rem</span>) {
-                <span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>f</span>);
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">Field</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">OrigDate</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">OrigDate</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">From</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">From</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Sender</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">Sender</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ReplyTo</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">ReplyTo</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">To</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">To</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Cc</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">Cc</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Bcc</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">Bcc</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">MessageId</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">MessageId</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">InReplyTo</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">InReplyTo</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">References</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">References</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Subject</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">Subject</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Comments</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">Comments</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Keywords</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">Keywords</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">OptionalField</span>, <span class="ident">rem</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Field</span>::<span class="ident">OptionalField</span>(<span class="ident">x</span>), <span class="ident">rem</span>));
+        }
+        <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;Field&quot;</span>))
+    }
+}
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">Field</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">Field</span>::<span class="ident">OrigDate</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">From</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">Sender</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">ReplyTo</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">To</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">Cc</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">Bcc</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">MessageId</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">InReplyTo</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">References</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">Subject</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">Comments</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">Keywords</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">Field</span>::<span class="ident">OptionalField</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=&gt;</span> <span class="ident">x</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+        }
+    }
+}
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">Field</span>);
+
+<span class="comment">// 3.6</span>
+<span class="comment">// a sub part of the Fields definition</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResentTraceBlock</span> {
+    <span class="kw">pub</span> <span class="ident">trace</span>: <span class="ident">Trace</span>,
+    <span class="kw">pub</span> <span class="ident">resent_fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ResentField</span><span class="op">&gt;</span>,
+}
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">ResentTraceBlock</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Trace</span>, <span class="ident">rem</span>) {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ResentField</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentField</span>, <span class="ident">rem</span>) {
+                <span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">f</span>);
             }
-            <span class='kw'>if</span> <span class='ident'>fields</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
-                <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>ExpectedType</span>(<span class='string'>&quot;Resent Field&quot;</span>))
-            } <span class='kw'>else</span> {
-                <span class='prelude-val'>Ok</span>((<span class='ident'>ResentTraceBlock</span> {
-                    <span class='ident'>trace</span>: <span class='ident'>t</span>,
-                    <span class='ident'>resent_fields</span>: <span class='ident'>fields</span>
-                }, <span class='ident'>rem</span>))
+            <span class="kw">if</span> <span class="ident">fields</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">ExpectedType</span>(<span class="string">&quot;Resent Field&quot;</span>))
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Ok</span>((<span class="ident">ResentTraceBlock</span> {
+                    <span class="ident">trace</span>: <span class="ident">t</span>,
+                    <span class="ident">resent_fields</span>: <span class="ident">fields</span>
+                }, <span class="ident">rem</span>))
             }
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;Resent Trace Block&quot;</span>))
         }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>ResentTraceBlock</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>trace</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>resent_fields</span> {
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>field</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">ResentTraceBlock</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">trace</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">resent_fields</span> {
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">field</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>ResentTraceBlock</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">ResentTraceBlock</span>);
 
-<span class='comment'>// 3.6</span>
-<span class='comment'>// a sub part of the Fields definition</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>OptTraceBlock</span> {
-    <span class='kw'>pub</span> <span class='ident'>trace</span>: <span class='ident'>Trace</span>,
-    <span class='kw'>pub</span> <span class='ident'>opt_fields</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>OptionalField</span><span class='op'>&gt;</span>,
+<span class="comment">// 3.6</span>
+<span class="comment">// a sub part of the Fields definition</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OptTraceBlock</span> {
+    <span class="kw">pub</span> <span class="ident">trace</span>: <span class="ident">Trace</span>,
+    <span class="kw">pub</span> <span class="ident">opt_fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OptionalField</span><span class="op">&gt;</span>,
 }
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>OptTraceBlock</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>t</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Trace</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>fields</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>OptionalField</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-            <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>f</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>OptionalField</span>, <span class='ident'>rem</span>) {
-                <span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>f</span>);
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">OptTraceBlock</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Trace</span>, <span class="ident">rem</span>) {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OptionalField</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">OptionalField</span>, <span class="ident">rem</span>) {
+                <span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">f</span>);
             }
-            <span class='kw'>if</span> <span class='ident'>fields</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
-                <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>ExpectedType</span>(<span class='string'>&quot;Optional Field&quot;</span>))
-            } <span class='kw'>else</span> {
-                <span class='prelude-val'>Ok</span>((<span class='ident'>OptTraceBlock</span> {
-                    <span class='ident'>trace</span>: <span class='ident'>t</span>,
-                    <span class='ident'>opt_fields</span>: <span class='ident'>fields</span>
-                }, <span class='ident'>rem</span>))
+            <span class="kw">if</span> <span class="ident">fields</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">ExpectedType</span>(<span class="string">&quot;Optional Field&quot;</span>))
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Ok</span>((<span class="ident">OptTraceBlock</span> {
+                    <span class="ident">trace</span>: <span class="ident">t</span>,
+                    <span class="ident">opt_fields</span>: <span class="ident">fields</span>
+                }, <span class="ident">rem</span>))
             }
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;Opt Trace Block&quot;</span>))
         }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>OptTraceBlock</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>trace</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
-        <span class='kw'>for</span> <span class='ident'>field</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>opt_fields</span> {
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>field</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">OptTraceBlock</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">trace</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
+        <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">opt_fields</span> {
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">field</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>OptTraceBlock</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">OptTraceBlock</span>);
 
-<span class='comment'>// 3.6</span>
-<span class='comment'>// a sub part of the Fields definition</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>TraceBlock</span> {
-    <span class='ident'>Resent</span>(<span class='ident'>ResentTraceBlock</span>),
-    <span class='ident'>Opt</span>(<span class='ident'>OptTraceBlock</span>),
+<span class="comment">// 3.6</span>
+<span class="comment">// a sub part of the Fields definition</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TraceBlock</span> {
+    <span class="ident">Resent</span>(<span class="ident">ResentTraceBlock</span>),
+    <span class="ident">Opt</span>(<span class="ident">OptTraceBlock</span>),
 }
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>TraceBlock</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>block</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>ResentTraceBlock</span>, <span class='ident'>rem</span>) {
-            <span class='prelude-val'>Ok</span>((<span class='ident'>TraceBlock</span>::<span class='ident'>Resent</span>(<span class='ident'>block</span>), <span class='ident'>rem</span>))
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">TraceBlock</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">ResentTraceBlock</span>, <span class="ident">rem</span>) {
+            <span class="prelude-val">Ok</span>((<span class="ident">TraceBlock</span>::<span class="ident">Resent</span>(<span class="ident">block</span>), <span class="ident">rem</span>))
         }
-        <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>block</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>OptTraceBlock</span>, <span class='ident'>rem</span>) {
-            <span class='prelude-val'>Ok</span>((<span class='ident'>TraceBlock</span>::<span class='ident'>Opt</span>(<span class='ident'>block</span>), <span class='ident'>rem</span>))
+        <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">OptTraceBlock</span>, <span class="ident">rem</span>) {
+            <span class="prelude-val">Ok</span>((<span class="ident">TraceBlock</span>::<span class="ident">Opt</span>(<span class="ident">block</span>), <span class="ident">rem</span>))
         }
-        <span class='kw'>else</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
+        <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;Trace Block&quot;</span>))
         }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>TraceBlock</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>TraceBlock</span>::<span class='ident'>Resent</span>(<span class='kw-2'>ref</span> <span class='ident'>block</span>) <span class='op'>=&gt;</span> <span class='ident'>block</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
-            <span class='ident'>TraceBlock</span>::<span class='ident'>Opt</span>(<span class='kw-2'>ref</span> <span class='ident'>block</span>) <span class='op'>=&gt;</span> <span class='ident'>block</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>),
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">TraceBlock</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">TraceBlock</span>::<span class="ident">Resent</span>(<span class="kw-2">ref</span> <span class="ident">block</span>) <span class="op">=&gt;</span> <span class="ident">block</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
+            <span class="ident">TraceBlock</span>::<span class="ident">Opt</span>(<span class="kw-2">ref</span> <span class="ident">block</span>) <span class="op">=&gt;</span> <span class="ident">block</span>.<span class="ident">stream</span>(<span class="ident">w</span>),
         }
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>TraceBlock</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">TraceBlock</span>);
 
-<span class='comment'>// 3.6</span>
-<span class='comment'>// fields          =   *(trace</span>
-<span class='comment'>//                       *optional-field /</span>
-<span class='comment'>//                       *(resent-date /</span>
-<span class='comment'>//                        resent-from /</span>
-<span class='comment'>//                        resent-sender /</span>
-<span class='comment'>//                        resent-to /</span>
-<span class='comment'>//                        resent-cc /</span>
-<span class='comment'>//                        resent-bcc /</span>
-<span class='comment'>//                        resent-msg-id))</span>
-<span class='comment'>//                     *(orig-date /</span>
-<span class='comment'>//                     from /</span>
-<span class='comment'>//                     sender /</span>
-<span class='comment'>//                     reply-to /</span>
-<span class='comment'>//                     to /</span>
-<span class='comment'>//                     cc /</span>
-<span class='comment'>//                     bcc /</span>
-<span class='comment'>//                     message-id /</span>
-<span class='comment'>//                     in-reply-to /</span>
-<span class='comment'>//                     references /</span>
-<span class='comment'>//                     subject /</span>
-<span class='comment'>//                     comments /</span>
-<span class='comment'>//                     keywords /</span>
-<span class='comment'>//                     optional-field)</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Fields</span> {
-    <span class='kw'>pub</span> <span class='ident'>trace_blocks</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>TraceBlock</span><span class='op'>&gt;</span>,
-    <span class='kw'>pub</span> <span class='ident'>fields</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Field</span><span class='op'>&gt;</span>,
+<span class="comment">// 3.6</span>
+<span class="comment">// fields          =   *(trace</span>
+<span class="comment">//                       *optional-field /</span>
+<span class="comment">//                       *(resent-date /</span>
+<span class="comment">//                        resent-from /</span>
+<span class="comment">//                        resent-sender /</span>
+<span class="comment">//                        resent-to /</span>
+<span class="comment">//                        resent-cc /</span>
+<span class="comment">//                        resent-bcc /</span>
+<span class="comment">//                        resent-msg-id))</span>
+<span class="comment">//                     *(orig-date /</span>
+<span class="comment">//                     from /</span>
+<span class="comment">//                     sender /</span>
+<span class="comment">//                     reply-to /</span>
+<span class="comment">//                     to /</span>
+<span class="comment">//                     cc /</span>
+<span class="comment">//                     bcc /</span>
+<span class="comment">//                     message-id /</span>
+<span class="comment">//                     in-reply-to /</span>
+<span class="comment">//                     references /</span>
+<span class="comment">//                     subject /</span>
+<span class="comment">//                     comments /</span>
+<span class="comment">//                     keywords /</span>
+<span class="comment">//                     optional-field)</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Fields</span> {
+    <span class="kw">pub</span> <span class="ident">trace_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TraceBlock</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&gt;</span>,
 }
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>Fields</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>trace_blocks</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>TraceBlock</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>tb</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>TraceBlock</span>, <span class='ident'>rem</span>) {
-            <span class='ident'>trace_blocks</span>.<span class='ident'>push</span>(<span class='ident'>tb</span>);
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">Fields</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trace_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TraceBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">tb</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">TraceBlock</span>, <span class="ident">rem</span>) {
+            <span class="ident">trace_blocks</span>.<span class="ident">push</span>(<span class="ident">tb</span>);
         }
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>fields</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Field</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>while</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>f</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Field</span>, <span class='ident'>rem</span>) {
-            <span class='ident'>fields</span>.<span class='ident'>push</span>(<span class='ident'>f</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Field</span>, <span class="ident">rem</span>) {
+            <span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">f</span>);
         }
-        <span class='prelude-val'>Ok</span>((<span class='ident'>Fields</span> {
-            <span class='ident'>trace_blocks</span>: <span class='ident'>trace_blocks</span>,
-            <span class='ident'>fields</span>: <span class='ident'>fields</span>,
-        }, <span class='ident'>rem</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">Fields</span> {
+            <span class="ident">trace_blocks</span>: <span class="ident">trace_blocks</span>,
+            <span class="ident">fields</span>: <span class="ident">fields</span>,
+        }, <span class="ident">rem</span>))
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Fields</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='kw'>for</span> <span class='ident'>tb</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>trace_blocks</span> {
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>tb</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">Fields</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> <span class="ident">tb</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trace_blocks</span> {
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">tb</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
         }
-        <span class='kw'>for</span> <span class='ident'>f</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>fields</span> {
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>f</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+        <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fields</span> {
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Fields</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">Fields</span>);
 
-<span class='comment'>// 3.5</span>
-<span class='comment'>// text            =   %d1-9 /            ; Characters excluding CR</span>
-<span class='comment'>//                     %d11 /             ;  and LF</span>
-<span class='comment'>//                     %d12 /</span>
-<span class='comment'>//                     %d14-127</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_text</span>(<span class='ident'>c</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>1</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>9</span>) <span class='op'>||</span> <span class='ident'>c</span><span class='op'>==</span><span class='number'>11</span> <span class='op'>||</span> <span class='ident'>c</span><span class='op'>==</span><span class='number'>12</span> <span class='op'>||</span> (<span class='ident'>c</span><span class='op'>&gt;=</span><span class='number'>14</span> <span class='op'>&amp;&amp;</span> <span class='ident'>c</span><span class='op'>&lt;=</span><span class='number'>127</span>)
+<span class="comment">// 3.5</span>
+<span class="comment">// text            =   %d1-9 /            ; Characters excluding CR</span>
+<span class="comment">//                     %d11 /             ;  and LF</span>
+<span class="comment">//                     %d12 /</span>
+<span class="comment">//                     %d14-127</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_text</span>(<span class="ident">c</span>: <span class="ident">u8</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    (<span class="ident">c</span><span class="op">&gt;=</span><span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span><span class="op">&lt;=</span><span class="number">9</span>) <span class="op">||</span> <span class="ident">c</span><span class="op">==</span><span class="number">11</span> <span class="op">||</span> <span class="ident">c</span><span class="op">==</span><span class="number">12</span> <span class="op">||</span> (<span class="ident">c</span><span class="op">&gt;=</span><span class="number">14</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span><span class="op">&lt;=</span><span class="number">127</span>)
 }
-<span class='macro'>def_cclass</span><span class='macro'>!</span>(<span class='ident'>Text</span>, <span class='ident'>is_text</span>);
+<span class="macro">def_cclass</span><span class="macro">!</span>(<span class="ident">Text</span>, <span class="ident">is_text</span>);
 
-<span class='comment'>// 3.5</span>
-<span class='comment'>// body            =   (*(*998text CRLF) *998text) / obs-body</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='comment'>// for performance/memory reasons, we store as a Vec&lt;u8&gt;</span>
-<span class='comment'>// rather than Vec&lt;Line&gt; where Line is Vec&lt;Text&gt;.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Body</span>(<span class='kw'>pub</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>);
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>Body</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='kw-2'>mut</span> <span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>body</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>line_number</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='kw'>loop</span> {
-            <span class='ident'>line_number</span> <span class='op'>+=</span> <span class='number'>1</span>;
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>line</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-            <span class='kw'>match</span> <span class='ident'>input</span>.<span class='ident'>stream_until_token</span>(<span class='string'>b&quot;\r\n&quot;</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>line</span>) {
-                <span class='prelude-val'>Err</span>(<span class='ident'>e</span>) <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>Io</span>(<span class='ident'>e</span>)),
-                <span class='prelude-val'>Ok</span>((_, <span class='ident'>found</span>)) <span class='op'>=&gt;</span> {
-                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>line</span>;
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>text</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Text</span>, <span class='ident'>rem</span>) {
-                        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
-                            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>InvalidBodyChar</span>(<span class='ident'>rem</span>[<span class='number'>0</span>]));
+<span class="comment">// 3.5</span>
+<span class="comment">// body            =   (*(*998text CRLF) *998text) / obs-body</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="comment">// for performance/memory reasons, we store as a Vec&lt;u8&gt;</span>
+<span class="comment">// rather than Vec&lt;Line&gt; where Line is Vec&lt;Text&gt;.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Body</span>(<span class="kw">pub</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">Body</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="kw-2">mut</span> <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_number</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">loop</span> {
+            <span class="ident">line_number</span> <span class="op">+=</span> <span class="number">1</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">stream_until_token</span>(<span class="string">b&quot;\r\n&quot;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">line</span>) {
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">Io</span>(<span class="ident">e</span>)),
+                <span class="prelude-val">Ok</span>((_, <span class="ident">found</span>)) <span class="op">=&gt;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">line</span>;
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">text</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Text</span>, <span class="ident">rem</span>) {
+                        <span class="kw">if</span> <span class="ident">rem</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">InvalidBodyChar</span>(<span class="ident">rem</span>[<span class="number">0</span>]));
                         }
-                        <span class='kw'>if</span> <span class='ident'>text</span>.<span class='number'>0</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>998</span> {
-                            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>LineTooLong</span>(<span class='ident'>line_number</span>));
+                        <span class="kw">if</span> <span class="ident">text</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">998</span> {
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">LineTooLong</span>(<span class="ident">line_number</span>));
                         }
-                        <span class='ident'>body</span>.<span class='ident'>extend</span>(<span class='ident'>text</span>.<span class='number'>0</span>.<span class='ident'>clone</span>());
+                        <span class="ident">body</span>.<span class="ident">extend</span>(<span class="ident">text</span>.<span class="number">0</span>.<span class="ident">clone</span>());
                     }
-                    <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>found</span> { <span class='kw'>break</span>; } <span class='comment'>// end of input</span>
-                    <span class='kw'>else</span> { <span class='ident'>body</span>.<span class='ident'>extend_from_slice</span>(<span class='string'>b&quot;\r\n&quot;</span>); }
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">found</span> { <span class="kw">break</span>; } <span class="comment">// end of input</span>
+                    <span class="kw">else</span> { <span class="ident">body</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>); }
                 }
             }
         }
-        <span class='prelude-val'>Ok</span>((<span class='ident'>Body</span>(<span class='ident'>body</span>), <span class='ident'>input</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">Body</span>(<span class="ident">body</span>), <span class="ident">input</span>))
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Body</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='ident'>w</span>.<span class='ident'>write</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span>)
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">Body</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="ident">w</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
     }
 }
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Body</span> {
-    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
-    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Body</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> (<span class='ident'>out</span>,<span class='ident'>rem</span>) <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Body</span>::<span class='ident'>parse</span>(<span class='ident'>input</span>));
-        <span class='kw'>if</span> <span class='ident'>rem</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>TrailingInput</span>(<span class='ident'>input</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='ident'>rem</span>.<span class='ident'>len</span>()))
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>Ok</span>(<span class='ident'>out</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ParseError</span>;
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Body</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">out</span>,<span class="ident">rem</span>) <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Body</span>::<span class="ident">parse</span>(<span class="ident">input</span>));
+        <span class="kw">if</span> <span class="ident">rem</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">TrailingInput</span>(<span class="string">&quot;Body&quot;</span>, <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">rem</span>.<span class="ident">len</span>()))
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">out</span>)
         }
     }
 }
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TryFrom</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Body</span> {
-    <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> <span class='ident'>ParseError</span>;
-    <span class='kw'>fn</span> <span class='ident'>try_from</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Body</span>, <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='ident'>TryFrom</span>::<span class='ident'>try_from</span>(<span class='ident'>input</span>.<span class='ident'>as_bytes</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ParseError</span>;
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Body</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="ident">TryFrom</span>::<span class="ident">try_from</span>(<span class="ident">input</span>.<span class="ident">as_bytes</span>())
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Body</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">Body</span>);
 
-<span class='comment'>// 3.5</span>
-<span class='comment'>// message         =   (fields / obs-fields)</span>
-<span class='comment'>//                     [CRLF body]</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Message</span> {
-    <span class='kw'>pub</span> <span class='ident'>fields</span>: <span class='ident'>Fields</span>,
-    <span class='kw'>pub</span> <span class='ident'>body</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Body</span><span class='op'>&gt;</span>
+<span class="comment">// 3.5</span>
+<span class="comment">// message         =   (fields / obs-fields)</span>
+<span class="comment">//                     [CRLF body]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Message</span> {
+    <span class="kw">pub</span> <span class="ident">fields</span>: <span class="ident">Fields</span>,
+    <span class="kw">pub</span> <span class="ident">body</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>
 }
-<span class='kw'>impl</span> <span class='ident'>Parsable</span> <span class='kw'>for</span> <span class='ident'>Message</span> {
-    <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>input</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(<span class='self'>Self</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]), <span class='ident'>ParseError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rem</span> <span class='op'>=</span> <span class='ident'>input</span>;
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Ok</span>(<span class='ident'>fields</span>) <span class='op'>=</span> <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Fields</span>, <span class='ident'>rem</span>) {
-            <span class='kw'>if</span> <span class='kw-2'>&amp;</span><span class='ident'>rem</span>[..<span class='number'>2</span>] <span class='op'>!=</span> <span class='string'>b&quot;\r\n&quot;</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>((<span class='ident'>Message</span> {
-                    <span class='ident'>fields</span>: <span class='ident'>fields</span>,
-                    <span class='ident'>body</span>: <span class='prelude-val'>None</span>,
-                }, <span class='ident'>rem</span>));
+<span class="kw">impl</span> <span class="ident">Parsable</span> <span class="kw">for</span> <span class="ident">Message</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]), <span class="ident">ParseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">input</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">fields</span>) <span class="op">=</span> <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Fields</span>, <span class="ident">rem</span>) {
+            <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">rem</span>[..<span class="number">2</span>] <span class="op">!=</span> <span class="string">b&quot;\r\n&quot;</span> {
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">Message</span> {
+                    <span class="ident">fields</span>: <span class="ident">fields</span>,
+                    <span class="ident">body</span>: <span class="prelude-val">None</span>,
+                }, <span class="ident">rem</span>));
             }
-            <span class='ident'>rem</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='ident'>rem</span>[<span class='number'>2</span>..];
-            <span class='macro'>parse</span><span class='macro'>!</span>(<span class='ident'>Body</span>, <span class='ident'>rem</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>b</span><span class='op'>|</span> (<span class='ident'>Message</span> {
-                <span class='ident'>fields</span>: <span class='ident'>fields</span>,
-                <span class='ident'>body</span>: <span class='prelude-val'>Some</span>(<span class='ident'>b</span>),
-            }, <span class='ident'>rem</span>))
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>ParseError</span>::<span class='ident'>NotFound</span>)
+            <span class="ident">rem</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">rem</span>[<span class="number">2</span>..];
+            <span class="macro">parse</span><span class="macro">!</span>(<span class="ident">Body</span>, <span class="ident">rem</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> (<span class="ident">Message</span> {
+                <span class="ident">fields</span>: <span class="ident">fields</span>,
+                <span class="ident">body</span>: <span class="prelude-val">Some</span>(<span class="ident">b</span>),
+            }, <span class="ident">rem</span>))
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">ParseError</span>::<span class="ident">NotFound</span>(<span class="string">&quot;Message&quot;</span>))
         }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Streamable</span> <span class='kw'>for</span> <span class='ident'>Message</span> {
-    <span class='kw'>fn</span> <span class='ident'>stream</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>w</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>W</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>IoError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>count</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>fields</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>body</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>body</span> {
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>write</span>(<span class='string'>b&quot;\r\n&quot;</span>));
-            <span class='ident'>count</span> <span class='op'>+=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>body</span>.<span class='ident'>stream</span>(<span class='ident'>w</span>));
+<span class="kw">impl</span> <span class="ident">Streamable</span> <span class="kw">for</span> <span class="ident">Message</span> {
+    <span class="kw">fn</span> <span class="ident">stream</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">IoError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">fields</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">body</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">body</span> {
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">w</span>.<span class="ident">write</span>(<span class="string">b&quot;\r\n&quot;</span>));
+            <span class="ident">count</span> <span class="op">+=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">body</span>.<span class="ident">stream</span>(<span class="ident">w</span>));
         }
-        <span class='prelude-val'>Ok</span>(<span class='ident'>count</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
     }
 }
-<span class='macro'>impl_display</span><span class='macro'>!</span>(<span class='ident'>Message</span>);
+<span class="macro">impl_display</span><span class="macro">!</span>(<span class="ident">Message</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -1217,7 +1218,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "email_format";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 </body>

@@ -72,6 +72,8 @@ extern crate buf_read_ext;
 extern crate time;
 #[cfg(feature="chrono")]
 extern crate chrono;
+#[cfg(feature="lettre")]
+extern crate lettre;
 
 #[cfg(test)]
 mod tests;
@@ -579,6 +581,28 @@ impl Email {
             // able to fail
             String::from_utf8_unchecked(vec)
         }
+    }
+
+    /// Create a `lettre::SimpleSendableEmail` from this Email
+    #[cfg(feature="lettre")]
+    pub fn as_simple_sendable_email(&self) -> Result<::lettre::SimpleSendableEmail, &'static str>
+    {
+        use lettre::{SimpleSendableEmail, EmailAddress};
+
+        Ok(SimpleSendableEmail::new(
+            EmailAddress::new(format!("{}", self.get_from())), // from_address
+            match self.get_to() {           // to_addresses
+                Some(to) => (to.0).0.iter()
+                    .map(|address| EmailAddress::new(format!("{}", address)))
+                    .collect(),
+                None => return Err("email has no To address line"),
+            },
+            match self.get_message_id() { // message_id
+                Some(mid) => format!("{}", mid.0),
+                None => return Err("email has no Message-ID"),
+            },
+            format!("{}", self) // message
+        ))
     }
 }
 

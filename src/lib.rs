@@ -589,19 +589,42 @@ impl Email {
     {
         use lettre::{SimpleSendableEmail, EmailAddress};
 
+        let mut recipients: Vec<EmailAddress> = Vec::new();
+        if let Some(to) = self.get_to() {
+            recipients.extend(
+                (to.0).0
+                    .iter()
+                    .map(|address| EmailAddress::new(format!("{}", address))));
+        }
+        if let Some(cc) = self.get_cc() {
+            recipients.extend(
+                (cc.0).0
+                    .iter()
+                    .map(|address| EmailAddress::new(format!("{}", address))));
+        }
+        if let Some(bcc) = self.get_bcc() {
+            if let Bcc::AddressList(al) = bcc {
+                recipients.extend(
+                    al.0.iter()
+                        .map(|address| EmailAddress::new(format!("{}", address))))
+            }
+        }
+
         Ok(SimpleSendableEmail::new(
-            EmailAddress::new(format!("{}", self.get_from())), // from_address
-            match self.get_to() {           // to_addresses
-                Some(to) => (to.0).0.iter()
-                    .map(|address| EmailAddress::new(format!("{}", address)))
-                    .collect(),
-                None => return Err("email has no To address line"),
-            },
-            match self.get_message_id() { // message_id
+            // from_address:
+            EmailAddress::new(format!("{}", self.get_from())),
+
+            // to_addresses:
+            recipients,
+
+            // message_id:
+            match self.get_message_id() {
                 Some(mid) => format!("{}", mid.0),
                 None => return Err("email has no Message-ID"),
             },
-            format!("{}", self) // message
+
+            // message:
+            format!("{}", self)
         ))
     }
 }

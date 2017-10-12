@@ -484,7 +484,7 @@ fn test_date_time() {
 
     let mut output: Vec<u8> = Vec::new();
     assert_eq!(t.stream(&mut output).unwrap(), 49);
-    assert_eq!(output, b"Sun, 01 Dec 2000 12:12:12 -1300 (or thereabouts) ".to_vec());
+    assert_eq!(output, b"Sun, 1 Dec 2000 12:12:12 -1300 (or thereabouts) ".to_vec());
 }
 
 #[test]
@@ -657,9 +657,9 @@ Simple.".to_vec();
 fn test_email_struct_functions() {
     use ::Email;
     let mut email = Email::new("mike@sample.com",
-                               "Wed, 05 Jan 2015 15:13:05 +1300").unwrap();
+                               "Wed, 5 Jan 2015 15:13:05 +1300").unwrap();
 
-    email.set_date("Wed, 06 Jan 2015 15:13:05 +1300".as_bytes()).unwrap();
+    email.set_date("Wed, 6 Jan 2015 15:13:05 +1300".as_bytes()).unwrap();
     let date1 = email.get_date();
     email.set_date("Fri, 30 Dec 2000 09:11:56 -1100").unwrap();
     let date2 = email.get_date();
@@ -712,7 +712,7 @@ fn test_email_example() {
 
     let mut email = Email::new(
         "myself@mydomain.com",  // "From:"
-        "Wed, 05 Jan 2015 15:13:05 +1300" // "Date:"
+        "Wed, 5 Jan 2015 15:13:05 +1300" // "Date:"
             ).unwrap();
     email.set_sender("from_myself@mydomain.com").unwrap();
     email.set_reply_to("My Mailer <no-reply@mydomain.com>").unwrap();
@@ -730,7 +730,7 @@ fn test_email_example() {
     email.stream(&mut output).unwrap();
 
     assert_eq!(output,
-               "Date:Wed, 05 Jan 2015 15:13:05 +1300\r\n\
+               "Date:Wed, 5 Jan 2015 15:13:05 +1300\r\n\
                 From:myself@mydomain.com\r\n\
                 Sender:from_myself@mydomain.com\r\n\
                 Reply-To:My Mailer <no-reply@mydomain.com>\r\n\
@@ -750,7 +750,7 @@ fn test_email_parse_stream() {
     use ::Email;
     use ::rfc5322::{Parsable, Streamable};
 
-    let input = "Date: Wed, 05 Jan 2015 15:13:05 +1300\r\n\
+    let input = "Date: Wed, 15 Jan 2015 15:13:05 +1300\r\n\
                  From: myself@mydomain.com\r\n\
                  Sender: from_myself@mydomain.com\r\n\
                  Reply-To: My Mailer <no-reply@mydomain.com>\r\n\
@@ -787,7 +787,7 @@ fn test_optional_fields() {
     use ::Email;
     use ::rfc5322::{Parsable, Streamable};
 
-    let input = "Date: Wed, 05 Jan 2015 15:13:05 +1300\r\n\
+    let input = "Date: Wed, 5 Jan 2015 15:13:05 +1300\r\n\
                  From: myself@mydomain.com\r\n\
                  Sender: from_myself@mydomain.com\r\n\
                  My-Crazy-Field: this is my field\r\n\

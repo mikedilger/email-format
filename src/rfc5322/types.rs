@@ -1376,7 +1376,7 @@ impl Parsable for Day {
 }
 impl Streamable for Day {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        try!(write!(w, " {:02} ", self.0));
+        try!(write!(w, " {} ", self.0));
         Ok(4)
     }
 }

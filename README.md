@@ -3,7 +3,9 @@
 "Internet Message Format" meticulously implemented for email construction
 and validation, as defined in RFC 5322 and other RFCs.
 
-[Documentation](https://docs.rs/email-format)
+[Documentation (released)](https://docs.rs/email-format)
+
+[Documentation (master)](https://mikedilger.github.io/email-format)
 
 ## Features
 

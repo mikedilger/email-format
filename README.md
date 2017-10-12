@@ -3,47 +3,34 @@
 "Internet Message Format" meticulously implemented for email construction
 and validation, as defined in RFC 5322 and other RFCs.
 
-[Documentation](https://mikedilger.github.io/email-format)
-
-You can compose an email like this:
-
-```rust
-extern crate email_format;
-
-use email_format::Email;
-
-fn main() {
-    let mut email = Email::new(
-        "myself@mydomain.com",  // "From:"
-        "Wed, 05 Jan 2015 15:13:05 +1300" // "Date:"
-    ).unwrap();
-    email.set_sender("from_myself@mydomain.com").unwrap();
-    email.set_reply_to("My Mailer <no-reply@mydomain.com>").unwrap();
-    email.set_to("You <you@yourdomain.com>").unwrap();
-    email.set_cc("Our Friend <friend@frienddomain.com>").unwrap();
-    email.set_message_id("<id/20161128115731.29084.maelstrom@mydomain.com>").unwrap();
-    email.set_subject("Hello Friend").unwrap();
-    email.set_body("Good to hear from you.\r\n\
-                    I wish you the best.\r\n\
-                    \r\n\
-                    Your Friend").unwrap();
-
-    println!("{}", email);
-}
-```
+[Documentation](https://docs.rs/email-format)
 
 ## Features
 
-* Extensive RFC 5322 Parser/validator
-* If you generate an email using this crate, you are guaranteed that will be a valid
-  RFC 5322 formatted email, or else you will get a ParseError. The only exception that I
-  am currently aware of is that lines can be longer than 998 characters (see issue #3).
+* **Parses** bytes into an Email structure (represented internally as a tree) and validates
+  RFC 5322 "Internet Message Format" compliance.
+  * Extensive RFC 5322 Parser/validator: If you generate an email using this crate, you are
+    guaranteed that will be a valid RFC 5322 formatted email, or else you will get a ParseError.
+    The only exception that I am currently aware of is that lines can be longer than 998
+    characters (see issue #3).
+* **Streams** an Email structure back into bytes.
+* **Generates and modifies** Email structures using functions like `set_subject()`,
+  `get_from()`, `clear_reply_to()`, `add_optional_field()`, etc.
+* Integrates with [lettre](https://github.com/lettre/lettre)
+  (enable optional feature `lettre`)
+  and [mailstrom](https://github.com/mikedilger/mailstrom)
+* Supports [chrono](https://github.com/chronotope/chrono) `DateTime`
+  and [time](https://github.com/rust-lang/time) `Tm` for setting the `Date` field
+  (enable optional feature `chrono` and/or `time`)
 
 ## Limitations
 
-* This crate currently only handles 7-bit ASCII emails. The caller must do the content
-  transfer encoding (and add the content-transfer-encoding header).  See issue #19.
-* Obsolete email formats are not implemented in the parser.  Therefore, it is not sufficient
+* Valid emails are 7-bit ASCII, and this crate requires all content to be 7-bit ASCII.
+  The proper way to send richer content is to use a transfer encoding, and to set a
+  `content-transfer-encoding` header. We don't yet offer any help in this regard, beyond
+  the ability to add_optional_field(). You'll have to manage the encoding yourself.
+  We plan to add convenience functions for this eventually (see issue #19)
+* Obsolete email formats are not implemented in the parser. Therefore, it is not sufficient
   for parsing inbound emails if you need to recognize formats that were obsoleted in 2008.
 
 ## Plans (not yet implemented)
@@ -55,9 +42,6 @@ fn main() {
 * Support for MIME (RFC 2045, RFC 4021, RFC 2231, RFC 6352) using
   [mime_multipart](https://github.com/mikedilger/mime-multipart)
 * Support for streaming of MIME parts from disk.
-* More ergonomic function signatures
-* Less copying of data
-* Implementation of `SendableEmail` so that it works with the `lettre` crate.
 
 ## History
 

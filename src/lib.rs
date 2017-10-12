@@ -1,41 +1,43 @@
+//! # email-format
+//!
 //! This crate allows you to construct email messages in a way that assures that
-//! they are compliant with relevant email standards (especially RFC 5322).  Invalid
+//! they are compliant with relevant email standards (especially RFC 5322). Invalid
 //! data submitted will return a ParseError.
 //!
 //! The main structure to work with is `Email`. It has many functions to set or add
 //! headers and to set the body. All of these will accept an `&str` or `&[u8]` argument
-//! and attempt to parse it. These setters return a `Result<(), ParseError>` as the parse
-//! may fail.
+//! and attempt to parse it. These setters return a `Result<(), ParseError>` as the
+//! parse may fail.
+//!
+//! ## Composition
+//!
+//! You can compose an email like this:
 //!
 //! ```
-//! extern crate email_format;
-//!
 //! use email_format::Email;
 //!
-//! fn main() {
-//!   let mut email = Email::new(
-//!       "myself@mydomain.com",  // "From:"
-//!       "Wed, 05 Jan 2015 15:13:05 +1300" // "Date:"
-//!   ).unwrap();
-//!   email.set_sender("from_myself@mydomain.com").unwrap();
-//!   email.set_reply_to("My Mailer <no-reply@mydomain.com>").unwrap();
-//!   email.set_to("You <you@yourdomain.com>").unwrap();
-//!   email.set_cc("Our Friend <friend@frienddomain.com>").unwrap();
-//!   email.set_message_id("<id/20161128115731.29084.maelstrom@mydomain.com>").unwrap();
-//!   email.set_subject("Hello Friend").unwrap();
-//!   email.set_body("Good to hear from you.\r\n\
-//!                   I wish you the best.\r\n\
-//!                   \r\n\
-//!                   Your Friend").unwrap();
+//! let mut email = Email::new(
+//!     "myself@mydomain.com",  // "From:"
+//!     "Wed, 5 Jan 2015 15:13:05 +1300" // "Date:"
+//! ).unwrap();
+//! email.set_sender("from_myself@mydomain.com").unwrap();
+//! email.set_reply_to("My Mailer <no-reply@mydomain.com>").unwrap();
+//! email.set_to("You <you@yourdomain.com>").unwrap();
+//! email.set_cc("Our Friend <friend@frienddomain.com>").unwrap();
+//! email.set_message_id("<id/20161128115731.29084.maelstrom@mydomain.com>").unwrap();
+//! email.set_subject("Hello Friend").unwrap();
+//! email.set_body("Good to hear from you.\r\n\
+//!                 I wish you the best.\r\n\
+//!                 \r\n\
+//!                 Your Friend").unwrap();
 //!
-//!   println!("{}", email);
-//! }
+//! println!("{}", email);
 //! ```
 //!
 //! This outputs:
 //!
 //! ```text
-//! Date:Wed, 05 Jan 2015 15:13:05 +1300
+//! Date:Wed, 5 Jan 2015 15:13:05 +1300
 //! From:myself@mydomain.com
 //! Sender:from_myself@mydomain.com
 //! Reply-To:My Mailer <no-reply@mydomain.com>
@@ -50,20 +52,37 @@
 //! Your Friend
 //! ```
 //!
-//! On the other hand, the following will fail because the sender email address is invalid:
+//! ## Parsing
 //!
-//! ```rust,should_panic
-//! extern crate email_format;
+//! The following code will parse the input bytes (or panic if the parse
+//! failed), and leave any trailing bytes in the remainder, which should
+//! be checked to verify it is empty.
 //!
+//! ```
 //! use email_format::Email;
+//! use email_format::rfc5322::Parsable;
 //!
-//! fn main() {
-//!   let mut email = Email::new(
-//!       "myself@mydomain.com",  // "From:"
-//!       "Wed, 05 Jan 2015 15:13:05 +1300" // "Date:"
-//!   ).unwrap();
-//!   email.set_sender("from_myself@(mydomain.com)").unwrap();
-//! }
+//! let input = "Date: Wed, 5 Jan 2015 15:13:05 +1300\r\n\
+//!              From: myself@mydomain.com\r\n\
+//!              Sender: from_myself@mydomain.com\r\n\
+//!              My-Crazy-Field: this is my field\r\n\
+//!              Subject: Hello Friend\r\n\
+//!              \r\n\
+//!              Good to hear from you.\r\n\
+//!              I wish you the best.\r\n\
+//!              \r\n\
+//!              Your Friend".as_bytes();
+//!  let (mut email, remainder) = Email::parse(&input).unwrap();
+//!  assert_eq!(remainder.len(), 0);
+//! ```
+//!
+//! ## Usage with lettre and/or mailstrom
+//!
+//! If compiled with the `lettre` feature, you can generate a `SimpleSendableEmail`
+//! like this, and then use the `lettre` crate (or `mailstrom`) to send it.
+//!
+//! ```ignore
+//! let simple_sendable_email = email.as_simple_sendable_email().unwrap();
 //! ```
 
 extern crate buf_read_ext;

@@ -76,6 +76,7 @@ pub mod error;
 pub use self::error::ParseError;
 pub mod types;
 pub mod headers;
+pub mod email_address;
 
 use std::io::Write;
 use std::io::Error as IoError;

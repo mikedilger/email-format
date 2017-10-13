@@ -815,3 +815,40 @@ fn test_optional_fields() {
     email.clear_optional_fields();
     assert_eq!(email.get_optional_fields().len(), 0);
 }
+
+#[cfg(feature="lettre")]
+#[test]
+fn test_as_simple_sendable_email() {
+    use ::Email;
+    use ::rfc5322::Parsable;
+    use ::lettre::SendableEmail;
+
+    let input = "Date: Wed, 5 Jan 2015 15:13:05 +1300\r\n\
+                 From: myself@mydomain.com\r\n\
+                 Sender: from_myself@mydomain.com\r\n\
+                 To: target@publicdomain.com\r\n\
+                 Bcc: accomplice@secretdomain.com\r\n\
+                 Message-ID: <id/20161128115731.29084.maelstrom@mydomain.com>\r\n\
+                 Subject: Hello Friend\r\n\
+                 \r\n\
+                 Good to hear from you.\r\n\
+                 I wish you the best.\r\n\
+                 \r\n\
+                 Your Friend".as_bytes();
+
+    let (mut email, remainder) = Email::parse(&input).unwrap();
+    assert_eq!(remainder.len(), 0);
+
+    let ssemail = email.as_simple_sendable_email().unwrap();
+
+    // verify Bcc line is still in email
+    assert_eq!( &*format!("{}",email.get_bcc().unwrap()),
+                  "Bcc: accomplice@secretdomain.com\r\n" );
+
+    // verify the Bcc line is NOT in the ssemail.message
+    assert_eq!( ::std::str::from_utf8( &ssemail.message() ).unwrap().contains("accomplice"),
+                  false );
+
+    assert_eq!( &*ssemail.message_id(),
+                  "id/20161128115731.29084.maelstrom@mydomain.com" )
+}

@@ -602,49 +602,61 @@ impl Email {
         }
     }
 
-    /// Create a `lettre::SimpleSendableEmail` from this Email
+    /// Create a `lettre::SimpleSendableEmail` from this Email.
+    ///
+    /// We require `&mut self` because we temporarily strip off the Bcc line
+    /// when we generate the message, and then we put it back afterwards to
+    /// leave `self` in a functionally unmodified state.
     #[cfg(feature="lettre")]
-    pub fn as_simple_sendable_email(&self) -> Result<::lettre::SimpleSendableEmail, &'static str>
+    pub fn as_simple_sendable_email(&mut self) ->
+        Result<::lettre::SimpleSendableEmail, &'static str>
     {
         use lettre::{SimpleSendableEmail, EmailAddress};
+        use rfc5322::types::Address;
 
-        let mut recipients: Vec<EmailAddress> = Vec::new();
+        let mut recipients: Vec<Address> = Vec::new();
         if let Some(to) = self.get_to() {
-            recipients.extend(
-                (to.0).0
-                    .iter()
-                    .map(|address| EmailAddress::new(format!("{}", address))));
+            recipients.extend((to.0).0);
         }
         if let Some(cc) = self.get_cc() {
-            recipients.extend(
-                (cc.0).0
-                    .iter()
-                    .map(|address| EmailAddress::new(format!("{}", address))));
+            recipients.extend((cc.0).0);
         }
         if let Some(bcc) = self.get_bcc() {
             if let Bcc::AddressList(al) = bcc {
-                recipients.extend(
-                    al.0.iter()
-                        .map(|address| EmailAddress::new(format!("{}", address))))
+                recipients.extend(al.0);
             }
         }
 
-        Ok(SimpleSendableEmail::new(
-            // from_address:
-            EmailAddress::new(format!("{}", self.get_from())),
+        // Remove duplicates
+        recipients.dedup();
 
-            // to_addresses:
-            recipients,
+        // Map to lettre::EmailAddress
+        let recipients: Vec<EmailAddress> = recipients
+            .iter()
+            .map(|address| EmailAddress::new(format!("{}", address)))
+            .collect();
 
-            // message_id:
-            match self.get_message_id() {
-                Some(mid) => format!("{}", mid.0),
-                None => return Err("email has no Message-ID"),
-            },
+        let from_addr = EmailAddress::new(format!("{}", self.get_from()));
 
-            // message:
-            format!("{}", self)
-        ))
+        let message_id = match self.get_message_id() {
+            Some(mid) => format!("{}@{}", mid.0.id_left, mid.0.id_right),
+            None => return Err("email has no Message-ID"),
+        };
+
+        // Remove Bcc header before creating body (RFC 5321 section 7.2)
+        let maybe_bcc = self.get_bcc();
+        self.clear_bcc();
+
+        let message = format!("{}", self);
+
+        // Put the Bcc back to restore the caller's argument
+        if let Some(bcc) = maybe_bcc {
+            if let Err(_) = self.set_bcc(bcc) {
+                return Err("Unable to restore the Bcc line");
+            }
+        }
+
+        Ok(SimpleSendableEmail::new(from_addr, recipients, message_id, message))
     }
 }
 

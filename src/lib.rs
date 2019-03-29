@@ -78,11 +78,11 @@
 //!
 //! ## Usage with lettre and/or mailstrom
 //!
-//! If compiled with the `lettre` feature, you can generate a `SimpleSendableEmail`
+//! If compiled with the `lettre` feature, you can generate a `SendableEmail`
 //! like this, and then use the `lettre` crate (or `mailstrom`) to send it.
 //!
 //! ```ignore
-//! let simple_sendable_email = email.as_simple_sendable_email().unwrap();
+//! let sendable_email = email.as_sendable_email().unwrap();
 //! ```
 
 extern crate buf_read_ext;
@@ -91,8 +91,10 @@ extern crate buf_read_ext;
 extern crate time;
 #[cfg(feature="chrono")]
 extern crate chrono;
-#[cfg(feature="lettre")]
+#[cfg(any(feature="lettre", feature="failure"))]
 extern crate lettre;
+#[cfg(any(feature="lettre", feature="failure"))]
+extern crate failure;
 
 #[cfg(test)]
 mod tests;
@@ -602,41 +604,50 @@ impl Email {
         }
     }
 
-    /// Create a `lettre::SimpleSendableEmail` from this Email.
+    /// Create a `lettre::SendableEmail` from this Email.
     ///
     /// We require `&mut self` because we temporarily strip off the Bcc line
     /// when we generate the message, and then we put it back afterwards to
     /// leave `self` in a functionally unmodified state.
-    #[cfg(feature="lettre")]
-    pub fn as_simple_sendable_email(&mut self) ->
-        Result<::lettre::SimpleSendableEmail, &'static str>
+    #[cfg(any(feature="lettre", feature="failure"))]
+    pub fn as_sendable_email(&mut self) ->
+        Result<::lettre::SendableEmail, &'static str>
     {
-        use lettre::{SimpleSendableEmail, EmailAddress};
+        use lettre::{SendableEmail, EmailAddress, Envelope};
         use rfc5322::types::Address;
 
-        let mut recipients: Vec<Address> = Vec::new();
+        let mut rfc_recipients: Vec<Address> = Vec::new();
         if let Some(to) = self.get_to() {
-            recipients.extend((to.0).0);
+            rfc_recipients.extend((to.0).0);
         }
         if let Some(cc) = self.get_cc() {
-            recipients.extend((cc.0).0);
+            rfc_recipients.extend((cc.0).0);
         }
         if let Some(bcc) = self.get_bcc() {
             if let Bcc::AddressList(al) = bcc {
-                recipients.extend(al.0);
+                rfc_recipients.extend(al.0);
             }
         }
 
         // Remove duplicates
-        recipients.dedup();
+        rfc_recipients.dedup();
+
+        let rfc_address_to_lettre = |a: Address| -> Result<EmailAddress, &'static str> {
+            let s = format!("{}", a).trim().to_string();
+            EmailAddress::new(s).map_err(|_| "Invalid email to address")
+        };
+        let rfc_from_to_lettre = |f: From| -> Result<EmailAddress, &'static str> {
+            let s = format!("{}", f.0).trim().to_string();
+            EmailAddress::new(s).map_err(|_| "Invalid email from address")
+        };
 
         // Map to lettre::EmailAddress
-        let recipients: Vec<EmailAddress> = recipients
-            .iter()
-            .map(|address| EmailAddress::new(format!("{}", address)))
-            .collect();
+        let mut lettre_recipients: Vec<EmailAddress> = vec![];
+        for address in rfc_recipients.drain(..) {
+            lettre_recipients.push(rfc_address_to_lettre(address)?);
+        }
 
-        let from_addr = EmailAddress::new(format!("{}", self.get_from()));
+        let from_addr = rfc_from_to_lettre(self.get_from())?;
 
         let message_id = match self.get_message_id() {
             Some(mid) => format!("{}@{}", mid.0.id_left, mid.0.id_right),
@@ -656,7 +667,9 @@ impl Email {
             }
         }
 
-        Ok(SimpleSendableEmail::new(from_addr, recipients, message_id, message))
+        let envelope = Envelope::new(Some(from_addr), lettre_recipients)
+            .map_err(|_| "Invalid envelope")?;
+        Ok(SendableEmail::new(envelope, message_id, message.as_bytes().to_vec()))
     }
 }
 

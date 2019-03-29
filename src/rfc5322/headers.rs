@@ -1,7 +1,6 @@
 
 use std::io::Write;
 use std::io::Error as IoError;
-use std::ascii::AsciiExt;
 use ::TryFrom;
 use super::{Parsable, ParseError, Streamable};
 use super::types::{DateTime, MailboxList, Mailbox, AddressList, CFWS, MsgId,

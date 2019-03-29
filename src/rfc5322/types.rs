@@ -1,7 +1,6 @@
 
 use std::io::Write;
 use std::io::Error as IoError;
-use std::ascii::AsciiExt;
 use super::{Parsable, Streamable, ParseError};
 
 // RFC 5234, B.1  Core Rules

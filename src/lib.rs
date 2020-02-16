@@ -91,10 +91,8 @@ extern crate buf_read_ext;
 extern crate time;
 #[cfg(feature="chrono")]
 extern crate chrono;
-#[cfg(any(feature="lettre", feature="failure"))]
+#[cfg(feature="lettre")]
 extern crate lettre;
-#[cfg(any(feature="lettre", feature="failure"))]
-extern crate failure;
 
 #[cfg(test)]
 mod tests;
@@ -609,7 +607,7 @@ impl Email {
     /// We require `&mut self` because we temporarily strip off the Bcc line
     /// when we generate the message, and then we put it back afterwards to
     /// leave `self` in a functionally unmodified state.
-    #[cfg(any(feature="lettre", feature="failure"))]
+    #[cfg(feature="lettre")]
     pub fn as_sendable_email(&mut self) ->
         Result<::lettre::SendableEmail, &'static str>
     {

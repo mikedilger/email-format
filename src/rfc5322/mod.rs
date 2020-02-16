@@ -26,7 +26,7 @@ macro_rules! def_cclass {
         }
         impl Streamable for $typ {
             fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-                Ok(try!(w.write(&self.0[..])))
+                Ok(w.write(&self.0[..])?)
             }
         }
     };
@@ -126,10 +126,10 @@ impl Streamable for Trace {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref rp) = self.return_path {
-            count += try!(rp.stream(w));
+            count += rp.stream(w)?;
         }
         for r in &self.received {
-            count += try!(r.stream(w));
+            count += r.stream(w)?;
         }
         Ok(count)
     }
@@ -308,9 +308,9 @@ impl Parsable for ResentTraceBlock {
 impl Streamable for ResentTraceBlock {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(self.trace.stream(w));
+        count += self.trace.stream(w)?;
         for field in &self.resent_fields {
-            count += try!(field.stream(w));
+            count += field.stream(w)?;
         }
         Ok(count)
     }
@@ -348,9 +348,9 @@ impl Parsable for OptTraceBlock {
 impl Streamable for OptTraceBlock {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(self.trace.stream(w));
+        count += self.trace.stream(w)?;
         for field in &self.opt_fields {
-            count += try!(field.stream(w));
+            count += field.stream(w)?;
         }
         Ok(count)
     }
@@ -438,10 +438,10 @@ impl Streamable for Fields {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         for tb in &self.trace_blocks {
-            count += try!(tb.stream(w));
+            count += tb.stream(w)?;
         }
         for f in &self.fields {
-            count += try!(f.stream(w));
+            count += f.stream(w)?;
         }
         Ok(count)
     }
@@ -501,7 +501,7 @@ impl Streamable for Body {
 impl<'a> TryFrom<&'a [u8]> for Body {
     type Error = ParseError;
     fn try_from(input: &'a [u8]) -> Result<Body, ParseError> {
-        let (out,rem) = try!(Body::parse(input));
+        let (out,rem) = Body::parse(input)?;
         if rem.len() > 0 {
             Err(ParseError::TrailingInput("Body", input.len() - rem.len()))
         } else {
@@ -548,10 +548,10 @@ impl Parsable for Message {
 impl Streamable for Message {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(self.fields.stream(w));
+        count += self.fields.stream(w)?;
         if let Some(ref body) = self.body {
-            count += try!(w.write(b"\r\n"));
-            count += try!(body.stream(w));
+            count += w.write(b"\r\n")?;
+            count += body.stream(w)?;
         }
         Ok(count)
     }

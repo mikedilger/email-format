@@ -62,8 +62,7 @@ impl Parsable for QuotedPair {
 }
 impl Streamable for QuotedPair {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"\\"))
-           + try!(w.write(&[self.0])))
+        Ok(w.write(b"\\")? + w.write(&[self.0])?)
     }
 }
 impl_display!(QuotedPair);
@@ -94,7 +93,7 @@ impl Parsable for FWS {
 }
 impl Streamable for FWS {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b" "))) // FIXME - fold?
+        Ok(w.write(b" ")?) // FIXME - fold?
     }
 }
 impl_display!(FWS);
@@ -177,13 +176,13 @@ impl Parsable for Comment {
 impl Streamable for Comment {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(w.write(b"("));
+        count += w.write(b"(")?;
         for &(ws, ref cc) in &self.ccontent {
-            if ws { count += try!(w.write(b" ")) }
-            count += try!(cc.stream(w));
+            if ws { count += w.write(b" ")? }
+            count += cc.stream(w)?;
         }
-        if self.trailing_ws { count += try!(w.write(b" ")) }
-        count += try!(w.write(b")"));
+        if self.trailing_ws { count += w.write(b" ")? }
+        count += w.write(b")")?;
         Ok(count)
     }
 }
@@ -225,10 +224,10 @@ impl Streamable for CFWS {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         for &(ws, ref comment) in &self.comments {
-            if ws { count += try!(w.write(b" ")) }
-            count += try!(comment.stream(w));
+            if ws { count += w.write(b" ")? }
+            count += comment.stream(w)?;
         }
-        if self.trailing_ws { count += try!(w.write(b" ")) }
+        if self.trailing_ws { count += w.write(b" ")? }
         Ok(count)
     }
 }
@@ -286,11 +285,11 @@ impl Streamable for Atom {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref cfws) = self.pre_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
-        count += try!(self.atext.stream(w));
+        count += self.atext.stream(w)?;
         if let Some(ref cfws) = self.post_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
         Ok(count)
     }
@@ -328,8 +327,8 @@ impl Streamable for DotAtomText {
         let mut count: usize = 0;
         let mut virgin: bool = true;
         for part in &self.0 {
-            if !virgin { count += try!(w.write(b".")) }
-            count += try!(part.stream(w));
+            if !virgin { count += w.write(b".")? }
+            count += part.stream(w)?;
             virgin = false;
         }
         Ok(count)
@@ -366,11 +365,11 @@ impl Streamable for DotAtom {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref cfws) = self.pre_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
-        count += try!(self.dot_atom_text.stream(w));
+        count += self.dot_atom_text.stream(w)?;
         if let Some(ref cfws) = self.post_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
         Ok(count)
     }
@@ -469,21 +468,21 @@ impl Streamable for QuotedString {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref cfws) = self.pre_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
-        count += try!(w.write(b"\""));
+        count += w.write(b"\"")?;
         for &(ws, ref qc) in &self.qcontent {
             if ws {
-                count += try!(w.write(b" "));
+                count += w.write(b" ")?;
             }
-            count += try!(qc.stream(w));
+            count += qc.stream(w)?;
         }
         if self.trailing_ws {
-            count += try!(w.write(b" "));
+            count += w.write(b" ")?;
         }
-        count += try!(w.write(b"\""));
+        count += w.write(b"\"")?;
         if let Some(ref cfws) = self.post_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
         Ok(count)
     }
@@ -544,7 +543,7 @@ impl Streamable for Phrase {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         for word in &self.0 {
-            count += try!(word.stream(w));
+            count += word.stream(w)?;
         }
         Ok(count)
     }
@@ -590,16 +589,16 @@ impl Parsable for Unstructured {
 impl Streamable for Unstructured {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        if self.leading_ws { count += try!(w.write(b" ")); }
+        if self.leading_ws { count += w.write(b" ")?; }
         let mut first: bool = true;
         for vc in &self.parts {
             if !first {
-                count += try!(w.write(b" "));
+                count += w.write(b" ")?;
             }
-            count += try!(vc.stream(w));
+            count += vc.stream(w)?;
             first = false;
         }
-        if self.trailing_ws { count += try!(w.write(b" ")); }
+        if self.trailing_ws { count += w.write(b" ")?; }
         Ok(count)
     }
 }
@@ -685,16 +684,16 @@ impl Streamable for DomainLiteral {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref cfws) = self.pre_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
-        count += try!(w.write(b"["));
+        count += w.write(b"[")?;
         for &(ws, ref dt) in &self.dtext {
-            if ws {  count += try!(w.write(b" ")); }
-            count += try!(dt.stream(w));
+            if ws {  count += w.write(b" ")?; }
+            count += dt.stream(w)?;
         }
-        count += try!(w.write(b"]"));
+        count += w.write(b"]")?;
         if let Some(ref cfws) = self.post_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
         Ok(count)
     }
@@ -757,9 +756,9 @@ impl Parsable for AddrSpec {
 }
 impl Streamable for AddrSpec {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(self.local_part.stream(w))
-           + try!(w.write(b"@"))
-           + try!(self.domain.stream(w)))
+        Ok(self.local_part.stream(w)?
+           + w.write(b"@")?
+           + self.domain.stream(w)?)
     }
 }
 impl_display!(AddrSpec);
@@ -795,13 +794,13 @@ impl Streamable for AngleAddr {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref cfws) = self.pre_cfws {
-            count += try!(cfws.stream(w))
+            count += cfws.stream(w)?
         }
-        count += try!(w.write(b"<"));
-        count += try!(self.addr_spec.stream(w));
-        count += try!(w.write(b">"));
+        count += w.write(b"<")?;
+        count += self.addr_spec.stream(w)?;
+        count += w.write(b">")?;
         if let Some(ref cfws) = self.post_cfws {
-            count += try!(cfws.stream(w))
+            count += cfws.stream(w)?
         }
         Ok(count)
     }
@@ -849,9 +848,9 @@ impl Streamable for NameAddr {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if self.display_name.is_some() {
-            count += try!(self.display_name.as_ref().unwrap().stream(w));
+            count += self.display_name.as_ref().unwrap().stream(w)?;
         }
-        count += try!(self.angle_addr.stream(w));
+        count += self.angle_addr.stream(w)?;
         Ok(count)
     }
 }
@@ -920,9 +919,9 @@ impl Streamable for MailboxList {
         let mut virgin: bool = true;
         for mb in &self.0 {
             if ! virgin {
-                count += try!(w.write(b","));
+                count += w.write(b",")?;
             }
-            count += try!(mb.stream(w));
+            count += mb.stream(w)?;
             virgin = false;
         }
         Ok(count)
@@ -990,14 +989,14 @@ impl Parsable for Group {
 impl Streamable for Group {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
-        count += try!(self.display_name.stream(w));
-        count += try!(w.write(b":"));
+        count += self.display_name.stream(w)?;
+        count += w.write(b":")?;
         if let Some(ref gl) = self.group_list {
-            count += try!(gl.stream(w));
+            count += gl.stream(w)?;
         }
-        count += try!(w.write(b";"));
+        count += w.write(b";")?;
         if let Some(ref cfws) = self.cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
         Ok(count)
     }
@@ -1067,9 +1066,9 @@ impl Streamable for AddressList {
         let mut virgin: bool = true;
         for a in &self.0 {
             if ! virgin {
-                count += try!(w.write(b","));
+                count += w.write(b",")?;
             }
-            count += try!(a.stream(w));
+            count += a.stream(w)?;
             virgin = false;
         }
         Ok(count)
@@ -1106,13 +1105,13 @@ impl Parsable for Zone {
 impl Streamable for Zone {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let v = if self.0 < 0 {
-            try!(w.write(b" -"));
+            w.write(b" -")?;
             -self.0
         } else {
-            try!(w.write(b" +"));
+            w.write(b" +")?;
             self.0
         };
-        try!(write!(w, "{:04}", v));
+        write!(w, "{:04}", v)?;
         Ok(6)
     }
 }
@@ -1135,7 +1134,7 @@ impl Parsable for Second {
 }
 impl Streamable for Second {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        try!(write!(w, "{:02}", self.0));
+        write!(w, "{:02}", self.0)?;
         Ok(2)
     }
 }
@@ -1158,7 +1157,7 @@ impl Parsable for Minute {
 }
 impl Streamable for Minute {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        try!(write!(w, "{:02}", self.0));
+        write!(w, "{:02}", self.0)?;
         Ok(2)
     }
 }
@@ -1181,7 +1180,7 @@ impl Parsable for Hour {
 }
 impl Streamable for Hour {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        try!(write!(w, "{:02}", self.0));
+        write!(w, "{:02}", self.0)?;
         Ok(2)
     }
 }
@@ -1226,11 +1225,11 @@ impl Parsable for TimeOfDay {
 impl Streamable for TimeOfDay {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         if self.second.is_some() {
-            try!(write!(w, "{:02}:{:02}:{:02}", self.hour.0, self.minute.0,
-                        self.second.as_ref().unwrap().0));
+            write!(w, "{:02}:{:02}:{:02}", self.hour.0, self.minute.0,
+                   self.second.as_ref().unwrap().0)?;
             Ok(8)
         } else {
-            try!(write!(w, "{:02}:{:02}", self.hour.0, self.minute.0));
+            write!(w, "{:02}:{:02}", self.hour.0, self.minute.0)?;
             Ok(5)
         }
     }
@@ -1261,8 +1260,7 @@ impl Parsable for Time {
 }
 impl Streamable for Time {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(self.time_of_day.stream(w))
-           + try!(self.zone.stream(w)))
+        Ok(self.time_of_day.stream(w)? + self.zone.stream(w)?)
     }
 }
 impl_display!(Time);
@@ -1293,7 +1291,7 @@ impl Parsable for Year {
 }
 impl Streamable for Year {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        try!(write!(w, " {:04} ", self.0));
+        write!(w, " {:04} ", self.0)?;
         Ok(6)
     }
 }
@@ -1329,18 +1327,18 @@ impl Parsable for Month {
 impl Streamable for Month {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         match self.0 {
-            1 => Ok(try!(w.write(b"Jan"))),
-            2 => Ok(try!(w.write(b"Feb"))),
-            3 => Ok(try!(w.write(b"Mar"))),
-            4 => Ok(try!(w.write(b"Apr"))),
-            5 => Ok(try!(w.write(b"May"))),
-            6 => Ok(try!(w.write(b"Jun"))),
-            7 => Ok(try!(w.write(b"Jul"))),
-            8 => Ok(try!(w.write(b"Aug"))),
-            9 => Ok(try!(w.write(b"Sep"))),
-            10 => Ok(try!(w.write(b"Oct"))),
-            11 => Ok(try!(w.write(b"Nov"))),
-            12 => Ok(try!(w.write(b"Dec"))),
+            1 => Ok(w.write(b"Jan")?),
+            2 => Ok(w.write(b"Feb")?),
+            3 => Ok(w.write(b"Mar")?),
+            4 => Ok(w.write(b"Apr")?),
+            5 => Ok(w.write(b"May")?),
+            6 => Ok(w.write(b"Jun")?),
+            7 => Ok(w.write(b"Jul")?),
+            8 => Ok(w.write(b"Aug")?),
+            9 => Ok(w.write(b"Sep")?),
+            10 => Ok(w.write(b"Oct")?),
+            11 => Ok(w.write(b"Nov")?),
+            12 => Ok(w.write(b"Dec")?),
             _ => Err(IoError::new(::std::io::ErrorKind::InvalidData, "Month out of range"))
         }
     }
@@ -1375,7 +1373,7 @@ impl Parsable for Day {
 }
 impl Streamable for Day {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        try!(write!(w, " {} ", self.0));
+        write!(w, " {} ", self.0)?;
         Ok(4)
     }
 }
@@ -1409,9 +1407,9 @@ impl Parsable for Date {
 }
 impl Streamable for Date {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(self.day.stream(w))
-           + try!(self.month.stream(w))
-           + try!(self.year.stream(w)))
+        Ok(self.day.stream(w)?
+           + self.month.stream(w)?
+           + self.year.stream(w)?)
     }
 }
 impl_display!(Date);
@@ -1440,13 +1438,13 @@ impl Parsable for DayName {
 impl Streamable for DayName {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         match self.0 {
-            1 => Ok(try!(w.write(b"Sun"))),
-            2 => Ok(try!(w.write(b"Mon"))),
-            3 => Ok(try!(w.write(b"Tue"))),
-            4 => Ok(try!(w.write(b"Wed"))),
-            5 => Ok(try!(w.write(b"Thu"))),
-            6 => Ok(try!(w.write(b"Fri"))),
-            7 => Ok(try!(w.write(b"Sat"))),
+            1 => Ok(w.write(b"Sun")?),
+            2 => Ok(w.write(b"Mon")?),
+            3 => Ok(w.write(b"Tue")?),
+            4 => Ok(w.write(b"Wed")?),
+            5 => Ok(w.write(b"Thu")?),
+            6 => Ok(w.write(b"Fri")?),
+            7 => Ok(w.write(b"Sat")?),
             _ => Err(IoError::new(::std::io::ErrorKind::InvalidData, "Day out of range"))
         }
     }
@@ -1479,9 +1477,9 @@ impl Streamable for DayOfWeek {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref fws) = self.pre_fws {
-            count += try!(fws.stream(w));
+            count += fws.stream(w)?;
         }
-        count += try!(self.day_name.stream(w));
+        count += self.day_name.stream(w)?;
         Ok(count)
     }
 }
@@ -1527,13 +1525,13 @@ impl Streamable for DateTime {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref dow) = self.day_of_week {
-            count += try!(dow.stream(w));
-            count += try!(w.write(b","));
+            count += dow.stream(w)?;
+            count += w.write(b",")?;
         }
-        count += try!(self.date.stream(w));
-        count += try!(self.time.stream(w));
+        count += self.date.stream(w)?;
+        count += self.time.stream(w)?;
         if let Some(ref cfws) = self.post_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
         Ok(count)
     }
@@ -1558,9 +1556,9 @@ impl Parsable for NoFoldLiteral {
 }
 impl Streamable for NoFoldLiteral {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(w.write(b"["))
-           + try!(self.0.stream(w))
-           + try!(w.write(b"]")))
+        Ok(w.write(b"[")?
+           + self.0.stream(w)?
+           + w.write(b"]")?)
     }
 }
 impl_display!(NoFoldLiteral);
@@ -1612,7 +1610,7 @@ impl Parsable for IdLeft {
 }
 impl Streamable for IdLeft {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
-        Ok(try!(self.0.stream(w)))
+        Ok(self.0.stream(w)?)
     }
 }
 impl_display!(IdLeft);
@@ -1655,15 +1653,15 @@ impl Streamable for MsgId {
     fn stream<W: Write>(&self, w: &mut W) -> Result<usize, IoError> {
         let mut count: usize = 0;
         if let Some(ref cfws) = self.pre_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
-        count += try!(w.write(b"<"));
-        count += try!(self.id_left.stream(w));
-        count += try!(w.write(b"@"));
-        count += try!(self.id_right.stream(w));
-        count += try!(w.write(b">"));
+        count += w.write(b"<")?;
+        count += self.id_left.stream(w)?;
+        count += w.write(b"@")?;
+        count += self.id_right.stream(w)?;
+        count += w.write(b">")?;
         if let Some(ref cfws) = self.post_cfws {
-            count += try!(cfws.stream(w));
+            count += cfws.stream(w)?;
         }
         Ok(count)
     }
@@ -1739,15 +1737,15 @@ impl Streamable for Path {
             Path::Other(ref c1, ref c2, ref c3) => {
                 let mut count: usize = 0;
                 if let &Some(ref c) = c1 {
-                    count += try!(c.stream(w));
+                    count += c.stream(w)?;
                 }
-                count += try!(w.write(b"<"));
+                count += w.write(b"<")?;
                 if let &Some(ref c) = c2 {
-                    count += try!(c.stream(w));
+                    count += c.stream(w)?;
                 }
-                count += try!(w.write(b">"));
+                count += w.write(b">")?;
                 if let &Some(ref c) = c3 {
-                    count += try!(c.stream(w));
+                    count += c.stream(w)?;
                 }
                 Ok(count)
             }

@@ -66,7 +66,7 @@ impl StdError for ParseError {
         }
     }
 
-    fn cause(&self) -> Option<&StdError>
+    fn cause(&self) -> Option<&dyn StdError>
     {
         match *self {
             ParseError::Io(ref e) => Some(e),

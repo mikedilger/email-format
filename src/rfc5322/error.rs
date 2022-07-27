@@ -20,24 +20,16 @@ impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
     {
         match *self {
-            ParseError::Eof(ref field) => write!(f, "{} while looking for \"{}\"",
-                                                 self.description(), field),
-            ParseError::NotFound(ref token) => write!(f, "\"{}\" {}",
-                                                      token, self.description()),
-            ParseError::Expected(ref bytes) => write!(f, "{}. Expected \"{:?}\"",
-                                                      self.description(), bytes),
-            ParseError::ExpectedType(ref t) => write!(f, "{}. Expected {}",
-                                                      self.description(), t),
-            ParseError::Io(ref e) => write!(f, "{}: {}",
-                                            self.description(), e),
-            ParseError::InvalidBodyChar(ref c) => write!(f, "{}: {} is not 7-bit ASCII",
-                                                         self.description(), c),
+            ParseError::Eof(ref field) => write!(f, "End of File while looking for \"{}\"", field),
+            ParseError::NotFound(ref token) => write!(f, "\"{}\" Not Found", token),
+            ParseError::Expected(ref bytes) => write!(f, "Expectation Failed. Expected \"{:?}\"", bytes),
+            ParseError::ExpectedType(ref t) => write!(f, "Expectation Failed. Expected {}", t),
+            ParseError::Io(ref e) => write!(f, "I/O Error: {}", e),
+            ParseError::InvalidBodyChar(ref c) => write!(f, "Invalid Body Character: {} is not 7-bit ASCII", c),
             ParseError::LineTooLong(ref l) => write!(f, "Line {} is too long", l),
-            ParseError::TrailingInput(ref field, ref c) => write!(
-                f, "Trailing input at byte {} in {}", c, field),
-            ParseError::Parse(ref field, ref inner) => write!(
-                f, "{} {}: {}", self.description(), field, inner),
-            _ => write!(f, "{}", self.description()),
+            ParseError::TrailingInput(ref field, ref c) => write!(f, "Trailing input at byte {} in {}", c, field),
+            ParseError::InternalError => write!(f, "Internal error"),
+            ParseError::Parse(ref field, ref inner) => write!(f, "Unable to parse {}: {}", field, inner),
         }
     }
 }
@@ -49,29 +41,4 @@ impl fmt::Debug for ParseError {
     }
 }
 
-impl StdError for ParseError {
-    fn description(&self) -> &str
-    {
-        match *self {
-            ParseError::Eof(_) => "End of File",
-            ParseError::NotFound(_) => "Not Found",
-            ParseError::Expected(_) => "Expectation Failed",
-            ParseError::ExpectedType(_) => "Expectation Failed",
-            ParseError::Io(_) => "I/O Error",
-            ParseError::InvalidBodyChar(_) => "Invalid Body Character",
-            ParseError::LineTooLong(_) => "Line too long",
-            ParseError::TrailingInput(_,_) => "Trailing input",
-            ParseError::InternalError => "Internal error",
-            ParseError::Parse(_,_) => "Unable to parse",
-        }
-    }
-
-    fn cause(&self) -> Option<&dyn StdError>
-    {
-        match *self {
-            ParseError::Io(ref e) => Some(e),
-            ParseError::Parse(_, ref e) => Some(e),
-            _ => None,
-        }
-    }
-}
+impl StdError for ParseError { }
